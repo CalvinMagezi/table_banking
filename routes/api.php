@@ -16,3 +16,25 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+Route::namespace('Api')->prefix('v1')->group(function () {
+
+    Route::resource('users', 'UserController', ['except' => ['create', 'edit']]);
+
+});
+
+
+
+/*
+//Route::group(array('prefix' => '/v1', 'middleware'=>'auth:api'), function () {
+Route::group(array('prefix' => '/v1'), function () {
+
+    //Route::post('/logout', 'Api\Auth\LoginController@logout');
+
+    Route::resource('users', 'Api\UserController', ['except' => ['create', 'edit']]);
+
+    Route::get('/me', 'Api\UserController@me');
+
+
+});*/
