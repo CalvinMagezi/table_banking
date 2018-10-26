@@ -5,7 +5,6 @@ namespace App\SmartMicro\Repositories\Eloquent;
 
 
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 
 /**
@@ -15,39 +14,6 @@ use Illuminate\Pagination\Paginator;
 abstract class BaseRepository {
 
     protected $orderBy  = array('created_at', 'desc'), $model, $transformer;
-
-    /**
-     * Get the first record
-     * @return mixed
-     */
-    public function getFirst()
-    {
-        return $this->model->first();
-    }
-
-    /**
-     * Fetch a collection
-     * @param array $load
-     * @return mixed
-     */
-    public function getAll($load = array())
-    {
-        $limit = \Request::input('limit') ?: 10;
-
-        //sort
-        $sortDirection = \Request::input('sort_direction') ?: 'ASC';
-
-        if( null!=$this->transformer )
-            $sortProperty = $this->transformer->reverse(\Request::input('sort_property'));
-
-        if(isset($sortProperty) && $sortProperty != false)
-        {
-            $data = $this->model->with($load)->orderBy($sortProperty, $sortDirection)->paginate($limit);
-        }else
-            $data = $this->model->with($load)->paginate($limit);
-
-        return $data;
-    }
 
 
     /**
@@ -67,6 +33,27 @@ abstract class BaseRepository {
         return $this->model->find($uuid);
 
     }
+
+     /**
+     * @return mixed
+     */
+    public function getAllPaginate(){
+        return $this->model->paginate();
+    }
+
+
+
+    /**
+     * Get the first record
+     * @return mixed
+     */
+    public function getFirst()
+    {
+        return $this->model->first();
+    }
+
+
+
 
     /**
      * Fetch multiple specified orders
@@ -200,20 +187,19 @@ abstract class BaseRepository {
     }
 
 
-
     /**
-     * Create a new item
      * @param array $data
-     * @return bool
+     * @return array
      */
-
     public function create(array $data)
     {
+
         if(null === $data)
             return [
                 'error' => true,
                 'message' => "No data was found"
             ];
+        //return $data;
 
         try{
             $record = $this->model->create($data);
@@ -221,6 +207,11 @@ abstract class BaseRepository {
             return [
                 'error' => true,
                 'message' => $e->getMessage()
+            ];
+        }catch (\Exception $exception){
+            return [
+                'error' => true,
+                'message' => $exception->getMessage()
             ];
         }
 
@@ -250,10 +241,9 @@ abstract class BaseRepository {
     }
 
     /**
-     * Edit an existing item.
      * @param array $data
      * @param $uuid
-     * @return bool
+     * @return array
      */
     public function update(array $data, $uuid)
     {

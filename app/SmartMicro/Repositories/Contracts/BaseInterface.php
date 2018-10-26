@@ -11,18 +11,21 @@ namespace  App\SmartMicro\Repositories\Contracts;
 interface BaseInterface {
 
     /**
-     * Fetch a collection of records for a given entity
-     * @param array $load
-     * @return mixed
-     */
-    function getAll($load = array());
-
-    /**
      * Fetch a single item by its id
      * @param $id
      * @return mixed
      */
     function getById($id);
+
+
+    /**
+     * @return mixed
+     */
+    function getAllPaginate();
+
+
+
+
 
     /**
      * Fetch multiple specified orders
