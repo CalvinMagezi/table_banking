@@ -21,7 +21,6 @@ class CreateLoanTypesTable extends Migration
             $table->string('max_loan_period');
             $table->string('status')->nullable();
 
-            $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
         });

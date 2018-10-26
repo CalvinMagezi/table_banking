@@ -39,7 +39,6 @@ class CreateClientsTable extends Migration
             $table->string('members_status');
             $table->string('passport_photo')->nullable();
 
-            $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
         });

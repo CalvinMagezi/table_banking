@@ -30,7 +30,6 @@ class CreateLoansTable extends Migration
             $table->string('loan_status')->nullable();
             $table->string('application_id')->unique();
 
-            $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
         });

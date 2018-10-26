@@ -28,7 +28,6 @@ class CreateLoanApplicationsTable extends Migration
             $table->string('date_approved');
             $table->string('loan_status');
 
-            $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
         });
