@@ -1,20 +1,13 @@
 <?php
 
+
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 
-class UserRequest extends FormRequest
+use Illuminate\Validation\Rule;
+
+class UserRequest extends BaseRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return false;
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -23,8 +16,48 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
-        ];
+
+        $rules = [];
+
+        switch($this->method())
+        {
+            case 'GET':
+            case 'DELETE':
+                {
+                    return [];
+                    break;
+                }
+            case 'POST':
+                {
+                    $rules = [
+                        'first_name'            => 'required|min:2',
+                        'email'                 => 'required|unique:users,email,NULL,uuid,deleted_at,NULL',
+                        'password'              => 'required|min:3|confirmed',
+                        'password_confirmation' => 'required_with:password'
+                    ];
+
+                    break;
+                }
+            case 'PUT':
+            case 'PATCH':
+                {
+                    $rules = [
+                        'name'              => 'min:2',
+                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'uuid')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
+
+                        'password'              => 'min:3|confirmed',
+                        'password_confirmation' => 'required_with:password'
+
+                    ];
+                    break;
+                }
+            default:break;
+        }
+
+        return $rules;
+
     }
 }
