@@ -9,10 +9,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\UserRequest;
-use App\Models\User;
+use App\Http\Resources\UserResource;
 use App\SmartMicro\Repositories\Contracts\UserInterface;
-
-//use App\SmartMicro\Transformers\UserTransformer;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,16 +20,15 @@ class UserController  extends ApiController
     /**
      * @var \App\SmartMicro\Repositories\Contracts\UserInterface
      */
-    protected $userRepository, $userTransformer;
+    protected $userRepository;
 
     /**
-     * @param UserInterface $userRepository
-     * @param UserTransformer $userTransformer
+     * UserController constructor.
+     * @param UserInterface $userInterface
      */
-    public function __construct()
+    public function __construct(UserInterface $userInterface)
     {
-        //$this->userRepository   = $userRepository;
-       // $this->userTransformer  = $userTransformer;
+        $this->userRepository   = $userInterface;
     }
 
     /**
@@ -41,23 +38,9 @@ class UserController  extends ApiController
      */
     public function index(Request $request)
     {
+       $data = UserResource::collection($this->userRepository->getAllPaginate());
 
-
-        return User::all();
-
-        $filteredData = $this->doFilter($request, $this->userRepository, $this->userTransformer);
-
-        if($filteredData){
-            return $filteredData;
-        }
-
-        $load = ['role', 'properties', 'bookings'];
-
-        $data = $this->userRepository->getAll($load);
-
-        return $this->respondWithPagination($data, [
-            'data' => $this->userTransformer->transformCollection($data->all())
-        ]);
+        return $this->respondWithData($data);
     }
 
     /**
@@ -66,24 +49,11 @@ class UserController  extends ApiController
      */
     public function store(UserRequest $request)
     {
-        $data = $request->all();
-
-        if( ! array_key_exists('password', $data )){
-            $hashed_random_password = str_random(8);
-            $data['password'] = $hashed_random_password;
-        }
-
-        $save = $this->userRepository->create($data);
+        $save = $this->userRepository->create($request->all());
 
         if($save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
-
-            $user = $this->userRepository->getWhere('uuid', $save['message']['uuid']);
-
-            if( null != $user )
-                event(new UserCreated($user));
-
             return $this->respondWithSuccess('Success !! User has been created.');
 
         }
@@ -102,10 +72,8 @@ class UserController  extends ApiController
         {
             return $this->respondNotFound('User not found.');
         }
+        return $this->respondWithData(new UserResource($user));
 
-        return $this->respond([
-            'data' => $this->userTransformer->transform($user)
-        ]);
     }
 
     /**
@@ -138,26 +106,13 @@ class UserController  extends ApiController
     }
 
     /**
-     * JSON POST data is provided
-     * @param Request $request
-     * @return mixed
-     */
-    public function search(Request $request)
-    {
-        return $this->generalSearch($request, $this->userRepository, $this->userTransformer);
-
-    }
-
-    /**
      * @return mixed
      */
     public function me()
     {
         $user = Auth::user();
         if(isset($user))
-            return $this->respond([
-                'data' => $this->userTransformer->transform($user)
-            ]);
+            return $user;
         return $this->respondNotFound();
     }
 }
