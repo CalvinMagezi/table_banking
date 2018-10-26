@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Laravel\Passport\HasApiTokens;
 
 class User extends BaseModel implements
     AuthenticatableContract,
@@ -18,8 +19,7 @@ class User extends BaseModel implements
     CanResetPasswordContract
 
 {
-    //use HasApiTokens, Notifiable,  Authenticatable, Authorizable, CanResetPassword;
-    use Notifiable,  Authenticatable, Authorizable, CanResetPassword;
+    use HasApiTokens, Notifiable,  Authenticatable, Authorizable, CanResetPassword;
 
     /**
      * The database table used by the model.
