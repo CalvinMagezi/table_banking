@@ -13,7 +13,6 @@ use App\Http\Resources\LoanTypeResource;
 use App\SmartMicro\Repositories\Contracts\LoanTypeInterface;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LoanTypeController  extends ApiController
 {
@@ -103,16 +102,5 @@ class LoanTypeController  extends ApiController
             return $this->respondWithSuccess('Success !! LoanType has been deleted');
         }
         return $this->respondNotFound('LoanType not deleted');
-    }
-
-    /**
-     * @return mixed
-     */
-    public function me()
-    {
-        $loanType = Auth::loanType();
-        if(isset($loanType))
-            return $loanType;
-        return $this->respondNotFound();
     }
 }

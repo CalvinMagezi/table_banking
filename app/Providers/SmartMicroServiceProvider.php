@@ -21,7 +21,8 @@ class SmartMicroServiceProvider extends ServiceProvider {
         'User',
         'Client',
         'Loan',
-        'LoanType'
+        'LoanType',
+        'LoanApplication'
     ];
 
     /**

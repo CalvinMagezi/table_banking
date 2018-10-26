@@ -13,7 +13,6 @@ use App\Http\Resources\ClientResource;
 use App\SmartMicro\Repositories\Contracts\ClientInterface;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ClientController  extends ApiController
 {
@@ -103,16 +102,5 @@ class ClientController  extends ApiController
             return $this->respondWithSuccess('Success !! Client has been deleted');
         }
         return $this->respondNotFound('Client not deleted');
-    }
-
-    /**
-     * @return mixed
-     */
-    public function me()
-    {
-        $client = Auth::client();
-        if(isset($client))
-            return $client;
-        return $this->respondNotFound();
     }
 }
