@@ -17,6 +17,9 @@ class CreateUsersTable extends Migration
             $table->engine = 'InnoDB';
             $table->string('uuid', 36)->primary()->unique();
 
+            $table->uuid('role_id', 36);
+
+
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();

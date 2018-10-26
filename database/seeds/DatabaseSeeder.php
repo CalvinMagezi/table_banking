@@ -14,8 +14,8 @@ class DatabaseSeeder extends Seeder
 
 
     protected $seeders = [
-        //'database\seeds\PermissionSeeder',
-        //'database\seeds\RoleSeeder',
+        'database\seeds\PermissionSeeder',
+        'database\seeds\RoleSeeder',
         'database\seeds\UsersTableSeeder',
     ];
 

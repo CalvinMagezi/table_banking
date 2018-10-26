@@ -8,6 +8,7 @@
 
 namespace database\seeds;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,8 @@ class UsersTableSeeder extends Seeder
 
         User::create([
             'first_name' => 'Devtest',
+            'role_id' => Role::inRandomOrder()->select('uuid')->first()['uuid'],
+
             'last_name' => 'Devtest Last',
             'email' => 'devtest@devtest.com',
             'password' => 'devtest',
@@ -32,6 +35,8 @@ class UsersTableSeeder extends Seeder
 
         User::create([
             'first_name' => 'Devtest10 ',
+            'role_id' => Role::inRandomOrder()->select('uuid')->first()['uuid'],
+
             'last_name' => 'Devtest10 Last',
             'email' => 'devtest10@devtest.com',
             'password' => 'devtest',
@@ -39,6 +44,8 @@ class UsersTableSeeder extends Seeder
 
         User::create([
             'first_name' => 'Devtest20 ',
+            'role_id' => Role::inRandomOrder()->select('uuid')->first()['uuid'],
+
             'last_name' => 'Devtest20 Last',
             'email' => 'devtest20@devtest.com',
             'password' => 'devtest',
