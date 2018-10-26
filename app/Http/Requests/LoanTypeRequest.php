@@ -34,10 +34,9 @@ class LoanTypeRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'first_name'            => 'required|min:2',
-                        'email'                 => 'required|unique:users,email,NULL,uuid,deleted_at,NULL',
-                        'password'              => 'required|min:3|confirmed',
-                        'password_confirmation' => 'required_with:password'
+                        'loan_type_name'    => 'required',
+                        'max_loan_period'   => 'required',
+                        'status'            => 'required',
                     ];
 
                     break;

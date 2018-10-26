@@ -22,6 +22,9 @@ class LoanTypeResource extends JsonResource
     {
         return [
             'uuid'              => $this->uuid,
+            'loan_type_name'    => $this->loan_type_name,
+            'max_loan_period'   => $this->max_loan_period,
+            'status'            => $this->status,
 
             'created_at'        => $this->created_at,
             'updated_at'        => $this->updated_at,
