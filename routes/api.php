@@ -23,6 +23,7 @@ Route::namespace('Api')->prefix('v1')->group(function () {
     Route::resource('users', 'UserController', ['except' => ['create', 'edit']]);
     Route::resource('clients', 'ClientController', ['except' => ['create', 'edit']]);
     Route::resource('loans', 'LoanController', ['except' => ['create', 'edit']]);
+    Route::resource('loan_types', 'LoanTypeController', ['except' => ['create', 'edit']]);
 
 });
 
