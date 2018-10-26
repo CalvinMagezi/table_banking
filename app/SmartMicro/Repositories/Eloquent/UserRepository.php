@@ -13,7 +13,7 @@ use App\SmartMicro\Repositories\Contracts\UserInterface;
 
 class UserRepository extends BaseRepository implements UserInterface {
 
-    protected $model, $transformer, $roleRepository;
+    protected $model;
 
     /**
      * UserRepository constructor.

@@ -21,6 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::namespace('Api')->prefix('v1')->group(function () {
 
     Route::resource('users', 'UserController', ['except' => ['create', 'edit']]);
+    Route::resource('clients', 'ClientController', ['except' => ['create', 'edit']]);
 
 });
 

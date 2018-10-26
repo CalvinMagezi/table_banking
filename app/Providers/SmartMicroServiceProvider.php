@@ -18,7 +18,8 @@ class SmartMicroServiceProvider extends ServiceProvider {
      * @var array
      */
     protected $repositories = [
-        'User'
+        'User',
+        'Client'
     ];
 
     /**
