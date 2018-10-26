@@ -30,6 +30,13 @@ class LoanApplication extends BaseModel
      * @var array
      */
     protected $fillable = [
-
+        'member_id',
+        'reviewed_by_user_id',
+        'approved_by_user_id',
+        'application_date',
+        'amount_applied',
+        'repayment_period',
+        'date_approved',
+        'loan_status_id'
     ];
 }

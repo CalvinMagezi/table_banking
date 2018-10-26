@@ -26,7 +26,7 @@ class CreateLoanApplicationsTable extends Migration
             $table->string('amount_applied');
             $table->string('repayment_period');
             $table->string('date_approved');
-            $table->string('loan_status');
+            $table->string('loan_status_id', 36);
 
             $table->softDeletes();
             $table->timestamps();
