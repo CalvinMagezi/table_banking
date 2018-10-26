@@ -29,6 +29,6 @@ class LoanStatus extends BaseModel
      * @var array
      */
     protected $fillable = [
-
+            'loan_status_name'
     ];
 }

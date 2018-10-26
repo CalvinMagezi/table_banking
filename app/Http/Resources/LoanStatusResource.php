@@ -22,6 +22,7 @@ class LoanStatusResource extends JsonResource
     {
         return [
             'uuid'              => $this->uuid,
+            'loan_status_name'  => $this->loan_status_name,
 
             'created_at'        => $this->created_at,
             'updated_at'        => $this->updated_at,

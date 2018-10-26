@@ -35,10 +35,7 @@ class LoanStatusRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'first_name'            => 'required|min:2',
-                        'email'                 => 'required|unique:users,email,NULL,uuid,deleted_at,NULL',
-                        'password'              => 'required|min:3|confirmed',
-                        'password_confirmation' => 'required_with:password'
+                        'loan_status_name'  => 'required|unique:loan_statuses,loan_status_name,NULL,uuid,deleted_at,NULL'
                     ];
 
                     break;
@@ -47,15 +44,10 @@ class LoanStatusRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'              => 'min:2',
-                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'uuid')
+                        'loan_status_name'             => ['loan_status_name', Rule::unique('loan_statuses')->ignore($this->user, 'uuid')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
-
-                        'password'              => 'min:3|confirmed',
-                        'password_confirmation' => 'required_with:password'
-
                     ];
                     break;
                 }
