@@ -19,14 +19,15 @@ class SmartMicroServiceProvider extends ServiceProvider {
      */
     protected $repositories = [
         'User',
-        'Client',
+        'Borrower',
         'Loan',
         'LoanType',
         'LoanApplication',
         'LoanStatus',
         'Branch',
         'Role',
-        'Permission'
+        'Permission',
+        'Employee'
     ];
 
     /**

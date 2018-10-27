@@ -8,6 +8,7 @@
 
 namespace database\seeds;
 
+use App\Models\Employee;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -25,28 +26,22 @@ class UsersTableSeeder extends Seeder
         DB::table('users')->delete();
 
         User::create([
-            'first_name' => 'Devtest',
             'role_id' => Role::inRandomOrder()->select('uuid')->first()['uuid'],
-
-            'last_name' => 'Devtest Last',
+            'employee_id' => Employee::inRandomOrder()->select('uuid')->first()['uuid'],
             'email' => 'devtest@devtest.com',
             'password' => 'devtest',
         ]);
 
         User::create([
-            'first_name' => 'Devtest10 ',
             'role_id' => Role::inRandomOrder()->select('uuid')->first()['uuid'],
-
-            'last_name' => 'Devtest10 Last',
+            'employee_id' => Employee::inRandomOrder()->select('uuid')->first()['uuid'],
             'email' => 'devtest10@devtest.com',
             'password' => 'devtest',
         ]);
 
         User::create([
-            'first_name' => 'Devtest20 ',
             'role_id' => Role::inRandomOrder()->select('uuid')->first()['uuid'],
-
-            'last_name' => 'Devtest20 Last',
+            'employee_id' => Employee::inRandomOrder()->select('uuid')->first()['uuid'],
             'email' => 'devtest20@devtest.com',
             'password' => 'devtest',
         ]);
