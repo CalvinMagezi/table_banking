@@ -18,7 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('uuid', 36)->primary()->unique();
 
             $table->uuid('role_id', 36);
-            $table->uuid('employee_id', 36)->unique();
+            $table->uuid('employee_id', 36)->nullable(); //TODO should be unique...testing only
 
             $table->string('email')->unique();
             $table->string('password', 60);

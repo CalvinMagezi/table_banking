@@ -164,7 +164,10 @@ return [
         /*
         * Custom providers
         */
-        App\Providers\SmartMicroServiceProvider::class
+        App\Providers\SmartMicroServiceProvider::class,
+
+        Optimus\ApiConsumer\Provider\LaravelServiceProvider::class,
+
     ],
 
     /*

@@ -8,10 +8,10 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\JsonEncodingException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Laravel\Passport\Exceptions\MissingScopeException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -33,9 +33,9 @@ class Handler extends ExceptionHandler
      * Report or log an exception.
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
-     *
-     * @param  \Exception  $exception
-     * @return void
+     * @param Exception $exception
+     * @return mixed|void
+     * @throws Exception
      */
     public function report(Exception $exception)
     {
@@ -135,17 +135,6 @@ class Handler extends ExceptionHandler
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        /*   if ($request->expectsJson()) {
-             //  return response()->json(['error' => 'Unauthenticated.'], 401);
-
-               return response()->json( [
-                   'error' => [
-                       'error'         => true,
-                       'message'       => 'Unauthenticated..',
-                       'status_code'   => 401
-                   ]], 401);
-           }*/
-
         return response()->json( [
             'error' => [
                 'error'         => true,
@@ -153,6 +142,5 @@ class Handler extends ExceptionHandler
                 'status_code'   => 401
             ]], 401);
 
-        // return redirect()->guest(route('login'));
     }
 }

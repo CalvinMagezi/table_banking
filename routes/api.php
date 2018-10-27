@@ -17,7 +17,17 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+/**
+ * Routes to obtain access_token and manage token refresh
+ */
+Route::group(array('prefix' => '/v1'), function () {
 
+    Route::post('/login', 'Api\Oauth\LoginController@login');
+    Route::post('/login/refresh', 'Api\Oauth\LoginController@refresh');
+
+});
+
+//Route::namespace('Api')->prefix('v1')->middleware('auth:api')->group(function () {
 Route::namespace('Api')->prefix('v1')->group(function () {
 
     Route::resource('users', 'UserController', ['except' => ['create', 'edit']]);
