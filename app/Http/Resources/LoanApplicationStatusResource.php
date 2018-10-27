@@ -23,8 +23,7 @@ class LoanApplicationStatusResource extends JsonResource
         return [
             'uuid'                                  => $this->uuid,
             'loan_application_status_name'          => $this->loan_application_status_name,
-            'loan_application_status_description'   => $this->middle_name,
-
+            'loan_application_status_description'   => $this->loan_application_status_description,
             'created_at'                            => $this->created_at,
             'updated_at'                            => $this->updated_at,
         ];
