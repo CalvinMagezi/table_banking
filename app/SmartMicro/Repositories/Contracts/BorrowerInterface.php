@@ -9,7 +9,7 @@
 namespace App\SmartMicro\Repositories\Contracts;
 
 
-interface ClientInterface extends BaseInterface {
+interface BorrowerInterface extends BaseInterface {
 
 
 }

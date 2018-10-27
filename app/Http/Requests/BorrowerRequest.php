@@ -10,7 +10,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Validation\Rule;
 
-class ClientRequest extends BaseRequest
+class BorrowerRequest extends BaseRequest
 {
 
     /**

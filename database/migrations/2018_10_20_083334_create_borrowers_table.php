@@ -13,7 +13,7 @@ class CreateClientsTable extends Migration
      */
     public function up()
     {
-        Schema::create('clients', function (Blueprint $table) {
+        Schema::create('borrowers', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->string('uuid', 36)->primary()->unique();
 
@@ -51,6 +51,6 @@ class CreateClientsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('clients');
+        Schema::dropIfExists('borrowers');
     }
 }

@@ -8,14 +8,14 @@
 
 namespace App\Models;
 
-class Client extends BaseModel
+class Borrower extends BaseModel
 {
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'clients';
+    protected $table = 'borrowers';
 
     /**
      * Main table primary key
