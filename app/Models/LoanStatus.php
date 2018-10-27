@@ -29,6 +29,15 @@ class LoanStatus extends BaseModel
      * @var array
      */
     protected $fillable = [
-            'loan_status_name'
+            'loan_status_name',
+            'loan_status_description'
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
 }

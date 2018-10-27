@@ -18,6 +18,7 @@ class CreateLoanStatusesTable extends Migration
 
             $table->string('uuid', 36)->primary()->unique();
             $table->string('loan_status_name')->unique();
+            $table->string('loan_status_description')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

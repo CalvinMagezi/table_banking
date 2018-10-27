@@ -37,6 +37,45 @@ class LoanApplication extends BaseModel
         'amount_applied',
         'repayment_period',
         'date_approved',
-        'loan_status_id'
+        'loan_application_status_id'
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loanApplicationStatus()
+    {
+        return $this->belongsTo(LoanApplicationStatus::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function reviewUser()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function approveUser()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function loan()
+    {
+        return $this->hasOne(Loan::class);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function member()
+    {
+        return $this->belongsTo(Member::class);
+    }
 }

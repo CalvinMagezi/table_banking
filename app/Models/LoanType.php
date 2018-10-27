@@ -33,4 +33,12 @@ class LoanType extends BaseModel
         'max_loan_period',
         'status'
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
 }

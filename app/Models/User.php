@@ -43,20 +43,12 @@ class User extends BaseModel implements
      * @var array
      */
     protected $fillable = [
-        'first_name',
-        'last_name',
+        'employee_id',
+        'role_id',
         'email',
-        'salutation',
-        'phone',
-        'address',
-        'profile_picture',
         'password',
         'confirmed',
-        'confirmation_code',
-        'country',
-        'state',
-        'postal_code',
-        'city'
+        'confirmation_code'
     ];
 
 
@@ -64,5 +56,43 @@ class User extends BaseModel implements
         'password', 'remember_token', 'confirmation_code'
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loanApprovals()
+    {
+        return $this->hasMany(Loan::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loanApplicationReviews()
+    {
+        return $this->hasMany(LoanApplication::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loanApplicationApprovals()
+    {
+        return $this->hasMany(LoanApplication::class);
+    }
 }

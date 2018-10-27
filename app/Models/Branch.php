@@ -32,4 +32,13 @@ class Branch extends BaseModel
         'branch_name',
         'branch_location'
     ];
+
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
 }

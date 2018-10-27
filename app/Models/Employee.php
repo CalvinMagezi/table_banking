@@ -41,4 +41,12 @@ class Employee extends BaseModel
         'postal_code',
         'city'
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function user()
+    {
+        return $this->hasOne(User::class);
+    }
 }

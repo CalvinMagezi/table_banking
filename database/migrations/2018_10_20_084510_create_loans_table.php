@@ -18,6 +18,8 @@ class CreateLoansTable extends Migration
             $table->string('uuid', 36)->primary()->unique();
 
             $table->string('borrower_id', 36);
+            $table->string('loan_type_id', 36);
+            $table->string('loan_status_id', 36);
             $table->string('loan_application_id', 36)->nullable();
 
             $table->string('branch_id', 36)->nullable();
@@ -29,8 +31,6 @@ class CreateLoansTable extends Migration
             $table->string('amount_received')->nullable();
             $table->string('date_approved')->nullable();
             $table->string('due_date')->nullable();
-
-            $table->string('loan_status_id')->nullable();
 
             $table->string('loan_witness_name')->nullable();
             $table->string('loan_witness_phone')->nullable();

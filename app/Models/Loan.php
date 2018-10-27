@@ -29,15 +29,76 @@ class Loan extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'member_id',
+        'borrower_id',
+        'loan_application_id',
+        'loan_type_id',
+        'loan_status_id',
+        'branch_id',
         'approved_by_user_id',
-        'loan_ref',
+        'loan_reference',
         'amount_applied',
         'amount_approved',
         'amount_received',
         'date_approved',
         'due_date',
-        'loan_status',
-        'application_id'
+        'loan_witness_name',
+        'loan_witness_phone',
+        'loan_witness_relationship'
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loanType()
+    {
+        return $this->belongsTo(LoanType::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loanStatus()
+    {
+        return $this->belongsTo(LoanStatus::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function approveUser()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loanApplication()
+    {
+        return $this->belongsTo(LoanApplication::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function borrower()
+    {
+        return $this->belongsTo(Borrower::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function guarantors()
+    {
+        return $this->hasMany(Guarantor::class);
+    }
 }

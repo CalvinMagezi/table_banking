@@ -46,4 +46,29 @@ class Member extends BaseModel
         'members_status',
         'passport_photo'
     ];
+
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function borrower()
+    {
+        return $this->hasOne(Borrower::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function guarantor()
+    {
+        return $this->hasOne(Guarantor::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loanApplications()
+    {
+        return $this->hasMany(LoanApplication::class);
+    }
 }
