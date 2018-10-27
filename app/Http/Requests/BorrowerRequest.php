@@ -34,27 +34,12 @@ class BorrowerRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'first_name'            => 'required',
-                        'middle_name'           => 'required',
-                        'last_name'             => 'required',
-                        'nationality'           => 'required',
-                        'id_image'              => 'required',
-                        'id_number'             => 'required',
-                        'passport_number'       => 'required',
-                        'telephone_number'      => 'required',
-                        'email'                 => 'required',
-                        'postal_address'        => 'required',
-                        'residential_address'   => 'required',
-                        'bank_name'             => 'required',
-                        'bank_account'          => 'required',
-                        'bank_branch'           => 'required',
+                        'member_id'             => 'required',
                         'spouse_type'           => 'required',
                         'spouse_name'           => 'required',
                         'spouse_id_number'      => 'required',
                         'spouse_phone'          => 'required',
                         'spouse_address'        => 'required',
-                        'members_status'        => 'required',
-                        'passport_photo'        => 'required'
                     ];
 
                     break;

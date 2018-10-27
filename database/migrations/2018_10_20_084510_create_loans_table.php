@@ -17,18 +17,24 @@ class CreateLoansTable extends Migration
             $table->engine = 'InnoDB';
             $table->string('uuid', 36)->primary()->unique();
 
-            $table->string('member_id', 36);
+            $table->string('borrower_id', 36);
+            $table->string('loan_application_id', 36)->nullable();
+
+            $table->string('branch_id', 36)->nullable();
             $table->string('approved_by_user_id', 36);
 
-
-            $table->string('loan_ref')->unique();
+            $table->string('loan_reference')->unique();
             $table->string('amount_applied');
             $table->string('amount_approved')->nullable();
             $table->string('amount_received')->nullable();
             $table->string('date_approved')->nullable();
             $table->string('due_date')->nullable();
-            $table->string('loan_status')->nullable();
-            $table->string('application_id')->unique();
+
+            $table->string('loan_status_id')->nullable();
+
+            $table->string('loan_witness_name')->nullable();
+            $table->string('loan_witness_phone')->nullable();
+            $table->string('loan_witness_relationship')->nullable();
 
             $table->softDeletes();
             $table->timestamps();
