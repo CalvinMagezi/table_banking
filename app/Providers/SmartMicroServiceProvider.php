@@ -27,6 +27,8 @@ class SmartMicroServiceProvider extends ServiceProvider {
         'Branch',
         'Role',
         'Permission',
+        'Payment',
+        'PaymentMethod',
         'Employee',
         'Member',
         'Guarantor',

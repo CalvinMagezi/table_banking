@@ -31,13 +31,21 @@ Route::group(array('prefix' => '/v1'), function () {
 Route::namespace('Api')->prefix('v1')->group(function () {
 
     Route::resource('users', 'UserController', ['except' => ['create', 'edit']]);
+    Route::resource('employees', 'EmployeeController', ['except' => ['create', 'edit']]);
+    Route::resource('roles', 'RoleController', ['except' => ['create', 'edit']]);
+    Route::resource('permissions', 'PermissionController', ['except' => ['create', 'edit']]);
     Route::resource('borrowers', 'BorrowerController', ['except' => ['create', 'edit']]);
+    Route::resource('branches', 'BranchController', ['except' => ['create', 'edit']]);
     Route::resource('loans', 'LoanController', ['except' => ['create', 'edit']]);
+    Route::resource('guarantors', 'GuarantorController', ['except' => ['create', 'edit']]);
+    Route::resource('members', 'MemberController', ['except' => ['create', 'edit']]);
     Route::resource('loan_types', 'LoanTypeController', ['except' => ['create', 'edit']]);
     Route::resource('loan_applications', 'LoanApplicationController', ['except' => ['create', 'edit']]);
     Route::resource('loan_statuses', 'LoanStatusController', ['except' => ['create', 'edit']]);
     Route::resource('loan_application_statuses', 'LoanApplicationStatusController', ['except' => ['create', 'edit']]);
     Route::resource('borrower_statuses', 'BorrowerStatusController', ['except' => ['create', 'edit']]);
+    Route::resource('payments', 'PaymentController', ['except' => ['create', 'edit']]);
+    Route::resource('payment_methods', 'PaymentMethodController', ['except' => ['create', 'edit']]);
 
 });
 
