@@ -30,7 +30,8 @@ class UserRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'first_name'            => 'required|min:2',
+                        'role_id'               => 'required|exists:roles,uuid',
+                        'employee_id'           => 'required|exists:employees,uuid|unique:users,employee_id,NULL,uuid,deleted_at,NULL',
                         'email'                 => 'required|unique:users,email,NULL,uuid,deleted_at,NULL',
                         'password'              => 'required|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
@@ -42,8 +43,13 @@ class UserRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'              => 'min:2',
-                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'uuid')
+                        'role_id'               => 'exists:roles,uuid',
+                        'email'                 => ['email', Rule::unique('users')->ignore($this->user, 'uuid')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
+
+                        'employee_id'                 => ['employee_id|exists:employees,uuid', Rule::unique('employees')->ignore($this->user, 'uuid')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
