@@ -37,7 +37,10 @@ class EmployeeController  extends ApiController
      */
     public function index(Request $request)
     {
-        $data = EmployeeResource::collection($this->employeeRepository->getAllPaginate());
+        if ($select = request()->query('list')) {
+            return $this->employeeRepository->listAll($this->formatFields($select));
+        } else
+            $data = EmployeeResource::collection($this->employeeRepository->getAllPaginate());
 
         return $this->respondWithData($data);
     }

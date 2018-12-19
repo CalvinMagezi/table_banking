@@ -6,6 +6,7 @@ use App\SmartMicro\Repositories\Contracts\RoleInterface;
 use App\SmartMicro\Repositories\Contracts\UserInterface;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use League\Flysystem\Exception;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 

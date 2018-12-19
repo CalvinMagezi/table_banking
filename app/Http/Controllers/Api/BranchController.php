@@ -37,7 +37,10 @@ class BranchController  extends ApiController
      */
     public function index(Request $request)
     {
-        $data = BranchResource::collection($this->branchRepository->getAllPaginate());
+        if ($select = request()->query('list')) {
+            return $this->branchRepository->listAll($this->formatFields($select));
+        } else
+             $data = BranchResource::collection($this->branchRepository->getAllPaginate());
 
         return $this->respondWithData($data);
     }
@@ -101,6 +104,6 @@ class BranchController  extends ApiController
         if($this->branchRepository->delete($uuid)){
             return $this->respondWithSuccess('Success !! Branch has been deleted');
         }
-        return $this->respondNotFound('Branch not deleted');
+        return $this->respondNotFound('Error !! Branch not found. Nothing deleted.');
     }
 }

@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
+use App\SmartMicro\Repositories\Contracts\EmployeeInterface;
 use App\SmartMicro\Repositories\Contracts\UserInterface;
 
 use Illuminate\Http\Request;
@@ -20,15 +21,17 @@ class UserController  extends ApiController
     /**
      * @var \App\SmartMicro\Repositories\Contracts\UserInterface
      */
-    protected $userRepository;
+    protected $userRepository, $employeeRepository;
 
     /**
      * UserController constructor.
      * @param UserInterface $userInterface
+     * @param EmployeeInterface $employeeRepository
      */
-    public function __construct(UserInterface $userInterface)
+    public function __construct(UserInterface $userInterface, EmployeeInterface $employeeRepository)
     {
         $this->userRepository   = $userInterface;
+        $this->employeeRepository   = $employeeRepository;
     }
 
     /**
@@ -38,7 +41,12 @@ class UserController  extends ApiController
      */
     public function index(Request $request)
     {
-       $data = UserResource::collection($this->userRepository->getAllPaginate());
+        $load = ['employee', 'role'];
+
+        if ($select = request()->query('list')) {
+            return $this->userRepository->listAll($this->formatFields($select));
+        } else
+            $data = UserResource::collection($this->userRepository->getAllPaginate($load));
 
         return $this->respondWithData($data);
     }
@@ -111,8 +119,10 @@ class UserController  extends ApiController
     public function me()
     {
         $user = Auth::user();
-        if(isset($user))
-            return $user;
+        if(isset($user)){
+            return $this->employeeRepository->getById($user->employee_id);
+        }
+           // return $user;
         return $this->respondNotFound();
     }
 }

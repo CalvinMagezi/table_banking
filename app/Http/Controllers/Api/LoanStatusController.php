@@ -37,7 +37,10 @@ class LoanStatusController  extends ApiController
      */
     public function index(Request $request)
     {
-        $data = LoanStatusResource::collection($this->loanStatusRepository->getAllPaginate());
+        if ($select = request()->query('list')) {
+            return $this->loanStatusRepository->listAll($this->formatFields($select));
+        } else
+            $data = LoanStatusResource::collection($this->loanStatusRepository->getAllPaginate());
 
         return $this->respondWithData($data);
     }

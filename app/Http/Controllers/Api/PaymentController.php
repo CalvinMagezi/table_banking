@@ -37,7 +37,10 @@ class PaymentController  extends ApiController
      */
     public function index(Request $request)
     {
-        $data = PaymentResource::collection($this->paymentRepository->getAllPaginate());
+        if ($select = request()->query('list')) {
+            return $this->paymentRepository->listAll($this->formatFields($select));
+        } else
+            $data = PaymentResource::collection($this->paymentRepository->getAllPaginate());
 
         return $this->respondWithData($data);
     }

@@ -123,5 +123,17 @@ class ApiController extends Controller
         return (\Response::json($data))->setStatusCode($this->getStatusCode());
     }
 
+    /**
+     * Cleans up url variables to eliminate spaces
+     * @param $string
+     * @return array
+     */
+    public function formatFields($string)
+    {
+        //return explode(",", preg_replace('/\s+/', '', rtrim(trim($string),',')));
+
+        return explode(",", preg_replace('/\s*,\s*/', ',', rtrim(trim($string), ',')));
+    }
+
 
 }

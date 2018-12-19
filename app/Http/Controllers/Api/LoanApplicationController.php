@@ -37,6 +37,9 @@ class LoanApplicationController  extends ApiController
      */
     public function index(Request $request)
     {
+        if ($select = request()->query('list')) {
+            return $this->loanApplicationRepository->listAll($this->formatFields($select));
+        } else
         $data = LoanApplicationResource::collection($this->loanApplicationRepository->getAllPaginate());
 
         return $this->respondWithData($data);

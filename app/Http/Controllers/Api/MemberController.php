@@ -37,7 +37,10 @@ class MemberController  extends ApiController
      */
     public function index(Request $request)
     {
-        $data = MemberResource::collection($this->memberRepository->getAllPaginate());
+        if ($select = request()->query('list')) {
+            return $this->memberRepository->listAll($this->formatFields($select));
+        } else
+            $data = MemberResource::collection($this->memberRepository->getAllPaginate());
 
         return $this->respondWithData($data);
     }

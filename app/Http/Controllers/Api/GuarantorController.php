@@ -37,6 +37,9 @@ class GuarantorController  extends ApiController
      */
     public function index(Request $request)
     {
+        if ($select = request()->query('list')) {
+            return $this->guarantorRepository->listAll($this->formatFields($select));
+        } else
         $data = GuarantorResource::collection($this->guarantorRepository->getAllPaginate());
 
         return $this->respondWithData($data);

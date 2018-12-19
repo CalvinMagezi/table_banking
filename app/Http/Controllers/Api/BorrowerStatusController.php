@@ -37,6 +37,9 @@ class BorrowerStatusController  extends ApiController
      */
     public function index(Request $request)
     {
+        if ($select = request()->query('list')) {
+            return $this->borrowerStatusRepository->listAll($this->formatFields($select));
+        } else
         $data = BorrowerStatusResource::collection($this->borrowerStatusRepository->getAllPaginate());
 
         return $this->respondWithData($data);

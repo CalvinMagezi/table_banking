@@ -32,7 +32,10 @@ class PermissionController  extends ApiController
      */
     public function index(Request $request)
     {
-        $data = PermissionResource::collection($this->permissionRepository->getAllPaginate());
+        if ($select = request()->query('list')) {
+            return $this->permissionRepository->listAll($this->formatFields($select));
+        } else
+            $data = PermissionResource::collection($this->permissionRepository->getAllPaginate());
 
         return $this->respondWithData($data);
     }

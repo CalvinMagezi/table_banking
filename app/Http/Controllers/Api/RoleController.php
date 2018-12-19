@@ -33,7 +33,10 @@ class RoleController  extends ApiController
      */
     public function index(Request $request)
     {
-        $data = RoleResource::collection($this->roleRepository->getAllPaginate());
+        if ($select = request()->query('list')) {
+            return $this->roleRepository->listAll($this->formatFields($select));
+        } else
+            $data = RoleResource::collection($this->roleRepository->getAllPaginate());
 
         return $this->respondWithData($data);
     }
