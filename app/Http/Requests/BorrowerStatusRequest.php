@@ -8,6 +8,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
+
 class BorrowerStatusRequest extends BaseRequest
 {
 
@@ -32,8 +34,8 @@ class BorrowerStatusRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'borrower_status_name'          => 'required',
-                        'borrower_status_description'   => 'required'
+                        'borrower_status_name'          => 'required|unique:borrower_statuses,borrower_status_name,NULL,uuid,deleted_at,NULL',
+                        'borrower_status_description'   => ''
                     ];
 
                     break;
@@ -42,7 +44,10 @@ class BorrowerStatusRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-
+                        'borrower_status_name'                 => ['borrower_status_name', Rule::unique('borrower_statuses')->ignore($this->user, 'uuid')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
                     ];
                     break;
                 }
