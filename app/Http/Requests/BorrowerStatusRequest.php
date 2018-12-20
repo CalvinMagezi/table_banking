@@ -44,7 +44,7 @@ class BorrowerStatusRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'borrower_status_name'                 => ['borrower_status_name', Rule::unique('borrower_statuses')->ignore($this->user, 'uuid')
+                        'borrower_status_name'                 => ['borrower_status_name', Rule::unique('borrower_statuses')->ignore($this->borrower_status, 'uuid')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

@@ -8,6 +8,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
+
 class LoanApplicationStatusRequest extends BaseRequest
 {
 
@@ -32,8 +34,8 @@ class LoanApplicationStatusRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'loan_application_status_name'          => 'required',
-                        'loan_application_status_description'   => 'required',
+                        'loan_application_status_name'          => 'required|loan_application_status_name:loan_application_statuses,loan_application_status_name,NULL,uuid,deleted_at,NULL',
+                        'loan_application_status_description'   => '',
 
                     ];
 
@@ -43,7 +45,10 @@ class LoanApplicationStatusRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-
+                        'loan_application_status_name'                 => ['loan_application_status_name', Rule::unique('loan_application_statuses')->ignore($this->loan_application_status, 'uuid')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
                     ];
                     break;
                 }
