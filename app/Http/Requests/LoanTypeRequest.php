@@ -34,9 +34,10 @@ class LoanTypeRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'loan_type_name'    => 'required',
-                        'max_loan_period'   => 'required',
-                        'status'            => 'required',
+                        'loan_type_name'        => 'required|unique:loan_types,loan_type_name,NULL,uuid,deleted_at,NULL',
+                        'loan_type_description' => '',
+                        'max_loan_period'       => '',
+                        'status'                => '',
                     ];
 
                     break;
@@ -45,15 +46,10 @@ class LoanTypeRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'              => 'min:2',
-                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'uuid')
+                        'loan_type_name'                 => ['loan_type_name', Rule::unique('loan_types')->ignore($this->user, 'uuid')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
-
-                        'password'              => 'min:3|confirmed',
-                        'password_confirmation' => 'required_with:password'
-
                     ];
                     break;
                 }

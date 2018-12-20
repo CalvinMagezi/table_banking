@@ -30,6 +30,7 @@ class LoanType extends BaseModel
      */
     protected $fillable = [
         'loan_type_name',
+        'loan_type_description',
         'max_loan_period',
         'status'
     ];
