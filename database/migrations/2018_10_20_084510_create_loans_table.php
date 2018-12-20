@@ -19,11 +19,11 @@ class CreateLoansTable extends Migration
 
             $table->string('borrower_id', 36);
             $table->string('loan_type_id', 36);
-            $table->string('loan_status_id', 36);
+            $table->string('loan_status_id', 36)->nullable();
             $table->string('loan_application_id', 36)->nullable();
 
             $table->string('branch_id', 36)->nullable();
-            $table->string('approved_by_user_id', 36);
+            $table->string('approved_by_user_id', 36)->nullable();
 
             $table->string('loan_reference')->unique();
             $table->string('amount_applied');

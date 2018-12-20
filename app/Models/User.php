@@ -69,7 +69,7 @@ class User extends BaseModel implements
      */
     public function employee()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class, 'employee_id');
     }
 
     /**

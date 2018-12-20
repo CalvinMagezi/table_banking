@@ -31,15 +31,26 @@ class Employee extends BaseModel
     protected $fillable = [
         'first_name',
         'last_name',
-        'email',
         'salutation',
-        'phone',
-        'address',
-        'profile_picture',
         'country',
-        'state',
+        'national_id_number',
+        'passport_number',
+        'email',
+        'telephone_number',
+        'address',
         'postal_code',
-        'city'
+        'county',
+        'city',
+        'nhif_number',
+        'nssf_number',
+        'kra_pin',
+        'gender',
+        'job_group',
+        'designation_id',
+        'department_id',
+        'staff_no',
+        'profile_picture',
+        'national_id_image'
     ];
 
     /**
@@ -47,6 +58,6 @@ class Employee extends BaseModel
      */
     public function user()
     {
-        return $this->hasOne(User::class);
+        return $this->hasOne(User::class, 'employee_id');
     }
 }

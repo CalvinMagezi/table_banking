@@ -27,10 +27,11 @@ Route::group(array('prefix' => '/v1'), function () {
 
 });
 
-//Route::namespace('Api')->prefix('v1')->middleware('auth:api')->group(function () {
-Route::namespace('Api')->prefix('v1')->group(function () {
+Route::namespace('Api')->prefix('v1')->middleware('auth:api')->group(function () {
+//Route::namespace('Api')->prefix('v1')->group(function () {
 
     Route::resource('users', 'UserController', ['except' => ['create', 'edit']]);
+    Route::get('me', 'UserController@me');
     Route::resource('employees', 'EmployeeController', ['except' => ['create', 'edit']]);
     Route::resource('roles', 'RoleController', ['except' => ['create', 'edit']]);
     Route::resource('permissions', 'PermissionController', ['except' => ['create', 'edit']]);
@@ -46,6 +47,7 @@ Route::namespace('Api')->prefix('v1')->group(function () {
     Route::resource('borrower_statuses', 'BorrowerStatusController', ['except' => ['create', 'edit']]);
     Route::resource('payments', 'PaymentController', ['except' => ['create', 'edit']]);
     Route::resource('payment_methods', 'PaymentMethodController', ['except' => ['create', 'edit']]);
+    Route::get('/logout', 'Oauth\LoginController@logout');
 
 });
 

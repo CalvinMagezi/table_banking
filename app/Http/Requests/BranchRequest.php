@@ -8,6 +8,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Validation\Rule;
 
 class BranchRequest extends BaseRequest
@@ -34,8 +35,8 @@ class BranchRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'branch_name'       => 'required|min:2',
-                        'branch_location'   => 'required',
+                        'branch_name'       => 'required|unique:branches,branch_name,NULL,uuid,deleted_at,NULL',
+                        'branch_location'   => 'required|min:2',
                     ];
 
                     break;
@@ -44,15 +45,11 @@ class BranchRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'              => 'min:2',
-                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'uuid')
+                        'branch_location'              => 'min:2',
+                        'branch_name'             => ['required', Rule::unique('branches')->ignore($this->branch, 'uuid')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
-
-                        'password'              => 'min:3|confirmed',
-                        'password_confirmation' => 'required_with:password'
-
                     ];
                     break;
                 }

@@ -6,6 +6,8 @@ namespace App\SmartMicro\Repositories\Eloquent;
 
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Http\Request;
+
 
 /**
  * Class BaseRepository
@@ -15,6 +17,13 @@ abstract class BaseRepository {
 
     protected $orderBy  = array('created_at', 'desc'), $model, $transformer;
 
+    /**
+     * Set number of records to return
+     * @return int
+     */
+   function getLimit(){
+       return (int)(request()->query('limit'))?:5;
+   }
 
     /**
      * Fetch a single item from db table.
@@ -25,6 +34,7 @@ abstract class BaseRepository {
      */
     public function getById($uuid, $load = array())
     {
+
         if(!empty($load))
         {
             return $this->model->with($load)->find($uuid);
@@ -34,13 +44,29 @@ abstract class BaseRepository {
 
     }
 
-     /**
+    /**
+     * @param array $load
      * @return mixed
      */
-    public function getAllPaginate(){
-        return $this->model->paginate();
+    public function getAllPaginate($load = array()){
+        return $this->model->with($load)->paginate($this->getLimit());
     }
 
+    /**
+     * @param $select
+     * @return mixed
+     */
+    public function listAll($select) {
+
+        array_push($select, 'uuid');
+
+        $data = [];
+        try{
+            $data =  $this->model->get($select);
+        }catch(\Exception $e){}
+
+        return $data;
+    }
 
 
     /**
@@ -63,11 +89,9 @@ abstract class BaseRepository {
      */
     public function getByIds($ids = array(), $load = array())
     {
-        $limit = \Request::input('limit') ?: 10;
-
         $query =  $this->model->with($load)->whereIn('uuid', $ids);
 
-        $data = $query->paginate($limit);
+        $data = $query->paginate($this->getLimit());
 
         return $data;
 
@@ -94,8 +118,6 @@ abstract class BaseRepository {
      */
     public function getManyWhere($field, $values = array(), $load = array())
     {
-        $limit = \Request::input('limit') ?: 10;
-
         //sort
         $sortDirection = \Request::input('sort_direction') ?: 'ASC';
 
@@ -104,9 +126,9 @@ abstract class BaseRepository {
 
         if(isset($sortProperty) && $sortProperty != false)
         {
-            $data = $this->model->with($load)->whereIn($field, $values)->orderBy($sortProperty, $sortDirection)->paginate($limit);
+            $data = $this->model->with($load)->whereIn($field, $values)->orderBy($sortProperty, $sortDirection)->paginate($this->getLimit());
         }else
-            $data =  $this->model->with($load)->whereIn($field, $values)->paginate($limit);
+            $data =  $this->model->with($load)->whereIn($field, $values)->paginate($this->getLimit());
 
         return $data;
     }

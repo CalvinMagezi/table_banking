@@ -27,7 +27,7 @@ class CreateEmployeesTable extends Migration
             $table->string('national_id_image')->nullable();
 
             $table->string('country')->nullable();
-            $table->string('state')->nullable();
+            $table->string('county')->nullable();
             $table->string('city')->nullable();
             $table->string('address')->nullable();
             $table->string('postal_code')->nullable();
@@ -39,6 +39,7 @@ class CreateEmployeesTable extends Migration
             $table->string('kra_pin')->nullable();
 
             $table->string('national_id_number')->nullable();
+            $table->string('passport_number')->nullable();
             $table->string('designation_id')->nullable();
             $table->string('department_id')->nullable();
             $table->string('staff_no')->unique();

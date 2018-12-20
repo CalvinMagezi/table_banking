@@ -13,7 +13,7 @@ class CreatePaymentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('payments', function (Blueprint $table) {
+        Schema::create('payments', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->string('uuid', 36)->primary()->unique();
 

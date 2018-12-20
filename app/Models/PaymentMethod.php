@@ -32,4 +32,12 @@ class PaymentMethod extends BaseModel
         'method_name',
         'method_description'
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'payment_method_id');
+    }
 }

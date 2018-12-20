@@ -35,13 +35,14 @@ class LoanApplicationRequest extends BaseRequest
                 {
                     $rules = [
                         'member_id'             => 'required',
-                        'reviewed_by_user_id'   => 'required',
-                        'approved_by_user_id'   => 'required',
-                        'application_date'      => 'required',
-                        'amount_applied'        => 'required',
-                        'repayment_period'      => 'required',
-                        'date_approved'         => 'required',
-                        'loan_status_id'        => 'required',
+                        'reviewed_by_user_id'   => '',
+                        'approved_by_user_id'   => '',
+                        'application_date'      => '',
+                        'amount_applied'        => '',
+                        'repayment_period'      => '',
+                        'date_approved'         => '',
+                        'application_notes'     => '',
+                        'loan_status_id'        => '',
                     ];
 
                     break;

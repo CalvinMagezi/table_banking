@@ -101,4 +101,12 @@ class Loan extends BaseModel
     {
         return $this->hasMany(Guarantor::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'loan_id');
+    }
 }

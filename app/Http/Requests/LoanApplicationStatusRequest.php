@@ -34,10 +34,9 @@ class LoanApplicationStatusRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'loan_application_status_name'          => 'required|loan_application_status_name:loan_application_statuses,loan_application_status_name,NULL,uuid,deleted_at,NULL',
+                        'loan_application_status_name'                 => 'required|unique:loan_application_statuses,loan_application_status_name,NULL,uuid,deleted_at,NULL',
                         'loan_application_status_description'   => '',
-
-                    ];
+                        ];
 
                     break;
                 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
+
 class RoleRequest extends BaseRequest
 {
 
@@ -26,10 +28,10 @@ class RoleRequest extends BaseRequest
             case 'POST':
             {
                 $rules = [
-                    'role_name'         =>'required',
-                    'role_display_name' =>'required',
-                    'role_description'  =>'required'
 
+                    'role_name'         => 'required|unique:roles,role_name,NULL,uuid,deleted_at,NULL',
+                    'role_display_name' => 'required|unique:roles,role_display_name,NULL,uuid,deleted_at,NULL',
+                    'role_description'  =>''
                 ];
 
                 break;
@@ -38,7 +40,15 @@ class RoleRequest extends BaseRequest
             case 'PATCH':
             {
                 $rules = [
+                    'role_name'                 => ['role_name', Rule::unique('roles')->ignore($this->role, 'uuid')
+                        ->where(function ($query) {
+                            $query->where('deleted_at', NULL);
+                        })],
 
+                    'role_display_name'                 => ['role_display_name', Rule::unique('roles')->ignore($this->role, 'uuid')
+                        ->where(function ($query) {
+                            $query->where('deleted_at', NULL);
+                        })],
                 ];
                 break;
             }

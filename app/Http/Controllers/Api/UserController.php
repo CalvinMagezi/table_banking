@@ -119,6 +119,7 @@ class UserController  extends ApiController
     public function me()
     {
         $user = Auth::user();
+
         if(isset($user)){
             return $this->employeeRepository->getById($user->employee_id);
         }

@@ -19,13 +19,10 @@ interface BaseInterface {
 
 
     /**
+     * @param array $load
      * @return mixed
      */
-    function getAllPaginate();
-
-
-
-
+    function getAllPaginate($load = array());
 
     /**
      * Fetch multiple specified orders
@@ -34,7 +31,6 @@ interface BaseInterface {
      * @return mixed
      */
     function getByIds($ids = array(), $load = array());
-
 
     /**
      * @param $field
@@ -94,7 +90,6 @@ interface BaseInterface {
      */
     function first();
 
-
     function generateRefNumber($data = array());
 
     public function calculateOrderTotal($id);
@@ -102,6 +97,4 @@ interface BaseInterface {
     function updateSettings();
 
     function confirm($confirmation_code);
-
-
 }

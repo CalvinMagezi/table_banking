@@ -34,16 +34,16 @@ class LoanRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'member_id'             => 'required',
-                        'approved_by_user_id'   => 'required',
-                        'loan_ref'              => 'required',
+                        'borrower_id'             => 'required',
+                        'approved_by_user_id'   => '',
+                        'loan_reference'        => 'required',
                         'amount_applied'        => 'required',
                         'amount_approved'       => 'required',
                         'amount_received'       => 'required',
                         'date_approved'         => 'required',
                         'due_date'              => 'required',
-                        'loan_status'           => 'required',
-                        'application_id'        => 'required',
+                        'loan_status_id'           => '',
+                        'loan_application_id'        => 'required',
                     ];
 
                     break;

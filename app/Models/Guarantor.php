@@ -30,7 +30,7 @@ class Guarantor extends BaseModel
      */
     protected $fillable = [
         'member_id',
-        'loan_id',
+        'loan_id'
     ];
 
     /**
