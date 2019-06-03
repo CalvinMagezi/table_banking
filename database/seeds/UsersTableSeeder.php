@@ -32,19 +32,5 @@ class UsersTableSeeder extends Seeder
             'password' => 'devtest',
         ]);
 
-        User::create([
-            'role_id' => Role::inRandomOrder()->select('uuid')->first()['uuid'],
-            'employee_id' => Employee::inRandomOrder()->select('uuid')->first()['uuid'],
-            'email' => 'devtest10@devtest.com',
-            'password' => 'devtest',
-        ]);
-
-        User::create([
-            'role_id' => Role::inRandomOrder()->select('uuid')->first()['uuid'],
-            'employee_id' => Employee::inRandomOrder()->select('uuid')->first()['uuid'],
-            'email' => 'devtest20@devtest.com',
-            'password' => 'devtest',
-        ]);
-
     }
 }

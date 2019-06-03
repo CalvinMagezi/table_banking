@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 class EmployeeController  extends ApiController
 {
     /**
-     * @var \App\SmartMicro\Repositories\Contracts\EmployeeInterface
+     * @var EmployeeInterface
      */
     protected $employeeRepository;
 

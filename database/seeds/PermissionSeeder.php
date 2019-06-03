@@ -14,12 +14,21 @@ class PermissionSeeder extends Seeder
 
         $entities = [
             'user',
-            'client',
+            'borrower',
             'loan',
             'loan-type',
             'loan-application',
-            'loan-status',
             'branch',
+            'role',
+            'permission',
+            'payment',
+            'payment-method',
+            'employee',
+            'member',
+            'guarantor',
+            'loan-status',
+            'loan-application-status',
+            'borrower-status'
         ];
 
         DB::table('permissions')->delete();

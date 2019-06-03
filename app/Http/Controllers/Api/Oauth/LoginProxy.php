@@ -33,7 +33,7 @@ class LoginProxy
      * @param UserInterface $userRepository
      * @param RoleInterface $roleRepository
      */
-    public function __construct(Application $app, UserInterface $userRepository, RoleInterface $roleRepository) {
+    public function __construct(environment  $app, UserInterface $userRepository, RoleInterface $roleRepository) {
 
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;

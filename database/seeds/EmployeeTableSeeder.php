@@ -24,21 +24,11 @@ class EmployeeTableSeeder extends Seeder
         DB::table('employees')->delete();
 
         Employee::create([
-            'first_name' => 'Devtest',
-            'last_name' => 'Devtest Last',
+            'salutation'    => 'Mr',
+            'first_name'    => 'Devtest',
+            'last_name'     => 'Devtest Last',
+            'email'         => 'devtest@devtest.com',
+            'staff_no'      => '123456',
         ]);
-
-        Employee::create([
-            'first_name' => 'Devtest10 ',
-            'last_name' => 'Devtest10 Last',
-
-        ]);
-
-        Employee::create([
-            'first_name' => 'Devtest20 ',
-            'last_name' => 'Devtest20 Last',
-
-        ]);
-
     }
 }

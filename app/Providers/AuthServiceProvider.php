@@ -50,7 +50,7 @@ class AuthServiceProvider extends ServiceProvider
                     Passport::tokensCan($data);
 
             }catch (\Exception $exception){
-                Passport::tokensCan(null);
+                Passport::tokensCan([]);
             }
 
         }

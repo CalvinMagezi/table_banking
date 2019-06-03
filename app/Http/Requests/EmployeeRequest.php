@@ -65,7 +65,7 @@ class EmployeeRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'              => '',
+                        'first_name'              => '',
                         'email'                 => ['email', Rule::unique('employees')->ignore($this->user, 'uuid')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);

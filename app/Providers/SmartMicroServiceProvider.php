@@ -33,7 +33,8 @@ class SmartMicroServiceProvider extends ServiceProvider {
         'Member',
         'Guarantor',
         'LoanApplicationStatus',
-        'BorrowerStatus'
+        'BorrowerStatus',
+        'GeneralSetting'
     ];
 
     /**
