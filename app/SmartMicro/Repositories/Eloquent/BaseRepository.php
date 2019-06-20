@@ -58,7 +58,7 @@ abstract class BaseRepository {
      */
     public function listAll($select) {
 
-        array_push($select, 'uuid');
+        array_push($select, 'id');
 
         $data = [];
         try{
@@ -89,7 +89,7 @@ abstract class BaseRepository {
      */
     public function getByIds($ids = array(), $load = array())
     {
-        $query =  $this->model->with($load)->whereIn('uuid', $ids);
+        $query =  $this->model->with($load)->whereIn('id', $ids);
 
         $data = $query->paginate($this->getLimit());
 

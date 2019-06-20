@@ -16,8 +16,9 @@ class BaseModel extends Model{
         static::creating(function($model) {
             // Only generate the uuid if the field actually is called uuid.
             // For some system models a normal id is used (e.g. language)
-            if($model->getKeyName() == 'uuid'){
-                if($model->uuid != ""){
+            //this was changed. I now use id as the field name
+            if($model->getKeyName() == 'id'){
+                if($model->id != ""){
 
                 }else
                     $model->{$model->getKeyName()} = (string)$model->generateNewId();

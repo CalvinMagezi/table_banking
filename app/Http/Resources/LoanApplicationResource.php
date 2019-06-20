@@ -21,8 +21,7 @@ class LoanApplicationResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'uuid'                  => $this->uuid,
-
+            'id'                    => $this->id,
             'member_id'             => $this->member_id,
             'reviewed_by_user_id'   => $this->reviewed_by_user_id,
             'approved_by_user_id'   => $this->approved_by_user_id,

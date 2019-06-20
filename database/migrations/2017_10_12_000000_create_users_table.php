@@ -15,7 +15,7 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
 
             $table->uuid('role_id', 36);
             $table->uuid('employee_id', 36)->unique();

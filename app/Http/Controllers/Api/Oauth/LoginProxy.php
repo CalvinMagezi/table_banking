@@ -6,6 +6,7 @@ use App\SmartMicro\Repositories\Contracts\RoleInterface;
 use App\SmartMicro\Repositories\Contracts\UserInterface;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Foundation\Application;
+//use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use League\Flysystem\Exception;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -29,11 +30,13 @@ class LoginProxy
 
     /**
      * LoginProxy constructor.
+     * LoginProxy constructor.
      * @param Application $app
      * @param UserInterface $userRepository
      * @param RoleInterface $roleRepository
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function __construct(environment  $app, UserInterface $userRepository, RoleInterface $roleRepository) {
+    public function __construct(Application  $app, UserInterface $userRepository, RoleInterface $roleRepository) {
 
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
@@ -99,9 +102,9 @@ class LoginProxy
      * @param array $data
      * @return array
      */
-    public function proxy($grantType, array $data = [])
+    public function proxy($grantType, array $credentials = [])
     {
-        $data = array_merge($data, [
+        $data = array_merge($credentials, [
             'client_id'     => env('PASSWORD_CLIENT_ID'),
             'client_secret' => env('PASSWORD_CLIENT_SECRET'),
             'grant_type'    => $grantType
@@ -127,8 +130,9 @@ class LoginProxy
         );
 
         return [
-            'access_token' => $data->access_token,
-            'expires_in' => $data->expires_in
+            'access_token' 	=> $data->access_token,
+            'expires_in' 	=> $data->expires_in
+			//'scope' 		=> $credentials['scope']
         ];
     }
 

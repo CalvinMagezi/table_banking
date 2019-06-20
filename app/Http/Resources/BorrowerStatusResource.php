@@ -21,7 +21,7 @@ class BorrowerStatusResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'uuid'                          => $this->uuid,
+            'id'                            => $this->id,
             'borrower_status_name'          => $this->borrower_status_name,
             'borrower_status_description'   => $this->borrower_status_description,
             'created_at'                    => $this->created_at,

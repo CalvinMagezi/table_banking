@@ -15,7 +15,7 @@ class CreateEmployeesTable extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
 
             $table->string('first_name');
             $table->string('last_name');

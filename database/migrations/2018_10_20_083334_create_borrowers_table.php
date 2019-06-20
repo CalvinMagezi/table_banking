@@ -15,7 +15,7 @@ class CreateBorrowersTable extends Migration
     {
         Schema::create('borrowers', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
 
             $table->string('member_id', 36);
             $table->string('credit_score')->nullable();

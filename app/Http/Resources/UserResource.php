@@ -15,7 +15,7 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'uuid'              => $this->uuid,
+            'id'                => $this->id,
             'role_id'           => $this->role_id,
             // 'role'              => $this->role,
             'role'              => RoleResource::make($this->role),

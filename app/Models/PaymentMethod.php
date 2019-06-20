@@ -21,7 +21,7 @@ class PaymentMethod extends BaseModel
      * Main table primary key
      * @var string
      */
-    protected $primaryKey = 'uuid';
+    protected $primaryKey = 'id';
 
     /**
      * The attributes that are mass assignable.

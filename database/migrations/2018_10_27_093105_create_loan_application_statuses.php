@@ -16,7 +16,7 @@ class CreateLoanApplicationStatuses extends Migration
         Schema::create('loan_application_statuses', function (Blueprint $table) {
             $table->engine = 'InnoDB';
 
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
             $table->string('loan_application_status_name')->unique();
             $table->string('loan_application_status_description')->nullable();
 

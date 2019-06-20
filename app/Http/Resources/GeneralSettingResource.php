@@ -22,7 +22,7 @@ class GeneralSettingResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'uuid'                  => $this->uuid,
+            'id'                    => $this->id,
             'business_name'         => $this->business_name,
             'business_type'         => $this->business_type,
             'email'                 => $this->email,

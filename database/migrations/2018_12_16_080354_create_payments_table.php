@@ -15,7 +15,7 @@ class CreatePaymentsTable extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
 
             $table->string('loan_id');
             $table->string('payment_amount');

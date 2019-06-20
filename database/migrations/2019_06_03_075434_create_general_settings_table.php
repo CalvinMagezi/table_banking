@@ -16,7 +16,7 @@ class CreateGeneralSettingsTable extends Migration
         Schema::create('general_settings', function (Blueprint $table) {
             $table->engine = 'InnoDB';
 
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
             $table->string('business_name')->unique();
             $table->string('business_type')->nullable();
             $table->string('email')->unique();

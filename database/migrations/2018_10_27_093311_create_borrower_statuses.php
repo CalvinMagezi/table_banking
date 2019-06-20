@@ -16,7 +16,7 @@ class CreateBorrowerStatuses extends Migration
         Schema::create('borrower_statuses', function (Blueprint $table) {
             $table->engine = 'InnoDB';
 
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
             $table->string('borrower_status_name')->unique();
             $table->string('borrower_status_description')->nullable();
 

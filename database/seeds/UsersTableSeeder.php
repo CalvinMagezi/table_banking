@@ -26,8 +26,8 @@ class UsersTableSeeder extends Seeder
         DB::table('users')->delete();
 
         User::create([
-            'role_id' => Role::inRandomOrder()->select('uuid')->first()['uuid'],
-            'employee_id' => Employee::inRandomOrder()->select('uuid')->first()['uuid'],
+            'role_id' => Role::inRandomOrder()->select('id')->first()['id'],
+            'employee_id' => Employee::inRandomOrder()->select('id')->first()['id'],
             'email' => 'devtest@devtest.com',
             'password' => 'devtest',
         ]);

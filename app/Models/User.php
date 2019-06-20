@@ -32,8 +32,7 @@ class User extends BaseModel implements
      * Main table primary key
      * @var string
      */
-    protected $primaryKey = 'uuid';
-
+    protected $primaryKey = 'id';
 
     protected $dates = [];
 

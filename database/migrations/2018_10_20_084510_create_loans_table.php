@@ -15,7 +15,7 @@ class CreateLoansTable extends Migration
     {
         Schema::create('loans', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
 
             $table->string('borrower_id', 36);
             $table->string('loan_type_id', 36);

@@ -16,7 +16,7 @@ class CreateLoanApplicationsTable extends Migration
         Schema::create('loan_applications', function (Blueprint $table) {
             $table->engine = 'InnoDB';
 
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
 
             $table->string('member_id', 36);
             $table->string('reviewed_by_user_id', 36)->nullable();

@@ -16,7 +16,7 @@ class CreatePermissionsTable extends Migration
         Schema::create('permissions', function (Blueprint $table) {
             $table->engine = 'InnoDB';
 
-            $table->uuid('uuid')->unique()->primary();
+            $table->uuid('id')->unique()->primary();
 
             $table->string('permission_name')->unique();
             $table->string('permission_display_name')->unique();

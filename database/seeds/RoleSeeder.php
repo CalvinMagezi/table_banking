@@ -23,7 +23,7 @@ class RoleSeeder extends Seeder
 
         DB::table('permission_role')->delete();
 
-        $permissions = Permission::select('uuid')->get();
+        $permissions = Permission::select('id')->get();
 
         if (!is_null($admin) && (!is_null($permissions))){
             $admin->permissions()->sync($permissions);

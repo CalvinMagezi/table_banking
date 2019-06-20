@@ -16,7 +16,7 @@ class CreateLoanStatusesTable extends Migration
         Schema::create('loan_statuses', function (Blueprint $table) {
             $table->engine = 'InnoDB';
 
-            $table->string('uuid', 36)->primary()->unique();
+            $table->string('id', 36)->primary()->unique();
             $table->string('loan_status_name')->unique();
             $table->string('loan_status_description')->nullable();
 

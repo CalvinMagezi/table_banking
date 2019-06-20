@@ -21,7 +21,7 @@ class LoanTypeResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'uuid'                  => $this->uuid,
+            'id'                    => $this->id,
             'loan_type_name'        => $this->loan_type_name,
             'loan_type_description' => $this->loan_type_description,
             'max_loan_period'       => $this->max_loan_period,

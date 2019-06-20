@@ -21,7 +21,7 @@ class LoanApplicationStatusResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'uuid'                                  => $this->uuid,
+            'id'                                    => $this->id,
             'loan_application_status_name'          => $this->loan_application_status_name,
             'loan_application_status_description'   => $this->loan_application_status_description,
             'created_at'                            => $this->created_at,
