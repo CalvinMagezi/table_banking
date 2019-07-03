@@ -17,6 +17,8 @@ class UserResource extends JsonResource
         return [
             'id'                => $this->id,
             'role_id'           => $this->role_id,
+            'first_name'        => $this->first_name,
+            'last_name'         => $this->last_name,
             // 'role'              => $this->role,
             'role'              => RoleResource::make($this->role),
             'employee_id'       => $this->employee_id,

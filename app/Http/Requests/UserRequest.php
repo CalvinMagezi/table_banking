@@ -30,6 +30,8 @@ class UserRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
+                        'first_name'            => 'required',
+                        'last_name'             => '',
                         'role_id'               => 'required|exists:roles,id',
                         'employee_id'           => 'required|exists:employees,id|unique:users,employee_id,NULL,id,deleted_at,NULL',
                         'email'                 => 'required|unique:users,email,NULL,id,deleted_at,NULL',
@@ -43,6 +45,8 @@ class UserRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
+                        'first_name'            => '',
+                        'last_name'             => '',
                         'role_id'               => 'exists:roles,id',
                         'email'                 => ['email', Rule::unique('users')->ignore($this->user, 'id')
                             ->where(function ($query) {

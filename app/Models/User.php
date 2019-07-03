@@ -43,6 +43,8 @@ class User extends BaseModel implements
      * @var array
      */
     protected $fillable = [
+        'first_name',
+        'last_name',
         'employee_id',
         'role_id',
         'email',
