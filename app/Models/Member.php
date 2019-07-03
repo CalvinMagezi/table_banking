@@ -8,8 +8,12 @@
 
 namespace App\Models;
 
+use Nicolaslopezj\Searchable\SearchableTrait;
+
 class Member extends BaseModel
 {
+    use SearchableTrait;
+
     /**
      * The database table used by the model.
      *
@@ -45,6 +49,25 @@ class Member extends BaseModel
         'bank_branch',
         'members_status',
         'passport_photo'
+    ];
+
+    /**
+     * Searchable rules.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        /**
+         * Columns and their priority in search results.
+         * Columns with higher values are more important.
+         * Columns with equal values have equal importance.
+         *
+         * @var array
+         */
+        'columns' => [
+            'members.first_name' => 2,
+            'members.middle_name' => 1,
+        ]
     ];
 
 

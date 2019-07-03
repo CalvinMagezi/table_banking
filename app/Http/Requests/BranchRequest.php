@@ -35,8 +35,8 @@ class BranchRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'branch_name'       => 'required|unique:branches,branch_name,NULL,uuid,deleted_at,NULL',
-                        'branch_location'   => 'required|min:2',
+                        'name'       => 'required|unique:branches,name,NULL,id,deleted_at,NULL',
+                        'location'   => 'required|min:2',
                     ];
 
                     break;
@@ -45,8 +45,8 @@ class BranchRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'branch_location'              => 'min:2',
-                        'branch_name'             => ['required', Rule::unique('branches')->ignore($this->branch, 'uuid')
+                        'location'              => 'min:2',
+                        'name'             => ['required', Rule::unique('branches')->ignore($this->branch, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

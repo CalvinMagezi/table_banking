@@ -35,12 +35,12 @@ class EmployeeRequest extends BaseRequest
                 {
                     $rules = [
                         'first_name'            => 'required|',
-                        'email'                 => 'required|unique:employees,email,NULL,uuid,deleted_at,NULL',
+                        'email'                 => 'required|unique:employees,email,NULL,id,deleted_at,NULL',
                         'last_name'             => 'required',
                         'salutation'            => '',
                         'country'               => '',
-                        'national_id_number'    => 'required|unique:employees,national_id_number,NULL,uuid,deleted_at,NULL',
-                        'passport_number'       => 'required|unique:employees,passport_number,NULL,uuid,deleted_at,NULL',
+                        'national_id_number'    => 'required|unique:employees,national_id_number,NULL,id,deleted_at,NULL',
+                        'passport_number'       => 'required|unique:employees,passport_number,NULL,id,deleted_at,NULL',
 
                         'telephone_number'      => '',
                         'address'               => '',
@@ -54,7 +54,7 @@ class EmployeeRequest extends BaseRequest
                         'job_group'             => '',
                         'designation_id'        => '',
                         'department_id'         => '',
-                        'staff_no'              => 'required|unique:employees,staff_no,NULL,uuid,deleted_at,NULL',
+                        'staff_no'              => 'required|unique:employees,staff_no,NULL,id,deleted_at,NULL',
                         'profile_picture'       => '',
                         'national_id_image'     => ''
                     ];
@@ -66,22 +66,22 @@ class EmployeeRequest extends BaseRequest
                 {
                     $rules = [
                         'first_name'              => '',
-                        'email'                 => ['email', Rule::unique('employees')->ignore($this->user, 'uuid')
+                        'email'                 => ['email', Rule::unique('employees')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'national_id_number'                 => ['national_id_number', Rule::unique('employees')->ignore($this->user, 'uuid')
+                        'national_id_number'                 => ['national_id_number', Rule::unique('employees')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'passport_number'                 => ['passport_number', Rule::unique('employees')->ignore($this->user, 'uuid')
+                        'passport_number'                 => ['passport_number', Rule::unique('employees')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'staff_no'                 => ['staff_no', Rule::unique('employees')->ignore($this->user, 'uuid')
+                        'staff_no'                 => ['staff_no', Rule::unique('employees')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

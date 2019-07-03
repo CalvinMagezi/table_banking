@@ -21,13 +21,13 @@ class PermissionResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'                        => $this->id,
-            'permission_name'           => $this->permission_name,
-            'permission_display_name'   => $this->permission_display_name,
-            'permission_description'    => $this->permission_description,
+            'id'            => $this->id,
+            'name'          => $this->name,
+            'display_name'  => $this->display_name,
+            'description'   => $this->description,
 
-            'created_at'                => $this->created_at,
-            'updated_at'                => $this->updated_at,
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at,
         ];
     }
 }

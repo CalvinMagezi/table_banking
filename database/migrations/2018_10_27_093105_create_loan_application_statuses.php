@@ -17,8 +17,8 @@ class CreateLoanApplicationStatuses extends Migration
             $table->engine = 'InnoDB';
 
             $table->string('id', 36)->primary()->unique();
-            $table->string('loan_application_status_name')->unique();
-            $table->string('loan_application_status_description')->nullable();
+            $table->string('name')->unique();
+            $table->string('description')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

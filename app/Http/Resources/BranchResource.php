@@ -21,12 +21,12 @@ class BranchResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'                => $this->id,
-            'branch_name'       => $this->branch_name,
-            'branch_location'   => $this->branch_location,
+            'id'            => $this->id,
+            'name'          => $this->name,
+            'location'      => $this->location,
 
-            'created_at'        => $this->created_at,
-            'updated_at'        => $this->updated_at,
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at,
         ];
     }
 }

@@ -8,8 +8,12 @@
 
 namespace App\Models;
 
+use Nicolaslopezj\Searchable\SearchableTrait;
+
 class PaymentMethod extends BaseModel
 {
+    use SearchableTrait;
+
     /**
      * The database table used by the model.
      *
@@ -29,8 +33,27 @@ class PaymentMethod extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'method_name',
-        'method_description'
+        'name',
+        'description'
+    ];
+
+    /**
+     * Searchable rules.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        /**
+         * Columns and their priority in search results.
+         * Columns with higher values are more important.
+         * Columns with equal values have equal importance.
+         *
+         * @var array
+         */
+        'columns' => [
+            'payment_methods.name' => 2,
+            'payment_methods.description' => 1,
+        ]
     ];
 
     /**

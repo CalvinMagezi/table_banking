@@ -21,11 +21,12 @@ class LoanStatusResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'                => $this->id,
-            'loan_status_name'  => $this->loan_status_name,
+            'id'            => $this->id,
+            'name'          => $this->name,
+            'description'   => $this->description,
 
-            'created_at'        => $this->created_at,
-            'updated_at'        => $this->updated_at,
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at,
         ];
     }
 }

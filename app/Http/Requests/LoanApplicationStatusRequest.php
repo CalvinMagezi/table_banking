@@ -34,8 +34,8 @@ class LoanApplicationStatusRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'loan_application_status_name'                 => 'required|unique:loan_application_statuses,loan_application_status_name,NULL,uuid,deleted_at,NULL',
-                        'loan_application_status_description'   => '',
+                        'name'                 => 'required|unique:loan_application_statuses,name,NULL,id,deleted_at,NULL',
+                        'description'   => '',
                         ];
 
                     break;
@@ -44,7 +44,7 @@ class LoanApplicationStatusRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'loan_application_status_name'                 => ['loan_application_status_name', Rule::unique('loan_application_statuses')->ignore($this->loan_application_status, 'uuid')
+                        'name'                 => ['name', Rule::unique('loan_application_statuses')->ignore($this->loan_application_status, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

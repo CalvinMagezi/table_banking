@@ -17,8 +17,8 @@ class CreateBranchesTable extends Migration
             $table->engine = 'InnoDB';
 
             $table->string('id', 36)->primary()->unique();
-            $table->string('branch_name')->unique();
-            $table->string('branch_location')->nullable();
+            $table->string('name')->unique();
+            $table->string('location')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

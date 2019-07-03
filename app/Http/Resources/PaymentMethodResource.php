@@ -21,11 +21,11 @@ class PaymentMethodResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'                    => $this->id,
-            'method_name'           => $this->method_name,
-            'method_description'    => $this->method_description,
-            'created_at'            => $this->created_at,
-            'updated_at'            => $this->updated_at,
+            'id'            => $this->id,
+            'name'          => $this->name,
+            'description'   => $this->description,
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at,
         ];
     }
 }

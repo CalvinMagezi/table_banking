@@ -162,7 +162,7 @@ class LoginProxy
      */
     private function checkPermissions($roleId)
     {
-        $role = $this->roleRepository->getWhere('uuid', $roleId, ['permissions']);
+        $role = $this->roleRepository->getWhere('id', $roleId, ['permissions']);
 
         if(!$role)
             return '';
@@ -182,7 +182,7 @@ class LoginProxy
      */
     private function checkRole($roleId)
     {
-        $role = $this->roleRepository->getWhere('uuid', $roleId, ['permissions']);
+        $role = $this->roleRepository->getWhere('id', $roleId, ['permissions']);
         $data[] = trim(strtolower($role->role_name));
 
         return implode(' ', $data);

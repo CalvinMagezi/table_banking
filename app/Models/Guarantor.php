@@ -8,8 +8,12 @@
 
 namespace App\Models;
 
+use Nicolaslopezj\Searchable\SearchableTrait;
+
 class Guarantor extends BaseModel
 {
+    use SearchableTrait;
+
     /**
      * The database table used by the model.
      *
@@ -31,6 +35,25 @@ class Guarantor extends BaseModel
     protected $fillable = [
         'member_id',
         'loan_id'
+    ];
+
+    /**
+     * Searchable rules.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        /**
+         * Columns and their priority in search results.
+         * Columns with higher values are more important.
+         * Columns with equal values have equal importance.
+         *
+         * @var array
+         */
+        'columns' => [
+            'guarantors.member_id' => 2,
+            'guarantors.loan_id' => 1,
+        ]
     ];
 
     /**

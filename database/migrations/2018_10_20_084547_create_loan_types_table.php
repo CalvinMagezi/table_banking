@@ -17,8 +17,8 @@ class CreateLoanTypesTable extends Migration
             $table->engine = 'InnoDB';
             $table->string('id', 36)->primary()->unique();
 
-            $table->string('loan_type_name')->unique();
-            $table->string('loan_type_description')->nullable();
+            $table->string('name')->unique();
+            $table->string('description')->nullable();
             $table->string('max_loan_period')->nullable();
             $table->string('status')->nullable();
 

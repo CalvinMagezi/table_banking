@@ -8,8 +8,11 @@
 
 namespace App\Models;
 
+use Nicolaslopezj\Searchable\SearchableTrait;
+
 class BorrowerStatus extends BaseModel
 {
+    use SearchableTrait;
     /**
      * The database table used by the model.
      *
@@ -31,6 +34,26 @@ class BorrowerStatus extends BaseModel
     protected $fillable = [
         'borrower_status_name',
         'borrower_status_description'
+    ];
+
+
+    /**
+     * Searchable rules.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        /**
+         * Columns and their priority in search results.
+         * Columns with higher values are more important.
+         * Columns with equal values have equal importance.
+         *
+         * @var array
+         */
+        'columns' => [
+            'borrower_statuses.borrower_status_name' => 2,
+            'borrower_statuses.borrower_status_description' => 1,
+        ]
     ];
 
     /**

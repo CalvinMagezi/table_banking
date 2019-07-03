@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
+
 class PermissionRequest extends BaseRequest
 {
 
@@ -19,28 +21,36 @@ class PermissionRequest extends BaseRequest
         {
             case 'GET':
             case 'DELETE':
-            {
-                return [];
-                break;
-            }
+                {
+                    return [];
+                    break;
+                }
             case 'POST':
-            {
-                $rules = [
-                    'permission_name'           =>'required',
-                    'permission_display_name'   =>'required',
-                    'permission_description'    =>'required',
-                ];
+                {
+                    $rules = [
+                        'name'         => 'required|unique:permissions,name,NULL,uuid,deleted_at,NULL',
+                        'display_name' => 'required|unique:permissions,display_name,NULL,uuid,deleted_at,NULL',
+                        'description'  => ''
+                    ];
 
-                break;
-            }
+                    break;
+                }
             case 'PUT':
             case 'PATCH':
-            {
-                $rules = [
+                {
+                    $rules = [
+                        'name'                 => ['required', 'exists:permissions', Rule::unique('permissions')->ignore($this->permission, 'uuid')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
 
-                ];
-                break;
-            }
+                        'display_name'           => ['required', Rule::unique('permissions')->ignore($this->permission, 'uuid')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
+                    ];
+                    break;
+                }
             default:break;
         }
 

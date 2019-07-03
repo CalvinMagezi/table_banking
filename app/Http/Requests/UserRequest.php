@@ -30,9 +30,9 @@ class UserRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'role_id'               => 'required|exists:roles,uuid',
-                        'employee_id'           => 'required|exists:employees,uuid|unique:users,employee_id,NULL,uuid,deleted_at,NULL',
-                        'email'                 => 'required|unique:users,email,NULL,uuid,deleted_at,NULL',
+                        'role_id'               => 'required|exists:roles,id',
+                        'employee_id'           => 'required|exists:employees,id|unique:users,employee_id,NULL,id,deleted_at,NULL',
+                        'email'                 => 'required|unique:users,email,NULL,id,deleted_at,NULL',
                         'password'              => 'required|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
                     ];
@@ -43,13 +43,13 @@ class UserRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'role_id'               => 'exists:roles,uuid',
-                        'email'                 => ['email', Rule::unique('users')->ignore($this->user, 'uuid')
+                        'role_id'               => 'exists:roles,id',
+                        'email'                 => ['email', Rule::unique('users')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'employee_id'                 => ['employee_id|exists:employees,uuid', Rule::unique('employees')->ignore($this->user, 'uuid')
+                        'employee_id'                 => ['employee_id|exists:employees,id', Rule::unique('employees')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

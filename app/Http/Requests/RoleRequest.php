@@ -21,37 +21,36 @@ class RoleRequest extends BaseRequest
         {
             case 'GET':
             case 'DELETE':
-            {
-                return [];
-                break;
-            }
+                {
+                    return [];
+                    break;
+                }
             case 'POST':
-            {
-                $rules = [
+                {
+                    $rules = [
+                        'name'         => 'required|unique:roles,name,NULL,uuid,deleted_at,NULL',
+                        'display_name' => 'required|unique:roles,display_name,NULL,uuid,deleted_at,NULL',
+                        'description'  => ''
+                    ];
 
-                    'role_name'         => 'required|unique:roles,role_name,NULL,uuid,deleted_at,NULL',
-                    'role_display_name' => 'required|unique:roles,role_display_name,NULL,uuid,deleted_at,NULL',
-                    'role_description'  =>''
-                ];
-
-                break;
-            }
+                    break;
+                }
             case 'PUT':
             case 'PATCH':
-            {
-                $rules = [
-                    'role_name'                 => ['role_name', Rule::unique('roles')->ignore($this->role, 'uuid')
-                        ->where(function ($query) {
-                            $query->where('deleted_at', NULL);
-                        })],
+                {
+                    $rules = [
+                        'name'                 => ['required', Rule::unique('roles')->ignore($this->role, 'uuid')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
 
-                    'role_display_name'                 => ['role_display_name', Rule::unique('roles')->ignore($this->role, 'uuid')
-                        ->where(function ($query) {
-                            $query->where('deleted_at', NULL);
-                        })],
-                ];
-                break;
-            }
+                        'display_name'                 => ['required', Rule::unique('roles')->ignore($this->role, 'uuid')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
+                    ];
+                    break;
+                }
             default:break;
         }
 

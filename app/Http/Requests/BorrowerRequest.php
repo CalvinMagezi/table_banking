@@ -49,7 +49,7 @@ class BorrowerRequest extends BaseRequest
                 {
                     $rules = [
                         'name'              => 'min:2',
-                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'uuid')
+                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

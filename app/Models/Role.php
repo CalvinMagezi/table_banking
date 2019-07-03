@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use Nicolaslopezj\Searchable\SearchableTrait;
+
 class Role extends BaseModel
 {
+    use SearchableTrait;
+
     /**
      * The database table used by the model.
      *
@@ -23,9 +27,29 @@ class Role extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'role_name',
-        'role_display_name',
-        'role_description'
+        'name',
+        'display_name',
+        'description'
+    ];
+
+    /**
+     * Searchable rules.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        /**
+         * Columns and their priority in search results.
+         * Columns with higher values are more important.
+         * Columns with equal values have equal importance.
+         *
+         * @var array
+         */
+        'columns' => [
+            'roles.name' => 2,
+            'roles.display_name' => 1,
+            'roles.description' => 0,
+        ]
     ];
 
     /**

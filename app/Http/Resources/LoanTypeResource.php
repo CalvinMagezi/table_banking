@@ -21,14 +21,14 @@ class LoanTypeResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'                    => $this->id,
-            'loan_type_name'        => $this->loan_type_name,
-            'loan_type_description' => $this->loan_type_description,
-            'max_loan_period'       => $this->max_loan_period,
-            'status'                => $this->status,
+            'id'                => $this->id,
+            'name'              => $this->name,
+            'description'       => $this->description,
+            'max_loan_period'   => $this->max_loan_period,
+            'status'            => $this->status,
 
-            'created_at'            => $this->created_at,
-            'updated_at'            => $this->updated_at,
+            'created_at'        => $this->created_at,
+            'updated_at'        => $this->updated_at,
         ];
     }
 }

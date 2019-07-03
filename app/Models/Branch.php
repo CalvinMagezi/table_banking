@@ -8,8 +8,11 @@
 
 namespace App\Models;
 
+use Nicolaslopezj\Searchable\SearchableTrait;
+
 class Branch extends BaseModel
 {
+    use SearchableTrait;
     /**
      * The database table used by the model.
      *
@@ -29,8 +32,27 @@ class Branch extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'branch_name',
-        'branch_location'
+        'name',
+        'location'
+    ];
+
+    /**
+     * Searchable rules.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        /**
+         * Columns and their priority in search results.
+         * Columns with higher values are more important.
+         * Columns with equal values have equal importance.
+         *
+         * @var array
+         */
+        'columns' => [
+            'branches.name' => 2,
+            'branches.location' => 1,
+        ]
     ];
 
 

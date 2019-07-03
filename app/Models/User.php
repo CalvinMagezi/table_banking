@@ -12,6 +12,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Laravel\Passport\HasApiTokens;
+use Nicolaslopezj\Searchable\SearchableTrait;
 
 class User extends BaseModel implements
     AuthenticatableContract,
@@ -19,7 +20,7 @@ class User extends BaseModel implements
     CanResetPasswordContract
 
 {
-    use HasApiTokens, Notifiable,  Authenticatable, Authorizable, CanResetPassword;
+    use HasApiTokens, Notifiable,  Authenticatable, Authorizable, CanResetPassword, SearchableTrait;
 
     /**
      * The database table used by the model.
@@ -48,6 +49,25 @@ class User extends BaseModel implements
         'password',
         'confirmed',
         'confirmation_code'
+    ];
+
+    /**
+     * Searchable rules.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        /**
+         * Columns and their priority in search results.
+         * Columns with higher values are more important.
+         * Columns with equal values have equal importance.
+         *
+         * @var array
+         */
+        'columns' => [
+            'users.email' => 2,
+            'users.role_id' => 1,
+        ]
     ];
 
 

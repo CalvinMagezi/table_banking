@@ -9,8 +9,12 @@
 namespace App\Models;
 
 
+use Nicolaslopezj\Searchable\SearchableTrait;
+
 class LoanApplication extends BaseModel
 {
+    use SearchableTrait;
+
     /**
      * The database table used by the model.
      *
@@ -39,6 +43,25 @@ class LoanApplication extends BaseModel
         'date_approved',
         'application_notes',
         'loan_application_status_id'
+    ];
+
+    /**
+     * Searchable rules.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        /**
+         * Columns and their priority in search results.
+         * Columns with higher values are more important.
+         * Columns with equal values have equal importance.
+         *
+         * @var array
+         */
+        'columns' => [
+            'loan_applications.member_id' => 2,
+            'loan_applications.reviewed_by_user_id' => 1,
+        ]
     ];
 
     /**
