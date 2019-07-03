@@ -170,7 +170,7 @@ class LoginProxy
         $role_permissions = $role->permissions()->get()->toArray();
         $data = [];
         foreach ($role_permissions as $key => $value){
-            $data[] = trim($value['permission_name']);
+            $data[] = trim($value['name']);
         }
 
         return implode(' ', $data);

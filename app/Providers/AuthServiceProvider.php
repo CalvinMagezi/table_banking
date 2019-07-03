@@ -43,7 +43,7 @@ class AuthServiceProvider extends ServiceProvider
                 $permissions = Permission::all()->toArray();
                 if(!is_null($permissions)){
                     foreach ($permissions as $key => $value)
-                        $data[trim($value['permission_name'])] =  trim($value['permission_display_name'] );
+                        $data[trim($value['name'])] =  trim($value['display_name'] );
                 }
 
                 if (!is_null($data))
