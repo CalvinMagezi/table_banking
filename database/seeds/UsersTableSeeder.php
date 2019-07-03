@@ -29,6 +29,8 @@ class UsersTableSeeder extends Seeder
             'role_id' => Role::inRandomOrder()->select('id')->first()['id'],
             'employee_id' => Employee::inRandomOrder()->select('id')->first()['id'],
             'email' => 'devtest@devtest.com',
+            'first_name' => 'Devtest',
+            'last_name' => 'Devtest',
             'password' => 'devtest',
         ]);
 

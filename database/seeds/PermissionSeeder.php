@@ -38,24 +38,24 @@ class PermissionSeeder extends Seeder
             $permissions = [
 
                 [
-                    'permission_name'           => 'create-'.$entity.'',
-                    'permission_display_name'   => 'Create '.$entity.'',
-                    'permission_description'    => 'Ability to create new '.$entity.''
+                    'name'           => 'create-'.$entity.'',
+                    'display_name'   => 'Create '.$entity.'',
+                    'description'    => 'Ability to create new '.$entity.''
                 ],
                 [
-                    'permission_name'           => 'edit-'.$entity.'',
-                    'permission_display_name'   => 'Edit '.$entity.'',
-                    'permission_description'    => 'Ability to edit '.$entity.''
+                    'name'           => 'edit-'.$entity.'',
+                    'display_name'   => 'Edit '.$entity.'',
+                    'description'    => 'Ability to edit '.$entity.''
                 ],
                 [
-                    'permission_name'           => 'view-'.$entity.'',
-                    'permission_display_name'   => 'View '.$entity.'',
-                    'permission_description'    => 'Ability to view '.$entity.''
+                    'name'           => 'view-'.$entity.'',
+                    'display_name'   => 'View '.$entity.'',
+                    'description'    => 'Ability to view '.$entity.''
                 ],
                 [
-                    'permission_name'           => 'delete-'.$entity.'',
-                    'permission_display_name'   => 'Delete '.$entity.'',
-                    'permission_description'    => 'Ability to delete '.$entity.''
+                    'name'           => 'delete-'.$entity.'',
+                    'display_name'   => 'Delete '.$entity.'',
+                    'description'    => 'Ability to delete '.$entity.''
                 ],
             ];
 

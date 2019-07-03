@@ -16,9 +16,9 @@ class RoleSeeder extends Seeder
         DB::table('roles')->delete();
 
         $admin = Role::create([
-            'role_name' => 'Admin',
-            'role_display_name' => 'Admin',
-            'role_description' => "site admin"
+            'name' => 'Admin',
+            'display_name' => 'Admin',
+            'description' => "site admin"
         ]);
 
         DB::table('permission_role')->delete();
