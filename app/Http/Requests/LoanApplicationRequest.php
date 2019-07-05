@@ -37,12 +37,12 @@ class LoanApplicationRequest extends BaseRequest
                         'member_id'             => 'required',
                         'reviewed_by_user_id'   => '',
                         'approved_by_user_id'   => '',
-                        'application_date'      => '',
-                        'amount_applied'        => '',
+                        'application_date'      => 'required',
+                        'amount_applied'        => 'required',
                         'repayment_period'      => '',
                         'date_approved'         => '',
                         'application_notes'     => '',
-                        'loan_status_id'        => '',
+                        'status_id'             => '',
                     ];
 
                     break;
@@ -51,14 +51,15 @@ class LoanApplicationRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'              => 'min:2',
-                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'id')
-                            ->where(function ($query) {
-                                $query->where('deleted_at', NULL);
-                            })],
-
-                        'password'              => 'min:3|confirmed',
-                        'password_confirmation' => 'required_with:password'
+                        'member_id'             => 'required',
+                        'reviewed_by_user_id'   => '',
+                        'approved_by_user_id'   => '',
+                        'application_date'      => '',
+                        'amount_applied'        => '',
+                        'repayment_period'      => '',
+                        'date_approved'         => '',
+                        'application_notes'     => '',
+                        'status_id'             => '',
 
                     ];
                     break;

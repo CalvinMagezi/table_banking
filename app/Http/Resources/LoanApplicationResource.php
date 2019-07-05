@@ -30,7 +30,7 @@ class LoanApplicationResource extends JsonResource
             'repayment_period'      => $this->repayment_period,
             'application_notes'     => $this->application_notes,
             'date_approved'         => $this->date_approved,
-            'loan_status_id'        => $this->loan_status_id,
+            'status_id'             => $this->status_id,
 
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at,

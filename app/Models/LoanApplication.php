@@ -42,7 +42,7 @@ class LoanApplication extends BaseModel
         'repayment_period',
         'date_approved',
         'application_notes',
-        'loan_application_status_id'
+        'status_id'
     ];
 
     /**

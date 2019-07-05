@@ -20,13 +20,14 @@ class CreateLoanApplicationsTable extends Migration
 
             $table->string('member_id', 36);
             $table->string('reviewed_by_user_id', 36)->nullable();
+            $table->string('approved_by_user_id', 36)->nullable();
             $table->string('application_notes', 36)->nullable();
 
             $table->string('application_date');
             $table->string('amount_applied');
             $table->string('repayment_period')->nullable();
             $table->string('date_approved')->nullable();
-            $table->string('loan_application_status_id', 36)->nullable();
+            $table->string('status_id', 36)->nullable();
 
             $table->softDeletes();
             $table->timestamps();
