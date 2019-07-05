@@ -38,16 +38,16 @@ class Member extends BaseModel
         'last_name',
         'nationality',
         'national_id_image',
-        'national_id_number',
+        'id_number',
         'passport_number',
-        'telephone_number',
+        'phone',
         'email',
         'postal_address',
         'residential_address',
         'bank_name',
         'bank_account',
         'bank_branch',
-        'members_status',
+        'status_id',
         'passport_photo'
     ];
 

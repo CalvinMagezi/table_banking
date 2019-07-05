@@ -38,12 +38,16 @@ class GeneralSettingController  extends ApiController
      */
     public function index(Request $request)
     {
-        if ($select = request()->query('list')) {
-            return $this->generalSettingRepository->listAll($this->formatFields($select));
-        } else
-            $data = GeneralSettingResource::collection($this->generalSettingRepository->getAllPaginate());
+        $generalSetting = $this->generalSettingRepository->first();
 
-        return $this->respondWithData($data);
+        if(!$generalSetting)
+        {
+          // return $this->respondNotFound('General Setting not set.');
+            return null;
+
+        }
+
+        return $this->respondWithData(new GeneralSettingResource($generalSetting));
     }
 
     /**

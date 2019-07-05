@@ -28,8 +28,8 @@ class RoleRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'name'         => 'required|unique:roles,name,NULL,uuid,deleted_at,NULL',
-                        'display_name' => 'required|unique:roles,display_name,NULL,uuid,deleted_at,NULL',
+                        'name'         => 'required|unique:roles,name,NULL,id,deleted_at,NULL',
+                        'display_name' => 'required|unique:roles,display_name,NULL,id,deleted_at,NULL',
                         'description'  => ''
                     ];
 
@@ -39,12 +39,12 @@ class RoleRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'                 => ['required', Rule::unique('roles')->ignore($this->role, 'uuid')
+                        'name'                 => ['required', Rule::unique('roles')->ignore($this->role, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'display_name'                 => ['required', Rule::unique('roles')->ignore($this->role, 'uuid')
+                        'display_name'                 => ['required', Rule::unique('roles')->ignore($this->role, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

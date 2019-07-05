@@ -34,13 +34,13 @@ class Payment extends BaseModel
      */
     protected $fillable = [
         'loan_id',
-        'payment_amount',
-        'payment_method_id',
-        'payment_date',
+        'amount',
+        'method_id',
+        'date',
         'paid_to',
         'receipt_number',
         'attachment',
-        'payment_notes'
+        'notes'
     ];
 
     /**
@@ -58,7 +58,7 @@ class Payment extends BaseModel
          */
         'columns' => [
             'payments.loan_id' => 2,
-            'payments.payment_amount' => 1,
+            'payments.amount' => 1,
         ]
     ];
 
@@ -67,7 +67,7 @@ class Payment extends BaseModel
      */
     public function paymentMethod()
     {
-        return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
+        return $this->belongsTo(PaymentMethod::class, 'method_id');
     }
 
     /**

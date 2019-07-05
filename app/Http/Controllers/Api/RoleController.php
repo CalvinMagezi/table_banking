@@ -13,9 +13,10 @@ use Illuminate\Support\Facades\Auth;
 class RoleController  extends ApiController
 {
     /**
-     * @var \App\SmartMicro\Repositories\Contracts\RoleInterface
+     * @var \App\SignalCrm\Repositories\Contracts\RoleInterface
      */
     protected $roleRepository;
+    protected $load;
 
     /**
      * RoleController constructor.
@@ -24,6 +25,7 @@ class RoleController  extends ApiController
     public function __construct(RoleInterface $roleInterface)
     {
         $this->roleRepository   = $roleInterface;
+        $this->load = ['permissions'];
     }
 
     /**
@@ -36,7 +38,7 @@ class RoleController  extends ApiController
         if ($select = request()->query('list')) {
             return $this->roleRepository->listAll($this->formatFields($select));
         } else
-            $data = RoleResource::collection($this->roleRepository->getAllPaginate());
+            $data = RoleResource::collection($this->roleRepository->getAllPaginate($this->load));
 
         return $this->respondWithData($data);
     }
@@ -47,15 +49,10 @@ class RoleController  extends ApiController
      */
     public function store(RoleRequest $request)
     {
-        $save = $this->roleRepository->create($request->all());
+        // dispatch(new CreateRole($request->all()));
+        $role = $this->roleRepository->create($request->all());
 
-        if($save['error']){
-            return $this->respondNotSaved($save['message']);
-        }else{
-            return $this->respondWithSuccess('Success !! Role has been created.');
-
-        }
-
+        return $this->respondWithSuccess('Success !! Role has been created.');
     }
 
     /**
@@ -64,7 +61,7 @@ class RoleController  extends ApiController
      */
     public function show($uuid)
     {
-        $role = $this->roleRepository->getById($uuid);
+        $role = $this->roleRepository->getById($uuid, $this->load);
 
         if(!$role)
         {
@@ -81,14 +78,11 @@ class RoleController  extends ApiController
      */
     public function update(RoleRequest $request, $uuid)
     {
-        $save = $this->roleRepository->update($request->all(), $uuid);
+        // $this->dispatch(new UpdateRole($request->all(), $uuid));
 
-        if($save['error']){
-            return $this->respondNotSaved($save['message']);
-        }else
+        $this->roleRepository->update($request->all(), $uuid);
 
-            return $this->respondWithSuccess('Success !! Role has been updated.');
-
+        return $this->respondWithSuccess('Success !! Role has been updated.');
     }
 
     /**
@@ -97,20 +91,10 @@ class RoleController  extends ApiController
      */
     public function destroy($uuid)
     {
-        if($this->roleRepository->delete($uuid)){
-            return $this->respondWithSuccess('Success !! Role has been deleted');
-        }
-        return $this->respondNotFound('Role not deleted');
-    }
+        //$this->dispatch(new DeleteRole($uuid));
 
-    /**
-     * @return mixed
-     */
-    public function me()
-    {
-        $role = Auth::role();
-        if(isset($role))
-            return $role;
-        return $this->respondNotFound();
+        $this->roleRepository->delete($uuid);
+
+        return $this->respondWithSuccess('Success !! Role has been deleted');
     }
 }

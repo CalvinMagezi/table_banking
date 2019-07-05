@@ -21,10 +21,10 @@ class CreateMembersTable extends Migration
             $table->string('middle_name')->nullable();
             $table->string('last_name');
             $table->string('nationality');
-            $table->string('national_id_number')->unique();
+            $table->string('id_number')->unique();
             $table->string('passport_number')->unique()->nullable();
 
-            $table->string('telephone_number');
+            $table->string('phone');
             $table->string('email')->nullable();
             $table->string('postal_address');
             $table->string('residential_address');
@@ -33,7 +33,7 @@ class CreateMembersTable extends Migration
             $table->string('bank_account')->nullable();
             $table->string('bank_branch')->nullable();
 
-            $table->string('members_status_id')->nullable();
+            $table->string('status_id')->nullable();
             $table->string('passport_photo')->nullable();
             $table->string('national_id_image')->nullable();
 

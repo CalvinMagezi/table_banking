@@ -37,16 +37,16 @@ class MemberRequest extends BaseRequest
                         'last_name'             => 'required',
                         'nationality'           => 'required',
                         'national_id_image'     => '',
-                        'national_id_number'    => 'required',
+                        'id_number'             => 'required',
                         'passport_number'       => 'required',
-                        'telephone_number'      => 'required',
+                        'phone'                 => 'required',
                         'email'                 => 'required|email',
                         'postal_address'        => 'required',
                         'residential_address'   => 'required',
                         'bank_name'             => 'required',
                         'bank_account'          => 'required',
                         'bank_branch'           => 'required',
-                        'members_status_id'     => 'required',
+                        'status_id'             => 'required',
                         'passport_photo'        => ''
 
                     ];

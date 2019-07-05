@@ -33,13 +33,13 @@ class PaymentRequest extends BaseRequest
                 {
                     $rules = [
                         'loan_id'           => 'required',
-                        'payment_amount'    => 'required',
-                        'payment_method_id' => 'required',
-                        'payment_date'      => 'required',
+                        'amount'            => 'required',
+                        'method_id'         => 'required',
+                        'date'              => 'required',
                         'paid_to'           => '',
                         'receipt_number'    => '',
                         'attachment'        => '',
-                        'payment_notes'     => ''
+                        'notes'             => ''
                     ];
 
                     break;

@@ -13,10 +13,10 @@ interface BaseInterface {
     /**
      * Fetch a single item by its id
      * @param $id
+     * @param $load
      * @return mixed
      */
-    function getById($id);
-
+    function getById($id, $load = array());
 
     /**
      * @param array $load
@@ -25,8 +25,14 @@ interface BaseInterface {
     function getAllPaginate($load = array());
 
     /**
+     * @param $select
+     * @return mixed
+     */
+    function listAll($select);
+
+    /**
      * Fetch multiple specified orders
-     * @param array $ids comma separated list of uuids to fetch for
+     * @param array $ids comma separated list of ids to fetch for
      * @param array $load
      * @return mixed
      */
@@ -49,12 +55,12 @@ interface BaseInterface {
     function getManyWhere($field, $values = array(), $load = array());
 
     /**
-     * @param array $load
      * @param $filters
      * @param array $pagination
+     * @param array $load
      * @return mixed
      */
-    function getFiltered($load = array(), $filters, $pagination = array());
+    function getFiltered($filters, $pagination = array(), $load = array());
 
     /**
      * Create a new record
@@ -72,10 +78,10 @@ interface BaseInterface {
     /**
      * Update existing record
      * @param array $data
-     * @param $uuid
+     * @param $id
      * @return mixed
      */
-    function update(array $data, $uuid);
+    function update(array $data, $id);
 
     /**
      * Remove record from db
@@ -89,12 +95,4 @@ interface BaseInterface {
      * @return mixed
      */
     function first();
-
-    function generateRefNumber($data = array());
-
-    public function calculateOrderTotal($id);
-
-    function updateSettings();
-
-    function confirm($confirmation_code);
 }

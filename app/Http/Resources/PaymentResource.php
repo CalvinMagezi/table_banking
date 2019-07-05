@@ -21,18 +21,18 @@ class PaymentResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'                    => $this->id,
-            'loan_id'               => $this->loan_id,
-            'payment_amount'        => $this->payment_amount,
-            'payment_method_id'     => $this->payment_method_id,
-            'payment_date'          => $this->payment_date,
-            'paid_to'               => $this->paid_to,
-            'receipt_number'        => $this->receipt_number,
-            'attachment'            => $this->attachment,
-            'payment_notes'         => $this->payment_notes,
+            'id'                => $this->id,
+            'loan_id'           => $this->loan_id,
+            'amount'            => $this->amount,
+            'method_id'         => $this->method_id,
+            'date'              => $this->date,
+            'paid_to'           => $this->paid_to,
+            'receipt_number'    => $this->receipt_number,
+            'attachment'        => $this->attachment,
+            'notes'             => $this->notes,
 
-            'created_at'            => $this->created_at,
-            'updated_at'            => $this->updated_at
+            'created_at'        => $this->created_at,
+            'updated_at'        => $this->updated_at
         ];
     }
 }

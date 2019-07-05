@@ -4,6 +4,7 @@
 namespace App\SmartMicro\Repositories\Eloquent;
 
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
@@ -15,33 +16,37 @@ use Illuminate\Http\Request;
  */
 abstract class BaseRepository {
 
-    protected $orderBy  = array('created_at', 'desc'), $model, $transformer;
+    protected $orderBy  = array('created_at', 'desc');
+
+    protected $model, $transformer;
 
     /**
      * Set number of records to return
      * @return int
      */
-   function getLimit(){
-       return (int)(request()->query('limit'))?:5;
-   }
+    function limit(){
+        return (int)(request()->query('limit'))?:5;
+    }
 
     /**
-     * Fetch a single item from db table.
-     * Also load with relationships in load
-     * @param $uuid
-     * @param array $load
-     * @return mixed
+     * @return string
      */
-    public function getById($uuid, $load = array())
-    {
+    function sortField () {
+        return (string)(request()->query('sortField')) ? : 'created_at';
+    }
 
-        if(!empty($load))
-        {
-            return $this->model->with($load)->find($uuid);
-        }
+    /**
+     * @return string
+     */
+    function sortDirection() {
+        return (string)(request()->query('sortDirection')) ? : 'asc';
+    }
 
-        return $this->model->find($uuid);
-
+    /**
+     * @return string
+     */
+    function searchFilter() {
+        return (string)(request()->query('filter')) ? : '';
     }
 
     /**
@@ -49,10 +54,17 @@ abstract class BaseRepository {
      * @return mixed
      */
     public function getAllPaginate($load = array()){
-        return $this->model->with($load)->paginate($this->getLimit());
+
+        return $this->model->search($this->searchFilter(), null, true, true)
+            ->with($load)
+            ->orderBy($this->sortField(), $this->sortDirection())
+            ->paginate($this->limit());
+
+        // return $this->model->with($load)->orderBy($this->sortField(), $this->sortDirection())->paginate($this->limit());
     }
 
     /**
+     * Fetch data used for select drop down ui
      * @param $select
      * @return mixed
      */
@@ -68,6 +80,23 @@ abstract class BaseRepository {
         return $data;
     }
 
+    /**
+     * Fetch a single item from db table.
+     * Also load with relationships in load
+     * @param $id
+     * @param array $load
+     * @return mixed
+     */
+    public function getById($id, $load = array())
+    {
+        if(!empty($load))
+        {
+            return $this->model->with($load)->find($id);
+        }
+
+        return $this->model->find($id);
+
+    }
 
     /**
      * Get the first record
@@ -78,12 +107,9 @@ abstract class BaseRepository {
         return $this->model->first();
     }
 
-
-
-
     /**
      * Fetch multiple specified orders
-     * @param array $ids comma separated list of uuids to fetch for
+     * @param array $ids comma separated list of ids to fetch for
      * @param array $load related data
      * @return mixed
      */
@@ -91,12 +117,11 @@ abstract class BaseRepository {
     {
         $query =  $this->model->with($load)->whereIn('id', $ids);
 
-        $data = $query->paginate($this->getLimit());
+        $data = $query->paginate($this->limit());
 
         return $data;
 
     }
-
 
     /**
      * @param $field
@@ -126,21 +151,20 @@ abstract class BaseRepository {
 
         if(isset($sortProperty) && $sortProperty != false)
         {
-            $data = $this->model->with($load)->whereIn($field, $values)->orderBy($sortProperty, $sortDirection)->paginate($this->getLimit());
+            $data = $this->model->with($load)->whereIn($field, $values)->orderBy($sortProperty, $sortDirection)->paginate($this->limit());
         }else
-            $data =  $this->model->with($load)->whereIn($field, $values)->paginate($this->getLimit());
+            $data =  $this->model->with($load)->whereIn($field, $values)->paginate($this->limit());
 
         return $data;
     }
 
-
     /**
-     * @param array $load
      * @param $filters
      * @param array $pagination
+     * @param array $load
      * @return mixed
      */
-    public function getFiltered($load = array(), $filters, $pagination = array())
+    public function getFiltered($filters, $pagination = array(), $load = array())
     {
         if(isset($pagination) && array_key_exists('limit', $pagination)){
             $limit = $pagination['limit'];
@@ -208,47 +232,56 @@ abstract class BaseRepository {
         return $data;
     }
 
-
     /**
      * @param array $data
-     * @return array
+     * @return null
      */
     public function create(array $data)
     {
-
-        if(null === $data)
-            return [
-                'error' => true,
-                'message' => "No data was found"
-            ];
-        //return $data;
-
         try{
-            $record = $this->model->create($data);
-        }catch (QueryException $e){
-            return [
-                'error' => true,
-                'message' => $e->getMessage()
-            ];
+            return $this->model->create($data);
         }catch (\Exception $exception){
-            return [
-                'error' => true,
-                'message' => $exception->getMessage()
-            ];
+            report($exception);
         }
+        return null;
+    }
 
-        if(!$record){
-            return [
-                'error' => true,
-                'message' => "Unexpected Error"
-            ];
+    /**
+     * @param array $data
+     * @param $id
+     * @return array
+     */
+    public function update(array $data, $id)
+    {
+        try{
+            $record = $this->model->find($id);
+
+            if(is_null($record))
+                throw new ModelNotFoundException('Record not found');
+
+            if(isset($record)){
+                return $record->update($data);
+            }
+
+        }catch (\Exception $exception){
+            report($exception);
         }
+        return null;
+    }
 
-        return [
-            'error' => false,
-            'message' => $record
-        ];
-
+    /**
+     * Remove a record from db
+     * @param $id
+     * @return bool
+     */
+    public function delete($id)
+    {
+        try{
+            return $this->model->destroy($id);
+        }catch (\Exception $exception){
+            report($exception);
+        }
+        return false;
     }
 
 
@@ -258,72 +291,8 @@ abstract class BaseRepository {
      */
     public function firstOrCreate(array $data)
     {
-       // return $data;
+        // return $data;
         return $this->model->firstOrCreate($data);
-    }
-
-    /**
-     * @param array $data
-     * @param $uuid
-     * @return array
-     */
-    public function update(array $data, $uuid)
-    {
-        if(null === $data)
-            return [
-                'error' => true,
-                'message' => "No data was found"
-            ];
-
-        try{
-            $record = $this->model->find($uuid);
-            if(null === $record)
-                return [
-                    'error' => true,
-                    'message' => "Item not found. Check item id provided."
-                ];
-
-            $record->update($data);
-
-        }catch (QueryException $e){
-            return [
-                'error' => true,
-                'message' => $e->getMessage()
-            ];
-        }
-
-        if(!$record){
-            return [
-                'error' => true,
-                'message' => "Unexpected Error"
-            ];
-        }
-
-        return [
-            'error' => false,
-            'message' => $record
-        ];
-
-    }
-
-    /**
-     * Remove a record from db
-     * @param $uuid
-     * @return bool
-     */
-    public function delete($uuid)
-    {
-        $record = $this->model->find($uuid);
-
-        if(is_null($record)){
-            return false;
-        }
-
-        elseif($record->destroy($uuid)){
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -350,25 +319,4 @@ abstract class BaseRepository {
     {
         return $this->model->count();
     }
-
-    /**
-     * Sets how the results are sorted
-     * @param string $field The field being sorted
-     * @param string $direction The direction to sort (ASC or DESC)
-     * @return EloquentFooRepository The current instance
-     */
-    public function sortBy($field, $direction = 'DESC')
-    {
-        $direction = (strtoupper($direction) == 'ASC') ? 'ASC' : 'DESC';
-        $this->orderBy = array($field, $direction);
-
-        return $this;
-    }
-
-    public function generateRefNumber($data = array()){}
-    public function calculateOrderTotal($id){}
-
-    public function updateSettings(){}
-
-    public function confirm($code){}
 }

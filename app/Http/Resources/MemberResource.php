@@ -29,7 +29,7 @@ class MemberResource extends JsonResource
             'id_image'              => $this->id_image,
             'id_number'             => $this->id_number,
             'passport_number'       => $this->passport_number,
-            'telephone_number'      => $this->telephone_number,
+            'phone'                 => $this->phone,
             'email'                 => $this->email,
             'postal_address'        => $this->postal_address,
             'residential_address'   => $this->residential_address,
@@ -37,7 +37,7 @@ class MemberResource extends JsonResource
             'bank_account'          => $this->bank_account,
             'bank_branch'           => $this->bank_branch,
 
-            'members_status'        => $this->members_status,
+            'status_id'             => $this->status_id,
             'passport_photo'        => $this->passport_photo,
 
             'created_at'            => $this->created_at,

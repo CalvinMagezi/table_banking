@@ -8,6 +8,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
+
 class PaymentMethodRequest extends BaseRequest
 {
 
@@ -32,8 +34,8 @@ class PaymentMethodRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'method_name'=> 'required',
-                        'method_description'=> ''
+                        'name'         => 'required|unique:payment_methods,name,NULL,id,deleted_at,NULL',
+                        'description'   => ''
                     ];
 
                     break;
@@ -42,7 +44,12 @@ class PaymentMethodRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
+                        'name'                 => ['required', Rule::unique('payment_methods')->ignore($this->payment_method, 'id')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
 
+                        'description'                 => [],
                     ];
                     break;
                 }

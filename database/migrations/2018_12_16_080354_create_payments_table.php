@@ -18,14 +18,14 @@ class CreatePaymentsTable extends Migration
             $table->string('id', 36)->primary()->unique();
 
             $table->string('loan_id');
-            $table->string('payment_amount');
-            $table->string('payment_method_id');
+            $table->string('amount');
+            $table->string('method_id');
 
-            $table->string('payment_date');
+            $table->string('date');
             $table->string('paid_to')->nullable();
             $table->string('receipt_number')->nullable();
             $table->string('attachment')->nullable();
-            $table->string('payment_notes')->nullable();
+            $table->string('notes')->nullable();
 
             $table->softDeletes();
             $table->timestamps();
