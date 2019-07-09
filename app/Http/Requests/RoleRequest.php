@@ -30,7 +30,8 @@ class RoleRequest extends BaseRequest
                     $rules = [
                         'name'         => 'required|unique:roles,name,NULL,id,deleted_at,NULL',
                         'display_name' => 'required|unique:roles,display_name,NULL,id,deleted_at,NULL',
-                        'description'  => ''
+                        'description'  => '',
+                        'permissions'  => '',
                     ];
 
                     break;
@@ -48,6 +49,7 @@ class RoleRequest extends BaseRequest
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
+                      //  'permissions'         => 'required'
                     ];
                     break;
                 }

@@ -49,10 +49,31 @@ class RoleController  extends ApiController
      */
     public function store(RoleRequest $request)
     {
-        // dispatch(new CreateRole($request->all()));
-        $role = $this->roleRepository->create($request->all());
 
-        return $this->respondWithSuccess('Success !! Role has been created.');
+
+        $data = $request->json()->all();
+
+        // $save = $this->roleRepository->create($request->all());
+        $role = $this->roleRepository->create($data);
+
+        if($role && array_key_exists('permission', $data)){
+
+                $permissions = $data['permission'];
+
+                if (!is_null($permissions)){
+                    $role->permissions()->attach($permissions);
+                }
+
+            return $this->respondWithSuccess('Success !! Role has been created.');
+
+        }
+
+
+
+        // dispatch(new CreateRole($request->all()));
+       /* $role = $this->roleRepository->create($request->all());
+
+        return $this->respondWithSuccess('Success !! Role has been created.');*/
     }
 
     /**
@@ -78,11 +99,21 @@ class RoleController  extends ApiController
      */
     public function update(RoleRequest $request, $uuid)
     {
-        // $this->dispatch(new UpdateRole($request->all(), $uuid));
+
+        $data = $request->json()->all();
+        if(array_key_exists('permissions', $data)){
+            $permissions = $data['permissions'];
+
+            if (!is_null($permissions)){
+                $this->roleRepository->getById($uuid)->permissions()->sync($permissions);
+            }
+
+        }
 
         $this->roleRepository->update($request->all(), $uuid);
 
         return $this->respondWithSuccess('Success !! Role has been updated.');
+
     }
 
     /**
@@ -91,7 +122,8 @@ class RoleController  extends ApiController
      */
     public function destroy($uuid)
     {
-        //$this->dispatch(new DeleteRole($uuid));
+
+        $this->roleRepository->getById($uuid)->permissions()->detach();
 
         $this->roleRepository->delete($uuid);
 
