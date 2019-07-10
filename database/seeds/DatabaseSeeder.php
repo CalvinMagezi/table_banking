@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         'database\seeds\PermissionSeeder',
         'database\seeds\RoleSeeder',
         'database\seeds\UsersTableSeeder',
+        'database\seeds\GeneralSettingTableSeeder'
     ];
 
     /**

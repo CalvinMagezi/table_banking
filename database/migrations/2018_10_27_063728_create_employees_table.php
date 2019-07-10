@@ -17,6 +17,7 @@ class CreateEmployeesTable extends Migration
             $table->engine = 'InnoDB';
             $table->string('id', 36)->primary()->unique();
 
+            $table->string('employee_number')->unique();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('salutation')->nullable();
@@ -42,7 +43,7 @@ class CreateEmployeesTable extends Migration
             $table->string('passport_number')->nullable();
             $table->string('designation_id')->nullable();
             $table->string('department_id')->nullable();
-            $table->string('staff_no')->unique();
+            $table->string('birth_day')->unique();
 
             $table->softDeletes();
             $table->timestamps();

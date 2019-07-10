@@ -33,7 +33,7 @@ class UserRequest extends BaseRequest
                         'first_name'            => 'required',
                         'last_name'             => '',
                         'role_id'               => 'required|exists:roles,id',
-                        'employee_id'           => 'required|exists:employees,id|unique:users,employee_id,NULL,id,deleted_at,NULL',
+                        'employee_id'           => 'exists:employees,id|unique:users,employee_id,NULL,id,deleted_at,NULL',
                         'email'                 => 'required|unique:users,email,NULL,id,deleted_at,NULL',
                         'password'              => 'required|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
@@ -48,17 +48,17 @@ class UserRequest extends BaseRequest
                         'first_name'            => '',
                         'last_name'             => '',
                         'role_id'               => 'exists:roles,id',
-                        'email'                 => ['email', Rule::unique('users')->ignore($this->user, 'id')
+                        'email'                 => ['required', Rule::unique('users')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'employee_id'                 => ['employee_id|exists:employees,id', Rule::unique('employees')->ignore($this->user, 'id')
+                        'employee_id'                 => ['exists:employees,id', Rule::unique('users')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'password'              => 'min:3|confirmed',
+                        'password'              => 'nullable|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
 
                     ];

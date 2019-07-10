@@ -91,7 +91,8 @@ class UserController  extends ApiController
      */
     public function update(UserRequest $request, $uuid)
     {
-        $save = $this->userRepository->update($request->all(), $uuid);
+
+        $save = $this->userRepository->update(array_filter($request->all()), $uuid);
 
         if($save['error']){
             return $this->respondNotSaved($save['message']);

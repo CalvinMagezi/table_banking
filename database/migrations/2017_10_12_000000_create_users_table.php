@@ -21,7 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('last_name')->nullable();
 
             $table->uuid('role_id', 36);
-            $table->uuid('employee_id', 36)->unique();
+            $table->uuid('employee_id', 36)->nullable();
 
             $table->string('email')->unique();
             $table->string('password', 60);

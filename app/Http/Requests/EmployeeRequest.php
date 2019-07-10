@@ -34,7 +34,8 @@ class EmployeeRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'first_name'            => 'required|',
+                        'employee_number'       => 'required|unique:employees,staff_no,NULL,id,deleted_at,NULL',
+                        'first_name'            => 'required',
                         'email'                 => 'required|unique:employees,email,NULL,id,deleted_at,NULL',
                         'last_name'             => 'required',
                         'salutation'            => '',
@@ -54,7 +55,7 @@ class EmployeeRequest extends BaseRequest
                         'job_group'             => '',
                         'designation_id'        => '',
                         'department_id'         => '',
-                        'staff_no'              => 'required|unique:employees,staff_no,NULL,id,deleted_at,NULL',
+                        'birth_day'             => '',
                         'profile_picture'       => '',
                         'national_id_image'     => ''
                     ];
@@ -65,7 +66,8 @@ class EmployeeRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'first_name'              => '',
+                        'employee_number'       => '',
+                        'first_name'            => '',
                         'email'                 => ['email', Rule::unique('employees')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);

@@ -33,6 +33,7 @@ class Employee extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'employee_number',
         'first_name',
         'last_name',
         'salutation',
@@ -52,7 +53,7 @@ class Employee extends BaseModel
         'job_group',
         'designation_id',
         'department_id',
-        'staff_no',
+        'birth_day',
         'profile_picture',
         'national_id_image'
     ];
