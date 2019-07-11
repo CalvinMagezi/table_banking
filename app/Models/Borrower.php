@@ -36,11 +36,17 @@ class Borrower extends BaseModel
         'member_id',
         'credit_score',
         'borrower_status_id',
-        'spouse_type',
-        'spouse_name',
-        'spouse_id_number',
-        'spouse_phone',
-        'spouse_address',
+        'witness_type_id',
+        'witness_first_name',
+        'witness_last_name',
+        'witness_country',
+        'witness_city',
+        'witness_national_id',
+        'witness_phone',
+        'witness_email',
+        'witness_postal_address',
+        'witness_residential_address',
+        'notes',
     ];
 
     /**

@@ -34,12 +34,20 @@ class BorrowerRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'member_id'             => 'required',
-                        'spouse_type'           => 'required',
-                        'spouse_name'           => 'required',
-                        'spouse_id_number'      => 'required',
-                        'spouse_phone'          => 'required',
-                        'spouse_address'        => 'required',
+                        'member_id'                     => 'required',
+                        'credit_score'                  => '',
+                        'borrower_status_id'            => '',
+                        'witness_type_id'               => 'required',
+                        'witness_first_name'            => 'required',
+                        'witness_last_name'             => 'required',
+                        'witness_country'               => 'required',
+                        'witness_city'                  => 'required',
+                        'witness_national_id'           => 'required',
+                        'witness_phone'                 => 'required',
+                        'witness_email'                 => 'required',
+                        'witness_postal_address'        => 'required',
+                        'witness_residential_address'   => 'required',
+                        'notes'                         => '',
                     ];
 
                     break;
@@ -48,14 +56,20 @@ class BorrowerRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'              => 'min:2',
-                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'id')
-                            ->where(function ($query) {
-                                $query->where('deleted_at', NULL);
-                            })],
-
-                        'password'              => 'min:3|confirmed',
-                        'password_confirmation' => 'required_with:password'
+                        'member_id'                     => 'required',
+                        'credit_score'                  => '',
+                        'borrower_status_id'            => '',
+                        'witness_type_id'               => 'required',
+                        'witness_first_name'            => 'required',
+                        'witness_last_name'             => 'required',
+                        'witness_country'               => 'required',
+                        'witness_city'                  => 'required',
+                        'witness_national_id'           => 'required',
+                        'witness_phone'                 => 'required',
+                        'witness_email'                 => 'required',
+                        'witness_postal_address'        => 'required',
+                        'witness_residential_address'   => 'required',
+                        'notes'                         => '',
 
                     ];
                     break;

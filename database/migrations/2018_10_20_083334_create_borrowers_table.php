@@ -21,11 +21,18 @@ class CreateBorrowersTable extends Migration
             $table->string('credit_score')->nullable();
             $table->string('borrower_status_id')->nullable();
 
-            $table->string('spouse_type')->nullable();
-            $table->string('spouse_name')->nullable();
-            $table->string('spouse_id_number')->nullable();
-            $table->string('spouse_phone')->nullable();
-            $table->string('spouse_address')->nullable();
+            $table->string('witness_type_id', 36);
+
+            $table->string('witness_first_name')->nullable();
+            $table->string('witness_last_name')->nullable();
+            $table->string('witness_country')->nullable();
+            $table->string('witness_city')->nullable();
+            $table->string('witness_national_id')->nullable();
+            $table->string('witness_phone')->nullable();
+            $table->string('witness_email')->nullable();
+            $table->string('witness_postal_address')->nullable();
+            $table->string('witness_residential_address')->nullable();
+            $table->string('notes')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

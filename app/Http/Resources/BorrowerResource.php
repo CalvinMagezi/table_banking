@@ -21,17 +21,23 @@ class BorrowerResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'                    => $this->id,
-            'member_id'             => $this->member_id,
-            'credit_score'          => $this->credit_score,
-            'borrower_status_id'    => $this->borrower_status_id,
-            'spouse_type'           => $this->spouse_type,
-            'spouse_name'           => $this->spouse_name,
-            'spouse_id_number'      => $this->spouse_id_number,
-            'spouse_phone'          => $this->spouse_phone,
-            'spouse_address'        => $this->spouse_address,
-            'created_at'            => $this->created_at,
-            'updated_at'            => $this->updated_at,
+            'id'                            => $this->id,
+            'member_id'                     => $this->member_id,
+            'credit_score'                  => $this->credit_score,
+            'borrower_status_id'            => $this->borrower_status_id,
+            'witness_type_id'               => $this->witness_type_id,
+            'witness_first_name'            => $this->witness_first_namec,
+            'witness_country'               => $this->witness_country,
+            'witness_city'                  => $this->witness_city,
+            'witness_last_name'             => $this->witness_last_name,
+            'witness_national_id'           => $this->witness_national_id,
+            'witness_phone'                 => $this->witness_phone,
+            'witness_email'                 => $this->witness_email,
+            'witness_postal_address'        => $this->witness_postal_address,
+            'witness_residential_address'   => $this->witness_residential_address,
+            'notes'                         => $this->notes,
+            'created_at'                    => $this->created_at,
+            'updated_at'                    => $this->updated_at,
         ];
     }
 }
