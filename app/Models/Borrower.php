@@ -64,7 +64,7 @@ class Borrower extends BaseModel
          */
         'columns' => [
             'borrowers.credit_score' => 2,
-            'borrowers.spouse_name' => 1,
+            'borrowers.witness_first_name' => 1,
         ]
     ];
 

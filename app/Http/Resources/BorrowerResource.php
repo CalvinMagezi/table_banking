@@ -26,7 +26,7 @@ class BorrowerResource extends JsonResource
             'credit_score'                  => $this->credit_score,
             'borrower_status_id'            => $this->borrower_status_id,
             'witness_type_id'               => $this->witness_type_id,
-            'witness_first_name'            => $this->witness_first_namec,
+            'witness_first_name'            => $this->witness_first_name,
             'witness_country'               => $this->witness_country,
             'witness_city'                  => $this->witness_city,
             'witness_last_name'             => $this->witness_last_name,
