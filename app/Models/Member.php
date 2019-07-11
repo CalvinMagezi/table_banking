@@ -37,6 +37,8 @@ class Member extends BaseModel
         'middle_name',
         'last_name',
         'nationality',
+        'county',
+        'city',
         'national_id_image',
         'id_number',
         'passport_number',

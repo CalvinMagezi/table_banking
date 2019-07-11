@@ -34,9 +34,9 @@ class EmployeeRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'employee_number'       => 'required|unique:employees,staff_no,NULL,id,deleted_at,NULL',
+                        'employee_number'       => 'required|unique:employees,employee_number,NULL,id,deleted_at,NULL',
                         'first_name'            => 'required',
-                        'email'                 => 'required|unique:employees,email,NULL,id,deleted_at,NULL',
+                        'email'                 => 'email|required|unique:employees,email,NULL,id,deleted_at,NULL',
                         'last_name'             => 'required',
                         'salutation'            => '',
                         'country'               => '',
@@ -66,24 +66,27 @@ class EmployeeRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'employee_number'       => '',
+                        'employee_number'                 => [Rule::unique('employees')->ignore($this->employee, 'id')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
                         'first_name'            => '',
-                        'email'                 => ['email', Rule::unique('employees')->ignore($this->user, 'id')
+                        'email'                 => ['email', Rule::unique('employees')->ignore($this->employee, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'national_id_number'                 => ['national_id_number', Rule::unique('employees')->ignore($this->user, 'id')
+                        'national_id_number'                 => [Rule::unique('employees')->ignore($this->employee, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'passport_number'                 => ['passport_number', Rule::unique('employees')->ignore($this->user, 'id')
+                        'passport_number'                 => [Rule::unique('employees')->ignore($this->employee, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'staff_no'                 => ['staff_no', Rule::unique('employees')->ignore($this->user, 'id')
+                        'staff_no'                 => [Rule::unique('employees')->ignore($this->employee, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

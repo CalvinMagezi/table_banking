@@ -34,7 +34,7 @@ class UserRequest extends BaseRequest
                         'last_name'             => '',
                         'role_id'               => 'required|exists:roles,id',
                         'employee_id'           => 'exists:employees,id|unique:users,employee_id,NULL,id,deleted_at,NULL',
-                        'email'                 => 'required|unique:users,email,NULL,id,deleted_at,NULL',
+                        'email'                 => 'email|required|unique:users,email,NULL,id,deleted_at,NULL',
                         'password'              => 'required|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
                     ];
@@ -48,7 +48,7 @@ class UserRequest extends BaseRequest
                         'first_name'            => '',
                         'last_name'             => '',
                         'role_id'               => 'exists:roles,id',
-                        'email'                 => ['required', Rule::unique('users')->ignore($this->user, 'id')
+                        'email'                 => ['email', Rule::unique('users')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
