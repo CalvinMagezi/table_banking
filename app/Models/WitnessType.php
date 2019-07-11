@@ -2,23 +2,25 @@
 /**
  * Created by PhpStorm.
  * User: kevin
- * Date: 27/10/2018
- * Time: 12:33
+ * Email: robisignals@gmail.com
+ * Date: 11/07/2019
+ * Time: 07:35
  */
 
 namespace App\Models;
 
 use Nicolaslopezj\Searchable\SearchableTrait;
 
-class BorrowerStatus extends BaseModel
+class WitnessType extends BaseModel
 {
     use SearchableTrait;
+
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'borrower_statuses';
+    protected $table = 'witness_types';
 
     /**
      * Main table primary key
@@ -36,7 +38,6 @@ class BorrowerStatus extends BaseModel
         'description'
     ];
 
-
     /**
      * Searchable rules.
      *
@@ -51,8 +52,8 @@ class BorrowerStatus extends BaseModel
          * @var array
          */
         'columns' => [
-            'borrower_statuses.name' => 2,
-            'borrower_statuses.description' => 1,
+            'witness_types.name' => 2,
+            'witness_types.description' => 1,
         ]
     ];
 

@@ -2,20 +2,21 @@
 /**
  * Created by PhpStorm.
  * User: kevin
- * Date: 27/10/2018
- * Time: 12:51
+ * Email: robisignals@gmail.com
+ * Date: 11/07/2019
+ * Time: 07:34
  */
 
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class BorrowerStatusResource extends JsonResource
+class WitnessTypeResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function toArray($request)

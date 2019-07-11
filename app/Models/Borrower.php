@@ -79,6 +79,14 @@ class Borrower extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    public function witnessType()
+    {
+        return $this->belongsTo(WitnessType::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function member()
     {
         return $this->belongsTo(Member::class);

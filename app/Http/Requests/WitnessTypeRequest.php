@@ -2,15 +2,16 @@
 /**
  * Created by PhpStorm.
  * User: kevin
- * Date: 27/10/2018
- * Time: 12:51
+ * Email: robisignals@gmail.com
+ * Date: 11/07/2019
+ * Time: 07:34
  */
 
 namespace App\Http\Requests;
 
 use Illuminate\Validation\Rule;
 
-class BorrowerStatusRequest extends BaseRequest
+class WitnessTypeRequest extends BaseRequest
 {
 
     /**
@@ -23,8 +24,7 @@ class BorrowerStatusRequest extends BaseRequest
 
         $rules = [];
 
-        switch($this->method())
-        {
+        switch ($this->method()) {
             case 'GET':
             case 'DELETE':
                 {
@@ -34,8 +34,8 @@ class BorrowerStatusRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'name'          => 'required|unique:borrower_statuses,name,NULL,id,deleted_at,NULL',
-                        'description'   => ''
+                        'name'          => 'required|unique:witness_types,name,NULL,id,deleted_at,NULL',
+                        'description'   => '',
                     ];
 
                     break;
@@ -44,14 +44,20 @@ class BorrowerStatusRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'                 => ['required', Rule::unique('borrower_statuses')->ignore($this->borrower_status, 'id')
+                        'name' => ['required', Rule::unique('witness_types')->ignore($this->witness_type, 'id')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
+
+                        'description' => [Rule::unique('witness_types')->ignore($this->witness_type, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
                     ];
                     break;
                 }
-            default:break;
+            default:
+                break;
         }
 
         return $rules;
