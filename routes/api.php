@@ -48,6 +48,8 @@ Route::namespace('Api')->prefix('v1')->group(function () {
     Route::resource('payments', 'PaymentController', ['except' => ['create', 'edit']]);
     Route::resource('payment_methods', 'PaymentMethodController', ['except' => ['create', 'edit']]);
     Route::resource('general_settings', 'GeneralSettingController', ['except' => ['create', 'edit']]);
+    Route::resource('assets', 'AssetController', ['except' => ['create', 'edit']]);
+    Route::resource('asset_photos', 'AssetPhotoController', ['except' => ['create', 'edit']]);
     Route::resource('witness_types', 'WitnessTypeController', ['except' => ['create', 'edit']]);
     Route::get('/logout', 'Oauth\LoginController@logout');
 
