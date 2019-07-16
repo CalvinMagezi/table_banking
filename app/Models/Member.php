@@ -33,9 +33,12 @@ class Member extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'branch_id',
         'first_name',
         'middle_name',
         'last_name',
+        'date_of_birth',
+        'date_became_member',
         'nationality',
         'county',
         'city',
@@ -46,9 +49,6 @@ class Member extends BaseModel
         'email',
         'postal_address',
         'residential_address',
-        'bank_name',
-        'bank_account',
-        'bank_branch',
         'status_id',
         'passport_photo'
     ];
@@ -94,6 +94,6 @@ class Member extends BaseModel
      */
     public function loanApplications()
     {
-        return $this->hasMany(LoanApplication::class);
+        return $this->hasMany(LoanApplication::class, 'member_id');
     }
 }

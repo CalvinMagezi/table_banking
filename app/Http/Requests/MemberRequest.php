@@ -32,25 +32,24 @@ class MemberRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
+                        'branch_id'             => 'required',
                         'first_name'            => 'required',
                         'middle_name'           => 'required',
-                        'last_name'             => 'required',
-                        'nationality'           => 'required',
+                        'last_name'             => '',
+                        'date_of_birth'         => 'required',
+                        'date_became_member'    => 'required',
+                        'nationality'           => '',
                         'county'                => '',
                         'city'                  => '',
                         'national_id_image'     => '',
-                        'id_number'             => 'required',
+                        'id_number'             => '',
                         'passport_number'       => '',
                         'phone'                 => 'required',
                         'email'                 => 'email',
                         'postal_address'        => '',
                         'residential_address'   => '',
-                        'bank_name'             => '',
-                        'bank_account'          => '',
-                        'bank_branch'           => '',
                         'status_id'             => '',
                         'passport_photo'        => ''
-
                     ];
 
                     break;
@@ -59,7 +58,24 @@ class MemberRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-
+                        'branch_id'             => 'required',
+                        'first_name'            => 'required',
+                        'middle_name'           => 'required',
+                        'last_name'             => '',
+                        'date_of_birth'         => 'required',
+                        'date_became_member'    => 'required',
+                        'nationality'           => '',
+                        'county'                => '',
+                        'city'                  => '',
+                        'national_id_image'     => '',
+                        'id_number'             => '',
+                        'passport_number'       => '',
+                        'phone'                 => 'required',
+                        'email'                 => 'email',
+                        'postal_address'        => '',
+                        'residential_address'   => '',
+                        'status_id'             => '',
+                        'passport_photo'        => ''
                     ];
                     break;
                 }

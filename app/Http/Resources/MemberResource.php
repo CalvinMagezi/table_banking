@@ -22,23 +22,22 @@ class MemberResource extends JsonResource
     {
         return [
             'id'                    => $this->id,
+            'branch_id'             => $this->branch_id,
             'first_name'            => $this->first_name,
             'middle_name'           => $this->middle_name,
             'last_name'             => $this->last_name,
+            'date_of_birth'         => $this->date_of_birth,
+            'date_became_member'    => $this->date_became_member,
             'nationality'           => $this->nationality,
             'county'                => $this->county,
             'city'                  => $this->city,
-            'id_image'              => $this->id_image,
+            'national_id_image'     => $this->national_id_image,
             'id_number'             => $this->id_number,
             'passport_number'       => $this->passport_number,
             'phone'                 => $this->phone,
             'email'                 => $this->email,
             'postal_address'        => $this->postal_address,
             'residential_address'   => $this->residential_address,
-            'bank_name'             => $this->bank_name,
-            'bank_account'          => $this->bank_account,
-            'bank_branch'           => $this->bank_branch,
-
             'status_id'             => $this->status_id,
             'passport_photo'        => $this->passport_photo,
 
