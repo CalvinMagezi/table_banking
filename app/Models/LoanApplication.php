@@ -35,14 +35,33 @@ class LoanApplication extends BaseModel
      */
     protected $fillable = [
         'member_id',
-        'reviewed_by_user_id',
-        'approved_by_user_id',
-        'application_date',
-        'amount_applied',
+        'loan_type_id',
+        'interest_rate',
         'repayment_period',
-        'date_approved',
-        'application_notes',
-        'status_id'
+        'amount_applied',
+        'monthly_payments',
+        'application_date',
+        'disburse_method_id',
+        'mpesa_number',
+        'bank_name',
+        'bank_branch',
+        'bank_account',
+        'other_banking_details',
+        'witness_type_id',
+        'witness_first_name',
+        'witness_last_name',
+        'witness_country',
+        'witness_county',
+        'witness_city',
+        'witness_national_id',
+        'witness_phone',
+        'witness_email',
+        'witness_postal_address',
+        'witness_residential_address',
+        'status_id',
+        'witnessed_by_user_id',
+        'approved_by_user_id',
+        'attach_application_form'
     ];
 
     /**
@@ -60,7 +79,7 @@ class LoanApplication extends BaseModel
          */
         'columns' => [
             'loan_applications.member_id' => 2,
-            'loan_applications.reviewed_by_user_id' => 1,
+            'loan_applications.amount_applied' => 1,
         ]
     ];
 
@@ -75,7 +94,7 @@ class LoanApplication extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function reviewUser()
+    public function witnessUser()
     {
         return $this->belongsTo(User::class);
     }
