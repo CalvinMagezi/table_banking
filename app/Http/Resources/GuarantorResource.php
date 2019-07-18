@@ -21,13 +21,15 @@ class GuarantorResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'            => $this->id,
+            'id'                    => $this->id,
 
-            'member_id'     => $this->member_id,
-            'loan_id'       => $this->loan_id,
+            'member_id'             => $this->member_id,
+            'loan_application_id'   => $this->loan_application_id,
+            'assign_date'           => $this->assign_date,
+            'guarantee_amount'      => $this->guarantee_amount,
 
-            'created_at'    => $this->created_at,
-            'updated_at'    => $this->updated_at,
+            'created_at'            => $this->created_at,
+            'updated_at'            => $this->updated_at,
         ];
     }
 }

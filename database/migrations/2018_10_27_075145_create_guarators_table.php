@@ -18,7 +18,9 @@ class CreateGuaratorsTable extends Migration
             $table->string('id', 36)->primary()->unique();
 
             $table->string('member_id', 36);
-            $table->string('loan_id', 36);
+            $table->string('loan_application_id', 36);
+            $table->string('assign_date');
+            $table->string('guarantee_amount')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

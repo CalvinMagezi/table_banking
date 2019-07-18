@@ -34,8 +34,10 @@ class GuarantorRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'member_id' => 'required',
-                        'loan_id'   => 'required'
+                        'member_id'             => 'required|unique:guarantors,member_id,NULL,id,deleted_at,NULL',
+                        'loan_application_id'   => 'required',
+                        'assign_date'           => 'required',
+                        'guarantee_amount'      => 'required'
                     ];
 
                     break;
@@ -44,7 +46,13 @@ class GuarantorRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-
+                        'member_id'             => [Rule::unique('guarantors')->ignore($this->guarantor, 'id')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
+                        'loan_application_id'   => 'required',
+                        'assign_date'           => 'required',
+                        'guarantee_amount'      => 'required',
                     ];
                     break;
                 }
