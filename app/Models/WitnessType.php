@@ -35,6 +35,7 @@ class WitnessType extends BaseModel
      */
     protected $fillable = [
         'name',
+        'display_name',
         'description'
     ];
 

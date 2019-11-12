@@ -16,6 +16,7 @@ class CreateEmployeesTable extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->string('id', 36)->primary()->unique();
+            $table->string('branch_id', 36);
 
             $table->string('employee_number')->unique();
             $table->string('first_name');
@@ -44,6 +45,10 @@ class CreateEmployeesTable extends Migration
             $table->string('designation_id')->nullable();
             $table->string('department_id')->nullable();
             $table->string('birth_day')->unique();
+
+            $table->string('created_by', 36)->nullable();
+            $table->string('updated_by', 36)->nullable();
+            $table->string('deleted_by', 36)->nullable();
 
             $table->softDeletes();
             $table->timestamps();

@@ -28,8 +28,8 @@ class PermissionRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'name'         => 'required|unique:permissions,name,NULL,uuid,deleted_at,NULL',
-                        'display_name' => 'required|unique:permissions,display_name,NULL,uuid,deleted_at,NULL',
+                        'name'         => 'required|unique:permissions,name,NULL,id,deleted_at,NULL',
+                        'display_name' => 'required|unique:permissions,display_name,NULL,id,deleted_at,NULL',
                         'description'  => ''
                     ];
 
@@ -39,12 +39,12 @@ class PermissionRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'                 => ['required', 'exists:permissions', Rule::unique('permissions')->ignore($this->permission, 'uuid')
+                        'name'                 => ['required', 'exists:permissions', Rule::unique('permissions')->ignore($this->permission, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'display_name'           => ['required', Rule::unique('permissions')->ignore($this->permission, 'uuid')
+                        'display_name'           => ['required', Rule::unique('permissions')->ignore($this->permission, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

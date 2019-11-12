@@ -34,6 +34,7 @@ class BorrowerRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
+                        'branch_id'             => 'required|exists:branches,id',
                         'member_id'                     => 'required',
                         'credit_score'                  => '',
                         'borrower_status_id'            => '',
@@ -56,6 +57,7 @@ class BorrowerRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
+                        'branch_id'             => 'required|exists:branches,id',
                         'member_id'                     => 'required',
                         'credit_score'                  => '',
                         'borrower_status_id'            => '',

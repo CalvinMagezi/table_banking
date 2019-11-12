@@ -22,6 +22,8 @@ class BorrowerResource extends JsonResource
     {
         return [
             'id'                            => $this->id,
+            'branch_id'         => $this->branch_id,
+
             'member_id'                     => $this->member_id,
             'credit_score'                  => $this->credit_score,
             'borrower_status_id'            => $this->borrower_status_id,
@@ -36,6 +38,10 @@ class BorrowerResource extends JsonResource
             'witness_postal_address'        => $this->witness_postal_address,
             'witness_residential_address'   => $this->witness_residential_address,
             'notes'                         => $this->notes,
+
+            'created_by'        => $this->created_by,
+            'updated_by'        => $this->updated_by,
+
             'created_at'                    => $this->created_at,
             'updated_at'                    => $this->updated_at,
         ];

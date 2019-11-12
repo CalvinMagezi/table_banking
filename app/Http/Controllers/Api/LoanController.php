@@ -8,26 +8,53 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Loan\LoanDueChecked;
 use App\Http\Requests\LoanRequest;
 use App\Http\Resources\LoanResource;
+use App\SmartMicro\Repositories\Contracts\FinanceStatementInterface;
+use App\SmartMicro\Repositories\Contracts\InterestTypeInterface;
+use App\SmartMicro\Repositories\Contracts\JournalInterface;
+use App\SmartMicro\Repositories\Contracts\LoanApplicationInterface;
+use App\SmartMicro\Repositories\Contracts\LoanInterestRepaymentInterface;
 use App\SmartMicro\Repositories\Contracts\LoanInterface;
 
+use App\SmartMicro\Repositories\Contracts\LoanPrincipalRepaymentInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LoanController  extends ApiController
 {
     /**
-     * @var \App\SmartMicro\Repositories\Contracts\LoanInterface
+     * @var LoanInterface
      */
-    protected $loanRepository;
+    protected $loanRepository, $loanApplicationRepository, $interestTypeRepository,
+        $journalRepository, $load, $loanInterestRepayment, $loanPrincipalRepayment, $financeStatement;
 
     /**
      * LoanController constructor.
      * @param LoanInterface $loanInterface
+     * @param LoanApplicationInterface $loanApplicationInterface
+     * @param JournalInterface $journalInterface
+     * @param LoanInterestRepaymentInterface $loanInterestRepayment
+     * @param LoanPrincipalRepaymentInterface $loanPrincipalRepayment
+     * @param InterestTypeInterface $interestTypeRepository
      */
-    public function __construct(LoanInterface $loanInterface)
+    public function __construct(LoanInterface $loanInterface, LoanApplicationInterface $loanApplicationInterface,
+                                JournalInterface $journalInterface, LoanInterestRepaymentInterface $loanInterestRepayment,
+    LoanPrincipalRepaymentInterface $loanPrincipalRepayment, InterestTypeInterface $interestTypeRepository, FinanceStatementInterface $financeStatement
+    )
     {
         $this->loanRepository   = $loanInterface;
+        $this->loanApplicationRepository   = $loanApplicationInterface;
+        $this->journalRepository   = $journalInterface;
+
+        $this->loanInterestRepayment   = $loanInterestRepayment;
+        $this->loanPrincipalRepayment   = $loanPrincipalRepayment;
+        $this->interestTypeRepository   = $interestTypeRepository;
+        $this->financeStatement   = $financeStatement;
+
+        $this->load = ['loanType', 'member', 'interestType', 'paymentFrequency'];
     }
 
     /**
@@ -39,25 +66,67 @@ class LoanController  extends ApiController
     {
         if ($select = request()->query('list')) {
             return $this->loanRepository->listAll($this->formatFields($select));
-        } else
-            $data = LoanResource::collection($this->loanRepository->getAllPaginate());
+        }
+        $data = $this->loanRepository->getAllPaginate($this->load);
 
-        return $this->respondWithData($data);
+        $data->map(function($item) {
+            $item['balance'] =  $this->formatMoney($item['amount_approved'] - $this->loanRepository->paidAmount($item['id']));
+            $item['paid_amount'] =  $this->formatMoney($this->loanRepository->paidAmount($item['id']));
+            return $item;
+        });
+
+        return $this->respondWithData(LoanResource::collection($data));
     }
 
     /**
      * @param LoanRequest $request
-     * @return mixed
+     * @return array|mixed
+     * @throws \Exception
      */
     public function store(LoanRequest $request)
     {
-        $save = $this->loanRepository->create($request->all());
+        $user = auth('api')->user();
+        $data = $request->all();
 
-        if($save['error']){
-            return $this->respondNotSaved($save['message']);
-        }else{
+        // Transaction start
+        DB::beginTransaction();
+        try
+        {
+            // Create new Loan
+            $newLoan = $this->loanRepository->create($request->all());
+
+            // Update loan application as already reviewed
+            if($user && $newLoan) {
+                $updateData = [
+                    'reviewed_by_user_id' => $user->id,
+                    'approved_on' => Carbon::now(),
+                    'rejected_on' => null,
+                    'reviewed_on' => Carbon::now(),
+                ];
+                $this->loanApplicationRepository->update($updateData, $data['loan_application_id']);
+            }
+
+            // 1. Journal entry for the loan issue
+            $this->journalRepository->loanDisburse($newLoan);
+
+            if ( array_key_exists('service_fee', $data) && $data['service_fee'] > 0) {
+                // 2.  Entry for Demand of service fee
+                $this->journalRepository->serviceFeeDemand($newLoan);
+
+                // 3. Entry for receiving of service fee
+                $this->journalRepository->serviceFeeReceived($newLoan);
+            }
+
+            DB::commit();
+            // Calculate loan dues immediately after loan is issued
+            event(new LoanDueChecked());
+
             return $this->respondWithSuccess('Success !! Loan has been created.');
 
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+           // return $this->respondNotSaved($e);
         }
 
     }
@@ -68,14 +137,39 @@ class LoanController  extends ApiController
      */
     public function show($uuid)
     {
-        $loan = $this->loanRepository->getById($uuid);
+        $loan = $this->loanRepository->getById($uuid, $this->load);
 
-        if(!$loan)
-        {
+        if(!$loan) {
             return $this->respondNotFound('Loan not found.');
         }
-        return $this->respondWithData(new LoanResource($loan));
 
+        $loanAmount = $loan->amount_approved;
+        $totalPeriods = $loan->repayment_period;
+        $rate = $loan->interest_rate;
+        $startDate = $loan->start_date;
+        $frequency = $loan->paymentFrequency->name;
+
+        switch ($loan->interestType->name) {
+            case 'reducing_balance':
+                {
+                    $amortization = $this->loanRepository
+                        ->printReducingBalance($loanAmount, $totalPeriods, $rate, $startDate, $frequency);
+                }
+                break;
+            case 'fixed':
+                {
+                   $amortization = $this->loanRepository
+                       ->printFixedInterest($loanAmount, $totalPeriods, $rate, $startDate, $frequency);
+                }
+                break;
+            default:
+                {
+                    $amortization = [];
+                }
+        }
+
+        $loan['amortization'] = $amortization;
+        return $this->respondWithData(new LoanResource($loan));
     }
 
     /**
@@ -90,9 +184,7 @@ class LoanController  extends ApiController
         if($save['error']){
             return $this->respondNotSaved($save['message']);
         }else
-
             return $this->respondWithSuccess('Success !! Loan has been updated.');
-
     }
 
     /**
@@ -101,9 +193,10 @@ class LoanController  extends ApiController
      */
     public function destroy($uuid)
     {
-        if($this->loanRepository->delete($uuid)){
+        return $this->respondNotFound('Loan can not be deleted');
+     /*   if($this->loanRepository->delete($uuid)){
             return $this->respondWithSuccess('Success !! Loan has been deleted');
         }
-        return $this->respondNotFound('Loan not deleted');
+        return $this->respondNotFound('Loan not deleted');*/
     }
 }

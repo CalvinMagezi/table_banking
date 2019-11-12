@@ -42,7 +42,6 @@ class AssetPhotoController extends ApiController
             return $this->assetPhotoRepository->listAll($this->formatFields($select));
         } else
             $data = AssetPhotoResource::collection($this->assetPhotoRepository->getAllPaginate());
-
         return $this->respondWithData($data);
     }
 
@@ -58,9 +57,7 @@ class AssetPhotoController extends ApiController
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! AssetPhoto has been created.');
-
         }
-
     }
 
     /**
@@ -75,7 +72,6 @@ class AssetPhotoController extends ApiController
             return $this->respondNotFound('AssetPhoto not found.');
         }
         return $this->respondWithData(new AssetPhotoResource($assetPhoto));
-
     }
 
     /**
@@ -90,9 +86,7 @@ class AssetPhotoController extends ApiController
         if ($save['error']) {
             return $this->respondNotSaved($save['message']);
         } else
-
             return $this->respondWithSuccess('Success !! AssetPhoto has been updated.');
-
     }
 
     /**

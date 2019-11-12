@@ -47,7 +47,7 @@ class GeneralSettingRequest extends BaseRequest
                         'town'                  => '',
                         'physical_address'      => '',
                         'postal_address'        => '',
-                        'kra_pin'               => '',
+                        'postal_code'           => '',
                         'logo'                  => '',
                         'favicon'               => '',
                     ];

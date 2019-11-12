@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateGuaratorsTable extends Migration
+class CreateAccountTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateGuaratorsTable extends Migration
      */
     public function up()
     {
-        Schema::create('guarantors', function (Blueprint $table) {
+        Schema::create('account_types', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->string('id', 36)->primary()->unique();
 
-            $table->string('member_id', 36);
-            $table->string('loan_application_id', 36);
-            $table->string('assign_date');
-            $table->string('guarantee_amount')->nullable();
+            $table->string('id', 36)->primary()->unique();
+            $table->string('account_class_id', 36);
+            $table->string('name')->unique();
+            $table->string('code')->unique();
+            $table->string('description')->nullable();
 
             $table->softDeletes();
             $table->timestamps();
@@ -34,6 +34,6 @@ class CreateGuaratorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('guarantors');
+        Schema::dropIfExists('account_types');
     }
 }

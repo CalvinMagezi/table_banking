@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\Http\Controllers\Api\Oauth\InvalidCredentialsException;
 use Exception;
+use function GuzzleHttp\Psr7\get_message_body_summary;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -58,7 +60,7 @@ class Handler extends ExceptionHandler
                 return response()->json(
                     [
                         'error'         => true,
-                        'message'       => 'Sorry, the resource you are looking for could not be found..',
+                        'message'       => $exception->getMessage() != '' ? $exception->getMessage() : 'Sorry, the resource you are looking for could not be found..',
                         'status_code'   => 404
                     ], 404);
             }
@@ -104,6 +106,16 @@ class Handler extends ExceptionHandler
                 ], 401);
         }
 
+        if ($exception instanceof InvalidCredentialsException) {
+
+            return response()->json(
+                [
+                    'error'         => true,
+                    'message'       => 'Provided login credentials were incorrect ...',
+                    'status_code'   => 401
+                ], 401);
+        }
+
         if ($exception instanceof JsonEncodingException) {
 
             return response()->json(
@@ -124,7 +136,7 @@ class Handler extends ExceptionHandler
                 ], 401);
         }
 
-        if ($exception instanceof \PDOException) {
+  /*      if ($exception instanceof \PDOException) {
 
             return response()->json(
                 [
@@ -141,7 +153,7 @@ class Handler extends ExceptionHandler
                     'message'       => 'Connection to database was refused. Check connection',
                     'status_code'   => 500
                 ], 500);
-        }
+        }*/
 
         return parent::render($request, $exception);
     }

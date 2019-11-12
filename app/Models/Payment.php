@@ -8,11 +8,14 @@
 
 namespace App\Models;
 
+use App\Traits\BranchFilterScope;
+use App\Traits\BranchScope;
+use Carbon\Carbon;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Payment extends BaseModel
 {
-    use SearchableTrait;
+    use SearchableTrait, BranchScope, BranchFilterScope;
 
     /**
      * The database table used by the model.
@@ -33,15 +36,41 @@ class Payment extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'loan_id',
+        'branch_id',
+        'member_id',
         'amount',
         'method_id',
-        'date',
-        'paid_to',
+        'transaction_id',
+        'payment_date',
         'receipt_number',
         'attachment',
-        'notes'
+        'notes',
+
+        'cheque_number',
+        'bank_name',
+        'bank_branch',
+        'cheque_date',
+
+        'created_by',
+        'updated_by',
+        'deleted_by'
     ];
+
+    /**
+     * @param $payment_date
+     */
+    public function setPaymentDateAttribute($payment_date)
+    {
+        $this->attributes['payment_date'] = date('Y-m-d H:i:s', strtotime($payment_date));
+    }
+
+    /**
+     * @param $cheque_date
+     */
+    public function setChequeDateAttribute($cheque_date)
+    {
+        $this->attributes['cheque_date'] = date('Y-m-d H:i:s', strtotime($cheque_date));
+    }
 
     /**
      * Searchable rules.
@@ -57,10 +86,54 @@ class Payment extends BaseModel
          * @var array
          */
         'columns' => [
-            'payments.loan_id' => 2,
-            'payments.amount' => 1,
+            'payments.amount' => 2,
+            'payments.receipt_number' => 1,
+            'payments.payment_date' => 4,
+            'payment_methods.display_name' => 3,
+            'members.first_name' => 1,
+            'members.middle_name' => 1,
+            'members.last_name' => 1,
+            'members.id_number' => 1,
+        ],
+        'joins' => [
+            'members' => ['payments.member_id','members.id'],
+            'payment_methods' => ['payments.method_id','payment_methods.id'],
         ]
     ];
+
+    static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+
+            $latest = $model->latest()->first();
+
+            if ($latest) {
+                $string = preg_replace("/[^0-9\.]/", '', $latest->receipt_number);
+                $model->receipt_number =  'RCT-' . sprintf('%04d', $string+1);
+            }else{
+                $model->receipt_number = 'RCT-0001';
+            }
+
+        });
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function member()
+    {
+        return $this->belongsTo(Member::class, 'member_id');
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -68,13 +141,5 @@ class Payment extends BaseModel
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class, 'method_id');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function loan()
-    {
-        return $this->belongsTo(Loan::class, 'loan_id');
     }
 }

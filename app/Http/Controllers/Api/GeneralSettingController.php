@@ -44,9 +44,7 @@ class GeneralSettingController  extends ApiController
         {
           // return $this->respondNotFound('General Setting not set.');
             return null;
-
         }
-
         return $this->respondWithData(new GeneralSettingResource($generalSetting));
     }
 
@@ -56,15 +54,33 @@ class GeneralSettingController  extends ApiController
      */
     public function store(GeneralSettingRequest $request)
     {
-        $save = $this->generalSettingRepository->create($request->all());
+        $data = $request->all();
+
+        // Upload logo
+        if($request->hasFile('logo')) {
+            $filenameWithExt = $request->file('logo')->getClientOriginalName();
+
+            // Get just filename
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+
+            // Get just ext
+            $extension = $request->file('logo')->getClientOriginalExtension();
+
+            // Filename to store
+            $fileNameToStore = $filename.'_'.time().'.'.$extension;
+
+            $path = $request->file('logo')->storeAs('logos', $fileNameToStore);
+
+            $data['logo'] = $fileNameToStore;
+        }
+
+        $save = $this->generalSettingRepository->create($data);
 
         if($save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! GeneralSetting has been created.');
-
         }
-
     }
 
     /**
@@ -80,7 +96,6 @@ class GeneralSettingController  extends ApiController
             return $this->respondNotFound('GeneralSetting not found.');
         }
         return $this->respondWithData(new GeneralSettingResource($generalSetting));
-
     }
 
     /**
@@ -90,14 +105,12 @@ class GeneralSettingController  extends ApiController
      */
     public function update(GeneralSettingRequest $request, $uuid)
     {
-        $save = $this->generalSettingRepository->update($request->all(), $uuid);
-
+        $data = $request->all();
+        $save = $this->generalSettingRepository->update($data, $uuid);
         if($save['error']){
             return $this->respondNotSaved($save['message']);
         }else
-
             return $this->respondWithSuccess('Success !! GeneralSetting has been updated.');
-
     }
 
     /**
@@ -110,5 +123,41 @@ class GeneralSettingController  extends ApiController
             return $this->respondWithSuccess('Success !! GeneralSetting has been deleted');
         }
         return $this->respondNotFound('GeneralSetting not deleted');
+    }
+
+    /**
+     * @param Request $request
+     */
+    public function uploadLogo(Request $request) {
+        //return $uuid;
+        $data = $request->all();
+        // Upload logo
+        if($request->hasFile('logo')) {
+            $filenameWithExt = $request->file('logo')->getClientOriginalName();
+            // Get just filename
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            // Get just ext
+            $extension = $request->file('logo')->getClientOriginalExtension();
+            // Filename to store
+            $fileNameToStore = $filename.'_'.time().'.'.$extension;
+            $path = $request->file('logo')->storeAs('logos', $fileNameToStore);
+           // $data['logo'] = $fileNameToStore;
+            $data['logo'] = $fileNameToStore;
+        }
+        $this->generalSettingRepository->update($data, $data['id']);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function fetchLogo(Request $request)
+    {
+        $data = $request->all();
+        $setting = $this->generalSettingRepository->getById($data['id']);
+
+        $file_path = $setting->logo;
+        $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'logos'.DIRECTORY_SEPARATOR. $file_path;
+        return response()->file($local_path);
     }
 }

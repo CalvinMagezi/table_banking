@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Api\OAuth;
 
+use App\Events\Oauth\LoginFailed;
+use App\Events\Oauth\LoginSuccess;
+use App\Events\Oauth\Logout;
+use App\SmartMicro\Repositories\Contracts\GeneralSettingInterface;
 use App\SmartMicro\Repositories\Contracts\RoleInterface;
 use App\SmartMicro\Repositories\Contracts\UserInterface;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -26,20 +30,21 @@ class LoginProxy
 
     private $request;
 
-    private $userRepository, $roleRepository;
+    private $userRepository, $roleRepository, $generalSettingRepository;
 
     /**
-     * LoginProxy constructor.
      * LoginProxy constructor.
      * @param Application $app
      * @param UserInterface $userRepository
      * @param RoleInterface $roleRepository
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @param GeneralSettingInterface $generalSettingRepository
      */
-    public function __construct(Application  $app, UserInterface $userRepository, RoleInterface $roleRepository) {
+    public function __construct(Application  $app, UserInterface $userRepository,
+                                RoleInterface $roleRepository, GeneralSettingInterface $generalSettingRepository) {
 
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
+        $this->generalSettingRepository = $generalSettingRepository;
 
         $this->apiConsumer = $app->make('apiconsumer');
 
@@ -58,7 +63,6 @@ class LoginProxy
     public function attemptLogin($email, $password)
     {
         $user = $this->userRepository->getWhere('email', $email);
-
         if (!is_null($user)) {
 
             $scope = trim($this->checkPermissions($user->role_id));
@@ -69,9 +73,10 @@ class LoginProxy
                 'username'  => $email,
                 'password'  => $password,
                 'scope'     => $scope ? $scope : 'null'
-            ]);
+            ], $user);
         }
-
+        // event login failed
+        event(new LoginFailed($email));
         throw new UnauthorizedHttpException("", Exception::class, null, 0);
     }
 
@@ -99,10 +104,11 @@ class LoginProxy
 
     /**
      * @param $grantType
-     * @param array $data
+     * @param array $credentials
+     * @param array $user
      * @return array
      */
-    public function proxy($grantType, array $credentials = [])
+    public function proxy($grantType, array $credentials = [], $user = array())
     {
         $data = array_merge($credentials, [
             'client_id'     => env('PASSWORD_CLIENT_ID'),
@@ -113,7 +119,12 @@ class LoginProxy
         $response = $this->apiConsumer->post('/oauth/token', $data);
 
         if (!$response->isSuccessful()) {
-            throw new InvalidCredentialsException();
+            // event login failed
+             event(new LoginFailed($credentials['username']));
+
+           // throw new InvalidCredentialsException('Invalid Credentials..');
+            throw new UnauthorizedHttpException("", Exception::class, null, 0);
+
         }
 
         $data = json_decode($response->getContent());
@@ -129,9 +140,14 @@ class LoginProxy
             true // HttpOnly
         );
 
+        // event login success
+        event(new LoginSuccess($credentials['username']));
+
         return [
             'access_token' 	=> $data->access_token,
-            'expires_in' 	=> $data->expires_in
+            'expires_in' 	=> $data->expires_in,
+            'settings'      => $this->generalSettingRepository->getFirst(),
+            'branch_id'     => $user ? $user['branch_id'] : null,
 			//'scope' 		=> $credentials['scope']
         ];
     }
@@ -152,6 +168,9 @@ class LoginProxy
             ]);
 
         $accessToken->revoke();
+
+        // event logout success
+        event(new Logout($this->auth->user()));
 
         $this->cookie->queue($this->cookie->forget(self::REFRESH_TOKEN));
     }

@@ -8,11 +8,13 @@
 
 namespace App\Models;
 
+use App\Traits\BranchFilterScope;
+use App\Traits\BranchScope;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Employee extends BaseModel
 {
-    use SearchableTrait;
+    use SearchableTrait, BranchScope, BranchFilterScope;
 
     /**
      * The database table used by the model.
@@ -33,6 +35,7 @@ class Employee extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'branch_id',
         'employee_number',
         'first_name',
         'last_name',
@@ -55,7 +58,11 @@ class Employee extends BaseModel
         'department_id',
         'birth_day',
         'profile_picture',
-        'national_id_image'
+        'national_id_image',
+
+        'created_by',
+        'updated_by',
+        'deleted_by'
     ];
 
     /**

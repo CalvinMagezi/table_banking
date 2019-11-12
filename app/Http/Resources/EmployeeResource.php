@@ -22,6 +22,8 @@ class EmployeeResource extends JsonResource
     {
         return [
             'id'                    => $this->id,
+            'branch_id'         => $this->branch_id,
+
             'employee_number'       => $this->employee_number,
             'first_name'            => $this->first_name,
             'last_name'             => $this->last_name,
@@ -45,6 +47,10 @@ class EmployeeResource extends JsonResource
             'birth_day'             => $this->birth_day,
             'profile_picture'       => $this->profile_picture,
             'national_id_image'     => $this->national_id_image,
+
+            'created_by'        => $this->created_by,
+            'updated_by'        => $this->updated_by,
+
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at
         ];

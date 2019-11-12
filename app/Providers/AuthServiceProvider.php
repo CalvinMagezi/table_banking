@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Models\Permission;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Passport\Passport;
+use Torzer\Awesome\Landlord\Facades\Landlord;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -31,9 +33,9 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::routes();
 
-        Passport::tokensExpireIn(Carbon::now()->addDays(15));
+        Passport::tokensExpireIn(Carbon::now()->addDays(1));
 
-        Passport::refreshTokensExpireIn(Carbon::now()->addDays(30));
+        Passport::refreshTokensExpireIn(Carbon::now()->addDays(2));
 
         $data = [];
 

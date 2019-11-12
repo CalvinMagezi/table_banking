@@ -35,6 +35,7 @@ class AssetPhotoRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
+                        'branch_id'             => 'required|exists:branches,id',
                         'asset_id'      => 'required|exists:assets,id',
                         'title'         => 'required|min:2',
                         'description'   => '',
@@ -49,6 +50,7 @@ class AssetPhotoRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
+                        'branch_id'             => 'required|exists:branches,id',
                         'asset_id'      => 'required|exists:assets,id',
                         'title'         => 'required|min:2',
                         'description'   => '',

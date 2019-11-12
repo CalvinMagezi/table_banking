@@ -8,6 +8,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
+
 class MemberRequest extends BaseRequest
 {
 
@@ -32,22 +34,22 @@ class MemberRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'branch_id'             => 'required',
+                        'branch_id'             => 'exists:branches,id',
                         'first_name'            => 'required',
-                        'middle_name'           => 'required',
+                        'middle_name'           => '',
                         'last_name'             => '',
-                        'date_of_birth'         => 'required',
-                        'date_became_member'    => 'required',
-                        'nationality'           => '',
+                        'date_of_birth'         => 'required|date',
+                        'date_became_member'    => 'required|date',
+                        'nationality'           => 'required',
                         'county'                => '',
                         'city'                  => '',
                         'national_id_image'     => '',
-                        'id_number'             => '',
+                        'id_number'             => 'required|unique:members,id_number,NULL,id,deleted_at,NULL',
                         'passport_number'       => '',
-                        'phone'                 => 'required',
+                        'phone'                 => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
                         'email'                 => 'email',
-                        'postal_address'        => '',
-                        'residential_address'   => '',
+                        'postal_address'        => 'required',
+                        'residential_address'   => 'required',
                         'status_id'             => '',
                         'passport_photo'        => ''
                     ];
@@ -58,22 +60,25 @@ class MemberRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'branch_id'             => 'required',
+                        'branch_id'             => 'exists:branches,id',
                         'first_name'            => 'required',
                         'middle_name'           => 'required',
                         'last_name'             => '',
-                        'date_of_birth'         => 'required',
-                        'date_became_member'    => 'required',
-                        'nationality'           => '',
+                        'date_of_birth'         => 'required|date',
+                        'date_became_member'    => 'required|date',
+                        'nationality'           => 'required',
                         'county'                => '',
                         'city'                  => '',
                         'national_id_image'     => '',
-                        'id_number'             => '',
+                        'id_number'                 => ['required', Rule::unique('members')->ignore($this->member, 'id')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
                         'passport_number'       => '',
-                        'phone'                 => 'required',
+                        'phone'                 => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
                         'email'                 => 'email',
-                        'postal_address'        => '',
-                        'residential_address'   => '',
+                        'postal_address'        => 'required',
+                        'residential_address'   => 'required',
                         'status_id'             => '',
                         'passport_photo'        => ''
                     ];

@@ -34,7 +34,8 @@ class PaymentMethodRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'name'         => 'required|unique:payment_methods,name,NULL,id,deleted_at,NULL',
+                        'name'          => 'required|unique:payment_methods,name,NULL,id,deleted_at,NULL',
+                        'display_name'  => 'required|unique:payment_methods,display_name,NULL,id,deleted_at,NULL',
                         'description'   => ''
                     ];
 
@@ -48,8 +49,11 @@ class PaymentMethodRequest extends BaseRequest
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
-
-                        'description'                 => [],
+                        'display_name'                 => ['required', Rule::unique('payment_methods')->ignore($this->payment_method, 'id')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
+                        'description'           => '',
                     ];
                     break;
                 }

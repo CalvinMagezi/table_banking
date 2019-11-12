@@ -8,11 +8,13 @@
 
 namespace App\Models;
 
+use App\Traits\BranchFilterScope;
+use App\Traits\BranchScope;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Guarantor extends BaseModel
 {
-    use SearchableTrait;
+    use SearchableTrait, BranchScope;
 
     /**
      * The database table used by the model.
@@ -33,10 +35,17 @@ class Guarantor extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'branch_id',
+
         'member_id',
         'loan_application_id',
-        'assign_date',
-        'guarantee_amount'
+
+        'notes',
+        'guarantee_amount',
+
+        'created_by',
+        'updated_by',
+        'deleted_by'
     ];
 
     /**
@@ -53,8 +62,12 @@ class Guarantor extends BaseModel
          * @var array
          */
         'columns' => [
-            'guarantors.member_id' => 2,
-            'guarantors.loan_id' => 1,
+            'guarantors.guarantee_amount' => 2,
+            'guarantors.notes' => 1,
+            'members.first_name' => 1,
+        ],
+        'joins' => [
+            'members' => ['guarantors.member_id','members.id'],
         ]
     ];
 
@@ -69,8 +82,32 @@ class Guarantor extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function loan()
+    public function createdBy()
     {
-        return $this->belongsTo(Loan::class);
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loanApplication()
+    {
+        return $this->belongsTo(LoanApplication::class, 'loan_application_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
     }
 }

@@ -21,14 +21,32 @@ class LoanApplicationResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'                            => $this->id,
+            'id'                => $this->id,
+            'branch_id'         => $this->branch_id,
 
-            'member_id'                     => $this->member_id,
+            'member_id'         => $this->member_id,
+            'member'            => $this->member,
+            'guarantors'        => $this->guarantors,
+            'assets'            => $this->assets,
+            'interestType'      => $this->interestType,
+            'loanType'          => LoanTypeResource::make($this->loanType),
+            'loan'              => $this->loan,
+
             'loan_type_id'                  => $this->loan_type_id,
+            'interest_type_id'              => $this->interest_type_id,
+            'service_fee'                   => $this->service_fee,
+
+            'penalty_type_id'       => $this->penalty_type_id,
+            'penalty_value'         => $this->penalty_value,
+            'penalty_frequency_id'  => $this->penalty_frequency_id,
+
+            'amount_applied'                => $this->amount_applied,
             'interest_rate'                 => $this->interest_rate,
             'repayment_period'              => $this->repayment_period,
-            'amount_applied'                => $this->amount_applied,
-            'monthly_payments'              => $this->monthly_payments,
+            'payment_frequency_id'          => $this->payment_frequency_id,
+            'paymentFrequency'              => $this->paymentFrequency,
+            'periodic_payment_amount'       => $this->periodic_payment_amount,
+
             'application_date'              => $this->application_date,
 
             'disburse_method_id'            => $this->disburse_method_id,
@@ -52,8 +70,19 @@ class LoanApplicationResource extends JsonResource
 
             'status_id'                     => $this->status_id,
             'witnessed_by_user_id'          => $this->witnessed_by_user_id,
-            'approved_by_user_id'           => $this->approved_by_user_id,
+            'reviewed_by_user_id'           => $this->reviewed_by_user_id,
+            'reviewed_on'                   => $this->reviewed_on,
+            'approved_on'                   => $this->approved_on,
+            'rejected_on'                   => $this->rejected_on,
+            'rejection_notes'               => $this->rejection_notes,
             'attach_application_form'       => $this->attach_application_form,
+
+            'status' => $this->when($this->reviewed_on, function () {
+                return $this->approved_on ? 'Approved' : 'Rejected';
+            }),
+
+            'created_by'        => $this->created_by,
+            'updated_by'        => $this->updated_by,
 
             'created_at'                    => $this->created_at,
             'updated_at'                    => $this->updated_at,

@@ -20,6 +20,13 @@ class CreateBranchesTable extends Migration
             $table->string('name')->unique();
             $table->string('location')->nullable();
 
+            $table->string('description')->nullable();
+            $table->string('country')->nullable();
+            $table->string('county')->nullable();
+            $table->string('town')->nullable();
+            $table->string('address')->nullable();
+            $table->string('branch_code')->nullable();
+
             $table->softDeletes();
             $table->timestamps();
         });

@@ -23,12 +23,16 @@ class AssetPhotoResource extends JsonResource
     {
         return [
             'id'            => $this->id,
+
             'asset_id'      => $this->asset_id,
             'title'         => $this->title,
             'description'   => $this->description,
             'date_taken'    => $this->date_taken,
             'url'           => $this->url,
             'notes'         => $this->notes,
+
+            'created_by'        => $this->created_by,
+            'updated_by'        => $this->updated_by,
 
             'created_at'    => $this->created_at,
             'updated_at'    => $this->updated_at,

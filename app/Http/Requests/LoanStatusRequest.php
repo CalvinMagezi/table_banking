@@ -44,7 +44,7 @@ class LoanStatusRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'             => ['name', Rule::unique('loan_statuses')->ignore($this->user, 'id')
+                        'name'             => ['required', Rule::unique('loan_statuses')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

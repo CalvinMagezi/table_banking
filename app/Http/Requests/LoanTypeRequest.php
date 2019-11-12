@@ -34,22 +34,40 @@ class LoanTypeRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'name'        => 'required|unique:loan_types,name,NULL,id,deleted_at,NULL',
-                        'description' => '',
-                        'max_loan_period'       => '',
-                        'status'                => '',
-                    ];
+                        'name'                  => 'required|unique:loan_types,name,NULL,id,deleted_at,NULL',
+                        'description'           => '',
+                        'active_status'         => '',
+                        'interest_rate'         => '',
+                        'interest_type_id'      => 'required|exists:interest_types,id',
+                        'payment_frequency_id'  => 'required|exists:payment_frequencies,id',
+                        'repayment_period'      => '',
+                        'service_fee'           => '',
 
+                        'penalty_type_id'       => 'exists:penalty_types,id',
+                        'penalty_value'         => '',
+                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id'
+                    ];
                     break;
                 }
             case 'PUT':
             case 'PATCH':
                 {
                     $rules = [
-                        'name'                 => ['name', Rule::unique('loan_types')->ignore($this->user, 'id')
+                        'name'                 => ['required', Rule::unique('loan_types')->ignore($this->loan_type, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
+                        'description'           => '',
+                        'active_status'         => '',
+                        'interest_rate'         => '',
+                        'interest_type_id'      =>'required|exists:interest_types,id',
+                        'payment_frequency_id'  => 'required|exists:payment_frequencies,id',
+                        'repayment_period'      => '',
+                        'service_fee'           => '',
+
+                        'penalty_type_id'       => 'exists:penalty_types,id',
+                        'penalty_value'         => '',
+                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id'
                     ];
                     break;
                 }

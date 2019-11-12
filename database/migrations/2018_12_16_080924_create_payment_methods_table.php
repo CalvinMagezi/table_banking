@@ -17,7 +17,8 @@ class CreatePaymentMethodsTable extends Migration
             $table->engine = 'InnoDB';
             $table->string('id', 36)->primary()->unique();
 
-            $table->string('name');
+            $table->string('name')->unique();
+            $table->string('display_name')->unique();
             $table->string('description')->nullable();
 
             $table->softDeletes();

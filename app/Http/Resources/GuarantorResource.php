@@ -22,11 +22,22 @@ class GuarantorResource extends JsonResource
     {
         return [
             'id'                    => $this->id,
+            'branch_id'         => $this->branch_id,
+            'branch'            => $this->branch,
 
             'member_id'             => $this->member_id,
+
             'loan_application_id'   => $this->loan_application_id,
-            'assign_date'           => $this->assign_date,
+            'loanApplication'   =>  LoanApplicationResource::make($this->loanApplication),
+
+            'notes'                 => $this->notes,
             'guarantee_amount'      => $this->guarantee_amount,
+
+            'member'    => $this->member,
+            'createdBy' => UserResource::make($this->createdBy),
+
+            'created_by'        => $this->created_by,
+            'updated_by'        => $this->updated_by,
 
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at,

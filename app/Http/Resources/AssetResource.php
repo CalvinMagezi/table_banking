@@ -23,9 +23,12 @@ class AssetResource extends JsonResource
     {
         return [
             'id'                    => $this->id,
+            'branch_id'             => $this->branch_id,
+
             'member_id'             => $this->member_id,
+            'loan_application_id'   => $this->loan_application_id,
             'asset_number'          => $this->asset_number,
-            'title'                  => $this->title,
+            'title'                 => $this->title,
             'description'           => $this->description,
             'valuation_date'        => $this->valuation_date,
             'valued_by'             => $this->valued_by,
@@ -36,6 +39,10 @@ class AssetResource extends JsonResource
             'registered_to'         => $this->registered_to,
             'condition'             => $this->condition,
             'notes'                 => $this->notes,
+
+            'created_by'        => $this->created_by,
+            'updated_by'        => $this->updated_by,
+
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at,
         ];

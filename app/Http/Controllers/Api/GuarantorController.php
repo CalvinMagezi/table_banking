@@ -19,7 +19,7 @@ class GuarantorController  extends ApiController
     /**
      * @var \App\SmartMicro\Repositories\Contracts\GuarantorInterface
      */
-    protected $guarantorRepository;
+    protected $guarantorRepository, $load;
 
     /**
      * GuarantorController constructor.
@@ -28,6 +28,7 @@ class GuarantorController  extends ApiController
     public function __construct(GuarantorInterface $guarantorInterface)
     {
         $this->guarantorRepository   = $guarantorInterface;
+        $this->load = ['member', 'createdBy', 'branch', 'loanApplication'];
     }
 
     /**
@@ -40,7 +41,7 @@ class GuarantorController  extends ApiController
         if ($select = request()->query('list')) {
             return $this->guarantorRepository->listAll($this->formatFields($select));
         } else
-        $data = GuarantorResource::collection($this->guarantorRepository->getAllPaginate());
+        $data = GuarantorResource::collection($this->guarantorRepository->getAllPaginate($this->load));
 
         return $this->respondWithData($data);
     }

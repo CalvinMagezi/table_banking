@@ -11,6 +11,11 @@ namespace  App\SmartMicro\Repositories\Contracts;
 interface BaseInterface {
 
     /**
+     * @return mixed
+     */
+    function getFirst();
+
+    /**
      * Fetch a single item by its id
      * @param $id
      * @param $load
@@ -25,10 +30,19 @@ interface BaseInterface {
     function getAllPaginate($load = array());
 
     /**
-     * @param $select
+     * @param $field
+     * @param $value
+     * @param array $load
      * @return mixed
      */
-    function listAll($select);
+/*    function getWherePaginate($field, $value, $load = array());*/
+
+    /**
+     * @param $select
+     * @param array $load
+     * @return mixed
+     */
+    function listAll($select, $load = array());
 
     /**
      * Fetch multiple specified orders
@@ -45,6 +59,16 @@ interface BaseInterface {
      * @return mixed
      */
     function getWhere($field, $value, $load = array());
+
+
+    /**
+     * @param $count
+     * @param $field
+     * @param $value
+     * @param array $load
+     * @return mixed
+     */
+    function getLatestWhere($count, $field, $value, $load = array());
 
     /**
      * @param $field
@@ -91,8 +115,32 @@ interface BaseInterface {
     function delete($id);
 
     /**
+     * @param $count
+     * @param array $load
+     * @return mixed
+     */
+    function getLatest($count, $load = array());
+
+    /**
+     * @param array $load
+     * @return mixed
+     */
+    function getAll($load = array());
+
+    /**
      * get the first record from the db
      * @return mixed
      */
     function first();
+
+    /**
+     * @param $loanId
+     * @param array $load
+     * @return mixed
+     */
+    function getPendingDueRepayment($loanId, $load = array());
+
+    function getSum($field);
+
+    function formatMoney($amount);
 }

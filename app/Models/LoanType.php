@@ -35,8 +35,17 @@ class LoanType extends BaseModel
     protected $fillable = [
         'name',
         'description',
-        'max_loan_period',
-        'status'
+        'active_status',
+        'interest_rate',
+        'interest_type_id',
+        'payment_frequency_id',
+
+        'repayment_period',
+        'service_fee',
+
+        'penalty_type_id',
+        'penalty_value',
+        'penalty_frequency_id'
     ];
 
     /**
@@ -53,10 +62,29 @@ class LoanType extends BaseModel
          * @var array
          */
         'columns' => [
-            'loan_types.name' => 2,
+            'loan_types.name' => 1,
             'loan_types.description' => 1,
+            'loan_types.interest_rate' => 3,
+            'loan_types.repayment_period' => 3,
+            'loan_types.service_fee' => 3
         ]
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function paymentFrequency()
+    {
+        return $this->belongsTo(PaymentFrequency::class, 'payment_frequency_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loanApplications()
+    {
+        return $this->hasMany(LoanApplication::class, 'loan_type_id');
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -64,5 +92,29 @@ class LoanType extends BaseModel
     public function loans()
     {
         return $this->hasMany(Loan::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function interestType()
+    {
+        return $this->belongsTo(InterestType::class, 'interest_type_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function penaltyType()
+    {
+        return $this->belongsTo(PenaltyType::class, 'penalty_type_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function penaltyFrequency()
+    {
+        return $this->belongsTo(PenaltyFrequency::class, 'penalty_frequency_id');
     }
 }

@@ -12,13 +12,24 @@ class DatabaseSeeder extends Seeder
         //'users'
     ];
 
-
     protected $seeders = [
+        'database\seeds\AccountClassSeeder',
+        'database\seeds\AccountTypeSeeder',
+        'database\seeds\BranchTableSeeder',
         'database\seeds\EmployeeTableSeeder',
         'database\seeds\PermissionSeeder',
         'database\seeds\RoleSeeder',
         'database\seeds\UsersTableSeeder',
-        'database\seeds\GeneralSettingTableSeeder'
+        'database\seeds\GeneralSettingTableSeeder',
+        'database\seeds\EmailSettingTableSeeder',
+        'database\seeds\SmsSettingSeeder',
+        'database\seeds\InterestTypeSeeder',
+        'database\seeds\PaymentMethodSeeder',
+        'database\seeds\PaymentFrequencySeeder',
+        'database\seeds\ReportTypeSeeder',
+        'database\seeds\FinanceStatementSeeder',
+        'database\seeds\PenaltyTypeSeeder',
+        'database\seeds\PenaltyFrequencySeeder'
     ];
 
     /**

@@ -8,6 +8,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\SmartMicro\Repositories\Contracts\EmployeeInterface;
@@ -21,7 +22,7 @@ class UserController  extends ApiController
     /**
      * @var \App\SmartMicro\Repositories\Contracts\UserInterface
      */
-    protected $userRepository, $employeeRepository;
+    protected $userRepository, $employeeRepository, $load;
 
     /**
      * UserController constructor.
@@ -32,6 +33,7 @@ class UserController  extends ApiController
     {
         $this->userRepository   = $userInterface;
         $this->employeeRepository   = $employeeRepository;
+        $this->load = ['employee', 'role', 'branch'];
     }
 
     /**
@@ -41,12 +43,11 @@ class UserController  extends ApiController
      */
     public function index(Request $request)
     {
-        $load = ['employee', 'role'];
 
         if ($select = request()->query('list')) {
             return $this->userRepository->listAll($this->formatFields($select));
         } else
-            $data = UserResource::collection($this->userRepository->getAllPaginate($load));
+            $data = UserResource::collection($this->userRepository->getAllPaginate($this->load));
 
         return $this->respondWithData($data);
     }
@@ -57,7 +58,30 @@ class UserController  extends ApiController
      */
     public function store(UserRequest $request)
     {
-        $save = $this->userRepository->create($request->all());
+        $data = $request->all();
+
+        if($request->hasFile('passport_photo')) {
+            // return $this->respondWithData($data);
+            // Get filename with extension
+            $filenameWithExt = $request->file('user_photo')->getClientOriginalName();
+
+            // Get just filename
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+
+            // Get just ext
+            $extension = $request->file('user_photo')->getClientOriginalExtension();
+
+            // Filename to store
+            $fileNameToStore = $filename.'_'.time().'.'.$extension;
+
+            // Upload Image
+            // $path = $request->file('attach_application_form')->storeAs('public/cover_images', $fileNameToStore);
+            $path = $request->file('user_photo')->storeAs('user_photos', $fileNameToStore);
+
+            $data['user_photo'] = $fileNameToStore;
+        }
+
+        $save = $this->userRepository->create($data);
 
         if($save['error']){
             return $this->respondNotSaved($save['message']);
@@ -99,7 +123,6 @@ class UserController  extends ApiController
         }else
 
             return $this->respondWithSuccess('Success !! User has been updated.');
-
     }
 
     /**
@@ -115,16 +138,17 @@ class UserController  extends ApiController
     }
 
     /**
-     * @return mixed
+     * @param Request $request
+     * @return mixed|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function me()
+    public function profilePic(Request $request)
     {
-        $user = Auth::user();
-
-        if(isset($user)){
-            return $this->employeeRepository->getById($user->employee_id);
+        $data = $request->all();
+        if( array_key_exists('file_path', $data) ) {
+            $file_path = $data['file_path'];
+            $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'user_photos'.DIRECTORY_SEPARATOR. $file_path;
+            return response()->file($local_path);
         }
-           // return $user;
-        return $this->respondNotFound();
+        return $this->respondNotFound('file_path not provided');
     }
 }

@@ -8,7 +8,6 @@
 
 namespace App\Providers;
 
-
 use Illuminate\Support\ServiceProvider;
 
 class SmartMicroServiceProvider extends ServiceProvider {
@@ -35,7 +34,35 @@ class SmartMicroServiceProvider extends ServiceProvider {
         'LoanApplicationStatus',
         'BorrowerStatus',
         'GeneralSetting',
-        'WitnessType'
+        'WitnessType',
+        'Asset',
+        'AssetPhoto',
+        'Account',
+        'AccountStatus',
+        'AccountType',
+        'EmailSetting',
+        'InterestType',
+        'Expense',
+        'ExpenseCategory',
+        'FiscalPeriod',
+        'Journal',
+        'Transaction',
+        'TransactionType',
+        'AccountClass',
+        'PaymentFrequency',
+        'LoanPenalty',
+        'LoanInterestRepayment',
+        'LoanPrincipalRepayment',
+        'Report',
+        'ReportType',
+        'FinanceStatement',
+        'AccountLedger',
+        'SmsSetting',
+        'Capital',
+        'EmailTemplate',
+        'SmsTemplate',
+        'PenaltyFrequency',
+        'PenaltyType'
     ];
 
     /**
@@ -51,7 +78,4 @@ class SmartMicroServiceProvider extends ServiceProvider {
         });
 
     }
-
-
-
 }

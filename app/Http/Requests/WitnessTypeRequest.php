@@ -35,6 +35,7 @@ class WitnessTypeRequest extends BaseRequest
                 {
                     $rules = [
                         'name'          => 'required|unique:witness_types,name,NULL,id,deleted_at,NULL',
+                        'display_name'  => 'required|unique:witness_types,display_name,NULL,id,deleted_at,NULL',
                         'description'   => '',
                     ];
 
@@ -49,10 +50,12 @@ class WitnessTypeRequest extends BaseRequest
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'description' => [Rule::unique('witness_types')->ignore($this->witness_type, 'id')
+                        'display_name'                 => ['required', Rule::unique('witness_types')->ignore($this->witness_type, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
+
+                        'description' => ''
                     ];
                     break;
                 }

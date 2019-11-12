@@ -20,8 +20,8 @@ class CreateGeneralSettingsTable extends Migration
             $table->string('business_name')->unique();
             $table->string('business_type')->nullable();
             $table->string('email')->unique();
-            $table->string('contact_first_name');
-            $table->string('contact_last_name')->nullable();
+          //  $table->string('contact_first_name');
+          //  $table->string('contact_last_name')->nullable();
             $table->string('currency')->nullable();
             $table->string('phone')->nullable();
             $table->string('country')->nullable();
@@ -29,7 +29,7 @@ class CreateGeneralSettingsTable extends Migration
             $table->string('town')->nullable();
             $table->string('physical_address')->nullable();
             $table->string('postal_address')->nullable();
-            $table->string('kra_pin')->nullable();
+            $table->string('postal_code')->nullable();
             $table->string('logo')->nullable();
             $table->string('favicon')->nullable();
 

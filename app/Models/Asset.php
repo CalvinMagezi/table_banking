@@ -9,11 +9,13 @@
 
 namespace App\Models;
 
+use App\Traits\BranchFilterScope;
+use App\Traits\BranchScope;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Asset extends BaseModel
 {
-    use SearchableTrait;
+    use SearchableTrait, BranchScope, BranchFilterScope;
     /**
      * The database table used by the model.
      *
@@ -33,6 +35,7 @@ class Asset extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'branch_id',
         'member_id',
         'asset_number',
         'title',
@@ -46,7 +49,27 @@ class Asset extends BaseModel
         'registered_to',
         'condition',
         'notes',
+
+        'created_by',
+        'updated_by',
+        'deleted_by'
     ];
+
+    /**
+     * @param $valuation_date
+     */
+    public function setValuationDateAttribute($valuation_date)
+    {
+        $this->attributes['valuation_date'] = date('Y-m-d H:i:s', strtotime($valuation_date));
+    }
+
+    /**
+     * @param $title
+     */
+    public function setTitleAttribute($title)
+    {
+        $this->attributes['title'] = ucwords($title);
+    }
 
     /**
      * Searchable rules.
@@ -62,11 +85,33 @@ class Asset extends BaseModel
          * @var array
          */
         'columns' => [
-            'assets.title' => 2,
+            'assets.member_id' => 2,
+            'assets.asset_number' => 1,
+            'assets.title' => 1,
             'assets.description' => 1,
+            'assets.valuation_date' => 1,
+            'assets.valued_by' => 1,
+            'assets.valuer_phone' => 1,
+            'assets.valuation_amount' => 1,
+            'assets.location' => 1,
+            'assets.registration_number' => 1,
+            'assets.registered_to' => 1,
+            'assets.condition' => 1,
+            'assets.notes' => 1
         ]
     ];
 
+    /**
+     * Generate asset numbers
+     */
+    static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $random = substr(uniqid('', true),-5);
+            $model->asset_number = now()->year.now()->month.now()->day.$random;
+        });
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -74,5 +119,21 @@ class Asset extends BaseModel
     public function photos()
     {
         return $this->hasMany(AssetPhoto::class, 'asset_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function member()
+    {
+        return $this->belongsTo(Member::class, 'member_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function loanApplications()
+    {
+        return $this->belongsToMany(LoanApplication::class, 'asset_loan_applications', 'asset_id', 'loan_application_id');
     }
 }

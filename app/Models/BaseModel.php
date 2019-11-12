@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use App\Traits\TenantScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
@@ -13,6 +14,7 @@ class BaseModel extends Model{
 
     public static function boot() {
         parent::boot();
+
         static::creating(function($model) {
             // Only generate the uuid if the field actually is called uuid.
             // For some system models a normal id is used (e.g. language)

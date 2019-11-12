@@ -34,13 +34,25 @@ class LoanApplicationRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'member_id'                     => 'required',
-                        'loan_type_id'                  => 'required',
+                        'branch_id'                     => 'exists:branches,id',
+                        'member_id'                     => 'required|exists:members,id',
+
+                        'loan_type_id'                  => 'required|exists:loan_types,id',
+                        'interest_type_id'              => 'exists:interest_types,id',
+                        'service_fee'                   => '',
+
+                        'penalty_type_id'       => 'exists:penalty_types,id',
+                        'penalty_value'         => '',
+                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id',
+
+                        'amount_applied'                => 'required|numeric|min:3|max:999999999',
+
                         'interest_rate'                 => '',
                         'repayment_period'              => '',
-                        'amount_applied'                => 'required',
-                        'monthly_payments'              => '',
-                        'application_date'              => 'required',
+                        'payment_frequency_id'          => 'exists:payment_frequencies,id',
+                        'periodic_payment_amount'       => '',
+
+                        'application_date'              => 'required|date',
                         'disburse_method_id'            => '',
                         'mpesa_number'                  => '',
                         'bank_name'                     => '',
@@ -60,8 +72,12 @@ class LoanApplicationRequest extends BaseRequest
                         'witness_residential_address'   => '',
                         'status_id'                     => '',
                         'witnessed_by_user_id'          => '',
-                        'approved_by_user_id'           => '',
-                        'attach_application_form'       => ''
+                        'reviewed_by_user_id'           => '',
+                        'reviewed_on'                   => '',
+                        'approved_on'                   => '',
+                        'rejected_on'                   => '',
+                        'rejection_notes'               => '',
+                        'attach_application_form'       => 'nullable|file|mimes:doc,pdf,docx,zip|max:10000'
                     ];
 
                     break;
@@ -70,12 +86,23 @@ class LoanApplicationRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'member_id'                     => 'required',
-                        'loan_type_id'                  => 'required',
+                        'branch_id'                     => 'exists:branches,id',
+                        'member_id'                     => 'required|exists:members,id',
+
+                        'loan_type_id'                  => 'required|exists:loan_types,id',
+                        'interest_type_id'              => 'required|exists:interest_types,id',
+                        'service_fee'                   => '',
+
+                        'penalty_type_id'       => 'exists:penalty_types,id',
+                        'penalty_value'         => '',
+                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id',
+
+                        'amount_applied'                => 'required',
                         'interest_rate'                 => '',
                         'repayment_period'              => '',
-                        'amount_applied'                => 'required',
-                        'monthly_payments'              => '',
+                        'payment_frequency'             => '',
+                        'periodic_payment_amount'       => '',
+
                         'application_date'              => 'required',
                         'disburse_method_id'            => '',
                         'mpesa_number'                  => '',
@@ -96,8 +123,12 @@ class LoanApplicationRequest extends BaseRequest
                         'witness_residential_address'   => '',
                         'status_id'                     => '',
                         'witnessed_by_user_id'          => '',
-                        'approved_by_user_id'           => '',
-                        'attach_application_form'       => ''
+                        'reviewed_by_user_id'           => '',
+                        'reviewed_on'                   => '',
+                        'approved_on'                   => '',
+                        'rejected_on'                   => '',
+                        'rejection_notes'               => '',
+                        'attach_application_form'       => 'nullable|file|mimes:doc,pdf,docx,zip|max:10000'
                     ];
                     break;
                 }

@@ -10,16 +10,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\BranchRequest;
 use App\Http\Resources\BranchResource;
+use App\Models\Account;
+use App\Models\AccountType;
 use App\SmartMicro\Repositories\Contracts\BranchInterface;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Uuid;
 
 class BranchController  extends ApiController
 {
     /**
      * @var \App\SmartMicro\Repositories\Contracts\BranchInterface
      */
-    protected $branchRepository;
+    protected $branchRepository, $load;
 
     /**
      * BranchController constructor.
@@ -39,6 +43,8 @@ class BranchController  extends ApiController
          $this->middleware('scope:delete-customer')->only('destroy');*/
 
         $this->branchRepository   = $branchInterface;
+        $this->load = ['assets', 'employees', 'loans', 'loanApplications', 'members', 'users'];
+
     }
 
     /**
@@ -48,6 +54,8 @@ class BranchController  extends ApiController
      */
     public function index(Request $request)
     {
+        // TODO check scope, only show a list of all branches if the user has the [branch-create... maybe] permission
+
         if ($select = request()->query('list')) {
             return $this->branchRepository->listAll($this->formatFields($select));
         } else
@@ -68,7 +76,6 @@ class BranchController  extends ApiController
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! Branch has been created.');
-
         }
 
     }

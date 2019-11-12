@@ -8,11 +8,15 @@
 
 namespace App\Models;
 
+use App\Traits\BranchScope;
+use App\Traits\BranchFilterScope;
+use Carbon\Carbon;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Member extends BaseModel
 {
-    use SearchableTrait;
+    use SearchableTrait, BranchScope;
+// BranchFilterScope
 
     /**
      * The database table used by the model.
@@ -42,7 +46,6 @@ class Member extends BaseModel
         'nationality',
         'county',
         'city',
-        'national_id_image',
         'id_number',
         'passport_number',
         'phone',
@@ -50,8 +53,54 @@ class Member extends BaseModel
         'postal_address',
         'residential_address',
         'status_id',
-        'passport_photo'
+
+        'national_id_image',
+        'passport_photo',
+
+        'created_by',
+        'updated_by',
+        'deleted_by'
     ];
+
+    /**
+     * @param $first_name
+     */
+    public function setFirstNameAttribute($first_name)
+    {
+        $this->attributes['first_name'] = ucwords($first_name);
+    }
+
+    /**
+     * @param $middle_name
+     */
+    public function setMiddleNameAttribute($middle_name)
+    {
+        $this->attributes['middle_name'] = ucwords($middle_name);
+    }
+
+    /**
+     * @param $last_name
+     */
+    public function setLastNameAttribute($last_name)
+    {
+        $this->attributes['last_name'] = ucwords($last_name);
+    }
+
+    /**
+     * @param $date_of_birth
+     */
+    public function setDateOfBirthAttribute($date_of_birth)
+    {
+        $this->attributes['date_of_birth'] = date('Y-m-d H:i:s', strtotime($date_of_birth));
+    }
+
+    /**
+     * @param $date_became_member
+     */
+    public function setDateBecameMemberAttribute($date_became_member)
+    {
+        $this->attributes['date_became_member'] = date('Y-m-d H:i:s', strtotime($date_became_member));
+    }
 
     /**
      * Searchable rules.
@@ -67,11 +116,65 @@ class Member extends BaseModel
          * @var array
          */
         'columns' => [
-            'members.first_name' => 2,
-            'members.middle_name' => 1,
+            'members.first_name'=> 1,
+            'members.middle_name'=> 1,
+            'members.last_name'=> 1,
+            'members.date_of_birth'=> 3,
+            'members.date_became_member'=> 3,
+            'members.nationality'=> 3,
+            'members.county'=> 3,
+            'members.city'=> 3,
+            'members.id_number'=> 1,
+            'members.passport_number'=> 3,
+            'members.phone'=> 1,
+            'members.email'=> 3,
+            'members.postal_address'=> 3,
+            'members.residential_address'=> 3,
+            'accounts.account_number'=> 1,
+            'branches.name'=> 1,
+        ],
+        'joins' => [
+            'accounts' => ['members.id','accounts.account_name'],
+            'branches' => ['members.branch_id','branches.id'],
         ]
     ];
 
+    /**
+     * Generate account numbers
+     */
+    static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($model) {
+            $data = [
+                'account_name' => $model->id,
+                'account_code' => MEMBER_ACCOUNT_CODE,
+                'account_type_id' => AccountType::where('name', LOAN_RECEIVABLE)->select('id')->first()['id']
+            ];
+            $newAccount = Account::create($data);
+            if ($newAccount) {
+                $model->account_code = $newAccount->account_code;
+                $model->account_id = $newAccount->id;
+            }
+        });
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function account()
+    {
+        return $this->hasOne(Account::class, 'account_name');
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
@@ -95,5 +198,38 @@ class Member extends BaseModel
     public function loanApplications()
     {
         return $this->hasMany(LoanApplication::class, 'member_id');
+    }
+
+    /**
+     * Permission and role relation
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function guaranteedLoans()
+    {
+        return $this->belongsToMany(LoanApplication::class, 'guarantors', 'member_id', 'loan_application_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loans()
+    {
+        return $this->hasMany(Loan::class, 'member_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function assets()
+    {
+        return $this->hasMany(Asset::class, 'member_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'member_id');
     }
 }

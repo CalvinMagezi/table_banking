@@ -34,6 +34,7 @@ class PaymentMethod extends BaseModel
      */
     protected $fillable = [
         'name',
+        'display_name',
         'description'
     ];
 

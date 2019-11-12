@@ -17,8 +17,9 @@ class CreateWitnessTypesTable extends Migration
             $table->engine = 'InnoDB';
             $table->string('id', 36)->primary()->unique();
 
-            $table->string('name', 36);
-            $table->string('description', 36);
+            $table->string('name');
+            $table->string('display_name');
+            $table->string('description')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

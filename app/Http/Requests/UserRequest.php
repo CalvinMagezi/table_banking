@@ -30,10 +30,19 @@ class UserRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
+                        'branch_id'             => 'required|exists:branches,id',
                         'first_name'            => 'required',
-                        'last_name'             => '',
+                        'middle_name'           => '',
+                        'last_name'             => 'required',
+                        'user_photo'            => '',
+                        'photo'                 => '',
+                        'postal_code'           => '',
+                        'postal_address'        => '',
+                        'physical_address'      => '',
+                        'city'                  => '',
+                        'country'               => '',
                         'role_id'               => 'required|exists:roles,id',
-                        'employee_id'           => 'exists:employees,id|unique:users,employee_id,NULL,id,deleted_at,NULL',
+                      //  'employee_id'           => 'exists:employees,id|unique:users,employee_id,NULL,id,deleted_at,NULL',
                         'email'                 => 'email|required|unique:users,email,NULL,id,deleted_at,NULL',
                         'password'              => 'required|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
@@ -45,18 +54,27 @@ class UserRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
+                        'branch_id'             => 'required|exists:branches,id',
                         'first_name'            => '',
-                        'last_name'             => '',
-                        'role_id'               => 'exists:roles,id',
-                        'email'                 => ['email', Rule::unique('users')->ignore($this->user, 'id')
+                        'middle_name'           => '',
+                        'last_name'             => 'required',
+                        'photo'                 => '',
+                        'postal_code'           => '',
+                        'postal_address'        => '',
+                        'physical_address'      => '',
+                        'city'                  => '',
+                        'country'               => '',
+                        'phone'                 => '',
+                        'role_id'               => 'required|exists:roles,id',
+                        'email'                 => ['required', Rule::unique('users')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'employee_id'                 => ['exists:employees,id', Rule::unique('users')->ignore($this->user, 'id')
+                      /*  'employee_id'                 => ['exists:employees,id', Rule::unique('users')->ignore($this->user, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
-                            })],
+                            })],*/
 
                         'password'              => 'nullable|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'

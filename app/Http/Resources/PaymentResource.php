@@ -22,14 +22,28 @@ class PaymentResource extends JsonResource
     {
         return [
             'id'                => $this->id,
-            'loan_id'           => $this->loan_id,
+            'branch_id'         => $this->branch_id,
+            'branch'            => $this->branch,
+
+            'member_id'         => $this->member_id,
             'amount'            => $this->amount,
             'method_id'         => $this->method_id,
-            'date'              => $this->date,
-            'paid_to'           => $this->paid_to,
+            'transaction_id'    => $this->transaction_id,
+            'payment_date'      => $this->payment_date,
             'receipt_number'    => $this->receipt_number,
             'attachment'        => $this->attachment,
             'notes'             => $this->notes,
+
+            'cheque_number'     => $this->cheque_number,
+            'bank_name'         => $this->bank_name,
+            'bank_branch'       => $this->bank_branch,
+            'cheque_date'       => $this->cheque_date,
+
+            'member'            => $this->member,
+            'paymentMethod'     => $this->paymentMethod,
+
+            'created_by'        => $this->created_by,
+            'updated_by'        => $this->updated_by,
 
             'created_at'        => $this->created_at,
             'updated_at'        => $this->updated_at

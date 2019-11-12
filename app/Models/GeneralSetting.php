@@ -36,8 +36,6 @@ class GeneralSetting extends BaseModel
         'business_name',
         'business_type',
         'email',
-        'contact_first_name',
-        'contact_last_name',
         'currency',
         'phone',
         'country',
@@ -45,9 +43,9 @@ class GeneralSetting extends BaseModel
         'town',
         'physical_address',
         'postal_address',
-        'kra_pin',
+        'postal_code',
         'logo',
-        'favicon',
+      //  'favicon',
     ];
 
     /**

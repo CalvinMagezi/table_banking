@@ -8,26 +8,32 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Payment\PaymentReceived;
 use App\Http\Requests\PaymentRequest;
 use App\Http\Resources\PaymentResource;
+use App\SmartMicro\Repositories\Contracts\JournalInterface;
 use App\SmartMicro\Repositories\Contracts\PaymentInterface;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController  extends ApiController
 {
     /**
-     * @var \App\SmartMicro\Repositories\Contracts\PaymentInterface
+     * @var PaymentInterface
      */
-    protected $paymentRepository;
+    protected $paymentRepository, $load, $journalRepository;
 
     /**
      * PaymentController constructor.
      * @param PaymentInterface $paymentInterface
+     * @param JournalInterface $journalInterface
      */
-    public function __construct(PaymentInterface $paymentInterface)
+    public function __construct(PaymentInterface $paymentInterface, JournalInterface $journalInterface)
     {
         $this->paymentRepository   = $paymentInterface;
+        $this->load = ['member', 'paymentMethod', 'branch'];
+        $this->journalRepository   = $journalInterface;
     }
 
     /**
@@ -40,26 +46,45 @@ class PaymentController  extends ApiController
         if ($select = request()->query('list')) {
             return $this->paymentRepository->listAll($this->formatFields($select));
         } else
-            $data = PaymentResource::collection($this->paymentRepository->getAllPaginate());
+            $data = PaymentResource::collection($this->paymentRepository->getAllPaginate($this->load));
 
         return $this->respondWithData($data);
     }
 
     /**
      * @param PaymentRequest $request
-     * @return mixed
+     * @return array|mixed
+     * @throws \Exception
      */
     public function store(PaymentRequest $request)
     {
-        $save = $this->paymentRepository->create($request->all());
+        DB::beginTransaction();
+        try
+        {
+            $data = $request->all();
+            if(array_key_exists('bank_fields', $data)){
+                $data['cheque_number'] = $data['bank_fields']['cheque_number'];
+                $data['bank_name'] = $data['bank_fields']['bank_name'];
+                $data['bank_branch'] = $data['bank_fields']['bank_branch'];
+                $data['cheque_date'] = $data['bank_fields']['cheque_date'];
+            }
+            // payment record
+            $newPayment = $this->paymentRepository->create($data);
 
-        if($save['error']){
-            return $this->respondNotSaved($save['message']);
-        }else{
-            return $this->respondWithSuccess('Success !! Payment has been created.');
+            // journal entry
+            $this->journalRepository->paymentReceivedEntry($newPayment);
 
+            // Handle transactions
+            if($newPayment)
+                event(new PaymentReceived($newPayment));
+
+            DB::commit();
+            return $this->respondWithSuccess('Success !! Payment received.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
         }
-
     }
 
     /**
@@ -76,34 +101,5 @@ class PaymentController  extends ApiController
         }
         return $this->respondWithData(new PaymentResource($payment));
 
-    }
-
-    /**
-     * @param PaymentRequest $request
-     * @param $uuid
-     * @return mixed
-     */
-    public function update(PaymentRequest $request, $uuid)
-    {
-        $save = $this->paymentRepository->update($request->all(), $uuid);
-
-        if($save['error']){
-            return $this->respondNotSaved($save['message']);
-        }else
-
-            return $this->respondWithSuccess('Success !! Payment has been updated.');
-
-    }
-
-    /**
-     * @param $uuid
-     * @return mixed
-     */
-    public function destroy($uuid)
-    {
-        if($this->paymentRepository->delete($uuid)){
-            return $this->respondWithSuccess('Success !! Payment has been deleted');
-        }
-        return $this->respondNotFound('Payment not deleted');
     }
 }

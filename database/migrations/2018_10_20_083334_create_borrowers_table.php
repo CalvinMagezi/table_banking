@@ -17,6 +17,7 @@ class CreateBorrowersTable extends Migration
             $table->engine = 'InnoDB';
             $table->string('id', 36)->primary()->unique();
 
+            $table->string('branch_id', 36);
             $table->string('member_id', 36);
             $table->string('credit_score')->nullable();
             $table->string('borrower_status_id')->nullable();
@@ -33,6 +34,10 @@ class CreateBorrowersTable extends Migration
             $table->string('witness_postal_address')->nullable();
             $table->string('witness_residential_address')->nullable();
             $table->string('notes')->nullable();
+
+            $table->string('created_by', 36)->nullable();
+            $table->string('updated_by', 36)->nullable();
+            $table->string('deleted_by', 36)->nullable();
 
             $table->softDeletes();
             $table->timestamps();

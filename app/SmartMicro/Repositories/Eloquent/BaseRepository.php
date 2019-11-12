@@ -1,14 +1,11 @@
 <?php
 
-
 namespace App\SmartMicro\Repositories\Eloquent;
-
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
-
 
 /**
  * Class BaseRepository
@@ -16,7 +13,7 @@ use Illuminate\Http\Request;
  */
 abstract class BaseRepository {
 
-    protected $orderBy  = array('created_at', 'desc');
+    protected $orderBy  = array('updated_at', 'desc');
 
     protected $model, $transformer;
 
@@ -24,29 +21,63 @@ abstract class BaseRepository {
      * Set number of records to return
      * @return int
      */
-    function limit(){
+    private function limit(){
         return (int)(request()->query('limit'))?:5;
     }
 
     /**
      * @return string
      */
-    function sortField () {
-        return (string)(request()->query('sortField')) ? : 'created_at';
+    private function sortField () {
+        return (string)(request()->query('sortField')) ? : 'id';
     }
 
     /**
      * @return string
      */
-    function sortDirection() {
-        return (string)(request()->query('sortDirection')) ? : 'asc';
+    private function sortDirection() {
+        return (string)(request()->query('sortDirection')) ? : 'desc';
     }
 
     /**
      * @return string
      */
-    function searchFilter() {
+    private function searchFilter() {
         return (string)(request()->query('filter')) ? : '';
+    }
+
+    /**
+     * @return string
+     */
+    private function whereField() {
+        return (string)(request()->query('whereField')) ? : '';
+    }
+
+    /**
+     * @return string
+     */
+    private function whereValue() {
+        return (string)(request()->query('whereValue')) ? : '';
+    }
+
+    /**
+     * @param array $load
+     * @return mixed
+     */
+    public function getAllNoSearchPaginate($load = array()) {
+        return $this->model
+            ->with($load)
+            ->orderBy($this->sortField(), $this->sortDirection())
+            ->paginate($this->limit());
+    }
+
+    /**
+     * @param array $load
+     * @return mixed
+     */
+    public function getAll($load = array())
+    {
+        return $this->model->with($load)->get();
     }
 
     /**
@@ -55,26 +86,45 @@ abstract class BaseRepository {
      */
     public function getAllPaginate($load = array()){
 
-        return $this->model->search($this->searchFilter(), null, true, true)
-            ->with($load)
-            ->orderBy($this->sortField(), $this->sortDirection())
-            ->paginate($this->limit());
-
-        // return $this->model->with($load)->orderBy($this->sortField(), $this->sortDirection())->paginate($this->limit());
+        if (strlen ($this->whereField()) > 0) {
+            if(strlen ($this->whereValue()) < 1) {
+                return $this->model
+                    ->with($load)
+                    ->whereNull($this->whereField())
+                    ->search($this->searchFilter(), null, true, true)
+                    ->orderBy($this->sortField(), $this->sortDirection())
+                    ->paginate($this->limit());
+            }
+            return $this->model
+                ->with($load)
+                ->where($this->whereField(), $this->whereValue())
+                ->search($this->searchFilter(), null, true, true)
+                ->orderBy($this->sortField(), $this->sortDirection())
+                ->paginate($this->limit());
+        }else {
+            return $this->model->search($this->searchFilter(), null, true, true)
+                ->with($load)
+                ->orderBy($this->sortField(), $this->sortDirection())
+                ->paginate($this->limit());
+        }
     }
 
     /**
      * Fetch data used for select drop down ui
      * @param $select
-     * @return mixed
+     * @param array $load
+     * @return array
      */
-    public function listAll($select) {
+    public function listAll($select, $load = array()) {
 
         array_push($select, 'id');
 
         $data = [];
         try{
-            $data =  $this->model->get($select);
+            if($load){
+                $data =  $this->model->with($load)->get($select);
+            }else
+                $data =  $this->model->get($select);
         }catch(\Exception $e){}
 
         return $data;
@@ -93,9 +143,7 @@ abstract class BaseRepository {
         {
             return $this->model->with($load)->find($id);
         }
-
         return $this->model->find($id);
-
     }
 
     /**
@@ -108,6 +156,37 @@ abstract class BaseRepository {
     }
 
     /**
+     * @param $count
+     * @param array $load
+     * @return mixed
+     */
+    public function getLatest($count, $load = array())
+    {
+        return $this->model->with($load)->latest()->limit($count)->get();
+    }
+
+    /**
+     * @param $count
+     * @param $field
+     * @param $value
+     * @param array $load
+     * @return mixed
+     */
+    public function getLatestWhere($count, $field, $value, $load = array())
+    {
+        return $this->model->with($load)->where($field, $value)->latest()->limit($count)->first();
+    }
+
+    /**
+     * @param $field
+     * @return mixed
+     */
+    public function getSum($field)
+    {
+        return $this->model->sum($field);
+    }
+
+    /**
      * Fetch multiple specified orders
      * @param array $ids comma separated list of ids to fetch for
      * @param array $load related data
@@ -116,11 +195,8 @@ abstract class BaseRepository {
     public function getByIds($ids = array(), $load = array())
     {
         $query =  $this->model->with($load)->whereIn('id', $ids);
-
         $data = $query->paginate($this->limit());
-
         return $data;
-
     }
 
     /**
@@ -186,7 +262,6 @@ abstract class BaseRepository {
         Paginator::currentPageResolver(function () use ($page) {
             return $page;
         });
-
         $data = $data->paginate($limit);
 
         return $data;
@@ -228,7 +303,6 @@ abstract class BaseRepository {
         if ($filter['operator'] == 'notbetween') {
             $data = $data->whereNotBetween($filter['field'], $filter['value']);
         }
-
         return $data;
     }
 
@@ -284,14 +358,12 @@ abstract class BaseRepository {
         return false;
     }
 
-
     /**
      * @param array $data
      * @return mixed
      */
     public function firstOrCreate(array $data)
     {
-        // return $data;
         return $this->model->firstOrCreate($data);
     }
 
@@ -306,7 +378,6 @@ abstract class BaseRepository {
         {
             return $this->model->with($load)->first();
         }
-
         return $this->model->first();
     }
 
@@ -318,5 +389,24 @@ abstract class BaseRepository {
     public function count()
     {
         return $this->model->count();
+    }
+
+    /**
+     * @param $loanId
+     * @param array $load
+     * @return mixed
+     */
+    public function getPendingDueRepayment($loanId, $load = array())
+    {
+        $data =  $this->model->with($load)
+            ->where('loan_id', $loanId)
+            ->where('paid_on', null)
+            ->orderBy('updated_at', 'desc')
+            ->first();
+        return $data;
+    }
+
+    function formatMoney($amount) {
+        return number_format($amount, 2, '.', ',');
     }
 }

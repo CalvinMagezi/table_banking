@@ -9,11 +9,13 @@
 namespace App\Models;
 
 
+use App\Traits\BranchFilterScope;
+use App\Traits\BranchScope;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class LoanApplication extends BaseModel
 {
-    use SearchableTrait;
+    use SearchableTrait, BranchScope, BranchFilterScope;
 
     /**
      * The database table used by the model.
@@ -34,19 +36,31 @@ class LoanApplication extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'branch_id',
         'member_id',
+
         'loan_type_id',
+        'interest_type_id',
+        'service_fee',
+
+        'penalty_type_id',
+        'penalty_value',
+        'penalty_frequency_id',
+
+        'amount_applied',
         'interest_rate',
         'repayment_period',
-        'amount_applied',
-        'monthly_payments',
+        'payment_frequency_id', // *** new monthly, weekly, annually, daily, etc
+        'periodic_payment_amount',
         'application_date',
+
         'disburse_method_id',
         'mpesa_number',
         'bank_name',
         'bank_branch',
         'bank_account',
         'other_banking_details',
+
         'witness_type_id',
         'witness_first_name',
         'witness_last_name',
@@ -60,9 +74,27 @@ class LoanApplication extends BaseModel
         'witness_residential_address',
         'status_id',
         'witnessed_by_user_id',
-        'approved_by_user_id',
-        'attach_application_form'
+
+        'reviewed_by_user_id',
+        'reviewed_on',
+        'approved_on',
+        'rejected_on',
+        'rejection_notes',
+
+        'attach_application_form',
+
+        'created_by',
+        'updated_by',
+        'deleted_by'
     ];
+
+    /**
+     * @param $application_date
+     */
+    public function setApplicationDateAttribute($application_date)
+    {
+        $this->attributes['application_date'] = date('Y-m-d H:i:s', strtotime($application_date));
+    }
 
     /**
      * Searchable rules.
@@ -94,6 +126,30 @@ class LoanApplication extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    public function loanType()
+    {
+        return $this->belongsTo(LoanType::class, 'loan_type_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function paymentFrequency()
+    {
+        return $this->belongsTo(PaymentFrequency::class, 'payment_frequency_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function interestType()
+    {
+        return $this->belongsTo(InterestType::class, 'interest_type_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function witnessUser()
     {
         return $this->belongsTo(User::class);
@@ -102,9 +158,17 @@ class LoanApplication extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function approveUser()
+    public function witnessType()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(WitnessType::class, 'witness_type_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function reviewUser()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by_user_id');
     }
 
     /**
@@ -114,11 +178,29 @@ class LoanApplication extends BaseModel
     {
         return $this->hasOne(Loan::class);
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function member()
     {
         return $this->belongsTo(Member::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function guarantors()
+    {
+        return $this->belongsToMany(Member::class, 'guarantors', 'loan_application_id', 'member_id');
+    }
+
+    /**
+     * Permission and role relation
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class, 'asset_loan_applications', 'loan_application_id', 'asset_id');
     }
 }

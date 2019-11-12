@@ -20,7 +20,6 @@ class LoanRequest extends BaseRequest
      */
     public function rules()
     {
-
         $rules = [];
 
         switch($this->method())
@@ -34,16 +33,38 @@ class LoanRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'borrower_id'             => 'required',
+                        'branch_id'             => 'exists:branches,id',
+                        'loan_reference_number' => '',
+                        'loan_application_id'   => 'required|exists:loan_applications,id|unique:loans,loan_application_id,NULL,id,deleted_at,NULL',
+                    //    'member_id'             => 'required|exists:members,id|unique:loans,member_id,NULL,id,deleted_at,NULL',
+
+                        'member_id' => [
+                            'required', 'exists:members,id',
+                            Rule::unique('loans')->where(function ($query) {
+                                $query->where('deleted_at', NULL)->where('end_date', NULL);
+                            })
+                        ],
+
+                      //  'member_id'             => 'required|exists:members,id',
+                        'loan_type_id'          => 'required|exists:loan_types,id',
+                        'interest_rate'         => 'required|numeric|between:0,99.99',
+                        'interest_type_id'      => 'required',
+                        'repayment_period'      => 'required',
+                        'loan_status_id'        => '',
                         'approved_by_user_id'   => '',
-                        'loan_reference'        => 'required',
-                        'amount_applied'        => 'required',
                         'amount_approved'       => 'required',
-                        'amount_received'       => 'required',
-                        'date_approved'         => 'required',
-                        'due_date'              => 'required',
-                        'loan_status_id'           => '',
-                        'loan_application_id'        => 'required',
+                        'service_fee'           => '',
+
+                        'penalty_type_id'       => 'exists:penalty_types,id',
+                        'penalty_value'         => '',
+                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id',
+
+                        'loan_disbursed'        => '',
+                        'start_date'            => 'required|date',
+                        'end_date'              => 'nullable|date|after_or_equal:start_date',
+                        'next_repayment_date'   => '',
+
+                        'payment_frequency_id'  => 'required|exists:payment_frequencies,id'
                     ];
 
                     break;
@@ -52,15 +73,36 @@ class LoanRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'              => 'min:2',
-                        'email'             => ['email', Rule::unique('users')->ignore($this->user, 'id')
+                        'branch_id'             => 'exists:branches,id',
+
+                        'loan_reference_number'                 => [Rule::unique('loans')->ignore($this->loan, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
 
-                        'password'              => 'min:3|confirmed',
-                        'password_confirmation' => 'required_with:password'
+                        'loan_application_id'                 => ['exists:loan_applications,id', Rule::unique('loans')->ignore($this->loan, 'id')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
+                        'member_id'             => 'exists:members,id',
+                        'loan_type_id'          => 'exists:loan_types,id',
+                        'interest_rate'         => 'numeric|between:0,99.99',
+                        'interest_type_id'      => '',
+                        'repayment_period'      => '',
+                        'loan_status_id'        => '',
+                        'approved_by_user_id'   => '',
+                        'amount_approved'       => '',
+                        'service_fee'           => '',
 
+                        'penalty_type_id'       => 'exists:penalty_types,id',
+                        'penalty_value'         => '',
+                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id',
+
+                        'loan_disbursed'        => '',
+                        'start_date'            => '',
+                        'end_date'              => 'nullable|date|after_or_equal:start_date',
+                        'next_repayment_date'         => '',
+                        'payment_frequency_id'  => 'exists:payment_frequencies,id'
                     ];
                     break;
                 }
@@ -69,5 +111,17 @@ class LoanRequest extends BaseRequest
 
         return $rules;
 
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'member_id.unique' => 'This member has an active loan.',
+        ];
     }
 }

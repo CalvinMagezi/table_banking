@@ -8,11 +8,13 @@
 
 namespace App\Models;
 
+use App\Traits\BranchFilterScope;
+use App\Traits\BranchScope;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Borrower extends BaseModel
 {
-    use SearchableTrait;
+    use SearchableTrait, BranchScope, BranchFilterScope;
 
     /**
      * The database table used by the model.
@@ -33,20 +35,19 @@ class Borrower extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'branch_id',
         'member_id',
-        'credit_score',
+        'loan_id',
+       // 'credit_score',
         'borrower_status_id',
-        'witness_type_id',
-        'witness_first_name',
-        'witness_last_name',
-        'witness_country',
-        'witness_city',
-        'witness_national_id',
-        'witness_phone',
-        'witness_email',
-        'witness_postal_address',
-        'witness_residential_address',
+
+        // take witness to loan application as referee
+
         'notes',
+
+        'created_by',
+        'updated_by',
+        'deleted_by'
     ];
 
     /**

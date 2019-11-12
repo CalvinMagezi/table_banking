@@ -8,6 +8,7 @@
 
 namespace database\seeds;
 
+use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\Role;
 use App\Models\User;
@@ -28,6 +29,7 @@ class UsersTableSeeder extends Seeder
         User::create([
             'role_id' => Role::inRandomOrder()->select('id')->first()['id'],
             'employee_id' => Employee::inRandomOrder()->select('id')->first()['id'],
+            'branch_id' => Branch::inRandomOrder()->select('id')->first()['id'],
             'email' => 'devtest@devtest.com',
             'first_name' => 'Devtest',
             'last_name' => 'Devtest',

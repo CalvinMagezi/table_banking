@@ -39,6 +39,10 @@ class AssetPhoto extends BaseModel
         'date_taken',
         'url',
         'notes',
+
+        'created_by',
+        'updated_by',
+        'deleted_by'
     ];
 
     /**

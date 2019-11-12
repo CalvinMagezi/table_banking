@@ -8,11 +8,13 @@
 
 namespace App\Models;
 
+use App\Traits\BranchAccountsSetup;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Branch extends BaseModel
 {
-    use SearchableTrait;
+    use SearchableTrait, BranchAccountsSetup;
+
     /**
      * The database table used by the model.
      *
@@ -33,7 +35,13 @@ class Branch extends BaseModel
      */
     protected $fillable = [
         'name',
-        'location'
+        'description',
+        'location',
+        'country',
+        'county',
+        'town',
+        'address',
+        'branch_code'
     ];
 
     /**
@@ -55,12 +63,59 @@ class Branch extends BaseModel
         ]
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function assets()
+    {
+        return $this->hasMany(Asset::class, 'branch_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function employees()
+    {
+        return $this->hasMany(Employee::class, 'branch_id');
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function loans()
     {
-        return $this->hasMany(Loan::class);
+        return $this->hasMany(Loan::class, 'branch_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loanApplications()
+    {
+        return $this->hasMany(LoanApplication::class, 'branch_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function members()
+    {
+        return $this->hasMany(Member::class, 'branch_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'branch_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function users()
+    {
+        return $this->hasMany(User::class, 'branch_id');
     }
 }

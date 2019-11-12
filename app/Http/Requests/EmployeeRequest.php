@@ -34,6 +34,7 @@ class EmployeeRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
+                        'branch_id'             => 'exists:branches,id',
                         'employee_number'       => 'required|unique:employees,employee_number,NULL,id,deleted_at,NULL',
                         'first_name'            => 'required',
                         'email'                 => 'email|required|unique:employees,email,NULL,id,deleted_at,NULL',
@@ -66,6 +67,7 @@ class EmployeeRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
+                        'branch_id'             => 'exists:branches,id',
                         'employee_number'                 => [Rule::unique('employees')->ignore($this->employee, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);

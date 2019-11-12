@@ -32,11 +32,13 @@ class PaymentRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'loan_id'           => 'required',
-                        'amount'            => 'required',
-                        'method_id'         => 'required',
-                        'date'              => 'required',
-                        'paid_to'           => '',
+                        'branch_id'         => 'exists:branches,id',
+                        'member_id'        => 'required|exists:members,id',
+                        'amount'            => 'required|numeric',
+                        'method_id'         => 'required|exists:payment_methods,id',
+                        'transaction_id'    => '',
+                       // 'payment_date'      => 'required|date_format:"DD-MM-YYYY"',
+                        'payment_date'      => 'required',
                         'receipt_number'    => '',
                         'attachment'        => '',
                         'notes'             => ''
@@ -48,7 +50,15 @@ class PaymentRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-
+                        'branch_id'         => 'exists:branches,id',
+                        'member_id'         => 'required|exists:members,id',
+                        'amount'            => 'required',
+                        'method_id'         => 'required|exists:payment_methods,id',
+                        'transaction_id'    => '',
+                        'payment_date'      => 'required',
+                        'receipt_number'    => '',
+                        'attachment'        => '',
+                        'notes'             => ''
                     ];
                     break;
                 }

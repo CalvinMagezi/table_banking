@@ -22,11 +22,9 @@ class GeneralSettingTableSeeder extends Seeder
         DB::table('general_settings')->delete();
 
         GeneralSetting::create([
-            'business_name' => 'Smart Micro LTD',
+            'business_name' => 'Smart Micro',
             'business_type' => 'Finance',
             'email' => "devtest@devtest.com",
-            'contact_first_name' => "Devtest",
-            'contact_last_name' => "Devtest"
         ]);
 
     }

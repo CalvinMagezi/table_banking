@@ -35,19 +35,20 @@ class AssetRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'title'                 => 'required|min:2',
-                        'location'              => 'required|min:2',
-                        'member_id'             => 'required|exists:members,id',
-                        'asset_number'          => 'required|min:2',
-                        'description'           => 'required|min:2',
-                        'valuation_date'        => 'required|min:2',
-                        'valued_by'             => 'required|min:2',
-                        'valuer_phone'          => 'required|min:2',
-                        'valuation_amount'      => 'required|min:2',
+                        'branch_id'             => 'exists:branches,id',
+                        'member_id'             => 'exists:members,id',
+                        'asset_number'          => '',
+                        'title'                 => 'required',
+                        'description'           => 'required',
+                        'valuation_date'        => 'required',
+                        'valued_by'             => 'required',
+                        'valuer_phone'          => 'required',
+                        'valuation_amount'      => 'required|numeric',
+                        'location'              => 'required',
                         'registration_number'   => '',
                         'registered_to'         => '',
-                        'condition'             => 'required|min:2',
-                        'notes'                 => 'required|min:2',
+                        'condition'             => '',
+                        'notes'                 => '',
                     ];
 
                     break;
@@ -56,22 +57,20 @@ class AssetRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'title'                 => 'required|min:2',
-                        'location'              => 'required|min:2',
-                        'member_id'             => 'required|exists:members,id',
-                        'asset_number'          => ['required', Rule::unique('assets')->ignore($this->asset, 'id')
-                            ->where(function ($query) {
-                                $query->where('deleted_at', NULL);
-                            })],
+                        'branch_id'             => 'exists:branches,id',
+                        'member_id'             => 'exists:members,id',
+                        'asset_number'          => '',
+                        'title'                 => 'required',
                         'description'           => 'required',
                         'valuation_date'        => 'required',
                         'valued_by'             => 'required',
                         'valuer_phone'          => 'required',
-                        'valuation_amount'      => 'required',
+                        'valuation_amount'      => 'required|numeric',
+                        'location'              => 'required',
                         'registration_number'   => '',
                         'registered_to'         => '',
-                        'condition'             => 'required',
-                        'notes'                 => 'required',
+                        'condition'             => '',
+                        'notes'                 => '',
                     ];
                     break;
                 }

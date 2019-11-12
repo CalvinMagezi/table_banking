@@ -34,10 +34,11 @@ class GuarantorRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
+                        'branch_id'             => 'exists:branches,id',
                         'member_id'             => 'required|unique:guarantors,member_id,NULL,id,deleted_at,NULL',
                         'loan_application_id'   => 'required',
-                        'assign_date'           => 'required',
-                        'guarantee_amount'      => 'required'
+                        'guarantee_amount'      => '',
+                        'notes'      => ''
                     ];
 
                     break;
@@ -46,13 +47,14 @@ class GuarantorRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
+                        'branch_id'             => 'exists:branches,id',
                         'member_id'             => [Rule::unique('guarantors')->ignore($this->guarantor, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
                         'loan_application_id'   => 'required',
-                        'assign_date'           => 'required',
-                        'guarantee_amount'      => 'required',
+                        'notes'                 => '',
+                        'guarantee_amount'      => '',
                     ];
                     break;
                 }
@@ -61,5 +63,17 @@ class GuarantorRequest extends BaseRequest
 
         return $rules;
 
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'member_id.unique' => 'This member is already a guarantor.',
+        ];
     }
 }
