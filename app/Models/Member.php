@@ -11,12 +11,14 @@ namespace App\Models;
 use App\Traits\BranchScope;
 use App\Traits\BranchFilterScope;
 use Carbon\Carbon;
+use Illuminate\Notifications\Notifiable;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Member extends BaseModel
 {
-    use SearchableTrait, BranchScope;
-// BranchFilterScope
+    use Notifiable, SearchableTrait, BranchScope;
+    // We show members system wide. We don't filter per branch
+    // BranchFilterScope
 
     /**
      * The database table used by the model.

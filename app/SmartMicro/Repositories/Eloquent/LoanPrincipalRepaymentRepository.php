@@ -9,6 +9,8 @@
 
 namespace App\SmartMicro\Repositories\Eloquent;
 
+use App\Events\Payment\PaidLoan;
+use App\Models\Loan;
 use App\Models\LoanPrincipalRepayment;
 use App\SmartMicro\Repositories\Contracts\LoanPrincipalRepaymentInterface;
 use App\SmartMicro\Repositories\Contracts\TransactionInterface;
@@ -27,6 +29,20 @@ class LoanPrincipalRepaymentRepository extends BaseRepository implements LoanPri
     {
         $this->model = $model;
         $this->transactionRepository = $transactionRepository;
+    }
+
+    /**
+     * @param $principalRepaymentId
+     * @return mixed
+     */
+    public function paidAmount($principalRepaymentId) {
+        return DB::table('transactions')
+            ->select(DB::raw('COALESCE(sum(transactions.amount), 0.0) as totalPaid'))
+            ->where('loan_principal_repayments_id', $principalRepaymentId)
+            ->where(function($query) {
+                $query->where('transaction_type', 'principal_payment');
+            })
+            ->first()->totalPaid;
     }
 
     /**
@@ -69,7 +85,7 @@ class LoanPrincipalRepaymentRepository extends BaseRepository implements LoanPri
                 $amount = $amount - $paidPrincipalAmount;
             }
         }
-
+        event(new PaidLoan($loanId));
         return $paidPrincipalAmount;
     }
 

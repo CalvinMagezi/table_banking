@@ -15,7 +15,8 @@ use Nicolaslopezj\Searchable\SearchableTrait;
 
 class EmailTemplate extends BaseModel
 {
-    use SearchableTrait, BranchScope, BranchFilterScope;
+    use SearchableTrait;
+    // BranchFilterScope, BranchScope
 
     /**
      * The database table used by the model.
@@ -36,10 +37,8 @@ class EmailTemplate extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'name',
         'subject',
         'body',
-        'tags'
     ];
 
     /**

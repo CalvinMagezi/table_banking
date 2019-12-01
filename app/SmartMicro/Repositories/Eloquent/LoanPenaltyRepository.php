@@ -9,6 +9,8 @@
 
 namespace App\SmartMicro\Repositories\Eloquent;
 
+use App\Events\Payment\PaidLoan;
+use App\Models\Loan;
 use App\Models\LoanPenalty;
 use App\SmartMicro\Repositories\Contracts\LoanPenaltyInterface;
 use App\SmartMicro\Repositories\Contracts\TransactionInterface;
@@ -27,6 +29,20 @@ class LoanPenaltyRepository extends BaseRepository implements LoanPenaltyInterfa
     {
         $this->model = $model;
         $this->transactionRepository = $transactionRepository;
+    }
+
+    /**
+     * @param $penaltyRepaymentId
+     * @return mixed
+     */
+    public function paidAmount($penaltyRepaymentId) {
+        return DB::table('transactions')
+            ->select(DB::raw('COALESCE(sum(transactions.amount), 0.0) as totalPaid'))
+            ->where('loan_penalties_id', $penaltyRepaymentId)
+            ->where(function($query) {
+                $query->where('transaction_type', 'penalty_payment');
+            })
+            ->first()->totalPaid;
     }
 
     /**
@@ -70,8 +86,8 @@ class LoanPenaltyRepository extends BaseRepository implements LoanPenaltyInterfa
                 $amount = $amount - $paidPenaltyAmount;
             }
         }
-
-        return $paidPenaltyAmount;
+       event(new PaidLoan($loanId));
+       return $paidPenaltyAmount;
     }
 
     /**

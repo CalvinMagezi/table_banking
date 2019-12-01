@@ -38,15 +38,12 @@ class SmsTemplateController extends ApiController
      */
     public function index(Request $request)
     {
-        $smsTemplate = $this->smsTemplateRepository->first();
+        if ($select = request()->query('list')) {
+            return $this->smsTemplateRepository->listAll($this->formatFields($select));
+        } else
+            $data = SmsTemplateResource::collection($this->smsTemplateRepository->getAllPaginate());
 
-        if (!$smsTemplate) {
-            // return $this->respondNotFound('General Setting not set.');
-            return null;
-
-        }
-
-        return $this->respondWithData(new SmsTemplateResource($smsTemplate));
+        return $this->respondWithData($data);
     }
 
     /**

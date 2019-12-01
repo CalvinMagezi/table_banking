@@ -36,7 +36,6 @@ class SmsTemplate extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'name',
         'body',
         'tags'
     ];

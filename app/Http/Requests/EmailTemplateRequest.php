@@ -35,10 +35,11 @@ class EmailTemplateRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'name'      => 'required|unique:email_templates,name,NULL,id,deleted_at,NULL',
-                        'subject'   => 'required',
-                        'body'      => 'required',
-                        'tags'      => ''
+                        'name'          => 'unique:email_templates,name,NULL,id,deleted_at,NULL',
+                        'display_name'  => '',
+                        'subject'       => 'required',
+                        'body'          => 'required',
+                        'tags'          => ''
                     ];
                     break;
                 }
@@ -46,13 +47,14 @@ class EmailTemplateRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'      => ['required', Rule::unique('email_templates')->ignore($this->email_template, 'id')
+                        'name'      => [Rule::unique('email_templates')->ignore($this->email_template, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
-                        'subject'   => 'required',
-                        'body'      => 'required',
-                        'tags'      => ''
+                        'display_name'  => '',
+                        'subject'       => 'required',
+                        'body'          => 'required',
+                        'tags'          => ''
                     ];
                     break;
                 }

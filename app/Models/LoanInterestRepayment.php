@@ -58,4 +58,12 @@ class LoanInterestRepayment extends BaseModel
             'loan_interest_repayments.due_date' => 1,
         ]
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loan()
+    {
+        return $this->belongsTo(Loan::class, 'loan_id');
+    }
 }

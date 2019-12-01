@@ -62,32 +62,8 @@ class LoanPrincipalRepayment extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function paymentFrequency()
+    public function loan()
     {
-        return $this->belongsTo(PaymentFrequency::class, 'payment_frequency_id');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function loanApplications()
-    {
-        return $this->hasMany(LoanApplication::class, 'loan_type_id');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function loans()
-    {
-        return $this->hasMany(Loan::class);
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function interestType()
-    {
-        return $this->belongsTo(InterestType::class, 'interest_type_id');
+        return $this->belongsTo(Loan::class, 'loan_id');
     }
 }

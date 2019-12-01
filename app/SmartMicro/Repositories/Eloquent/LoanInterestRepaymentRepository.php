@@ -9,6 +9,8 @@
 
 namespace App\SmartMicro\Repositories\Eloquent;
 
+use App\Events\Payment\PaidLoan;
+use App\Models\Loan;
 use App\Models\LoanInterestRepayment;
 use App\Models\Transaction;
 use App\SmartMicro\Repositories\Contracts\LoanInterestRepaymentInterface;
@@ -28,6 +30,20 @@ class LoanInterestRepaymentRepository extends BaseRepository implements LoanInte
     {
         $this->model = $model;
         $this->transactionRepository = $transactionRepository;
+    }
+
+    /**
+     * @param $interestRepaymentId
+     * @return mixed
+     */
+    public function paidAmount($interestRepaymentId) {
+        return DB::table('transactions')
+            ->select(DB::raw('COALESCE(sum(transactions.amount), 0.0) as totalPaid'))
+            ->where('loan_interest_repayments_id', $interestRepaymentId)
+            ->where(function($query) {
+                $query->where('transaction_type', 'interest_payment');
+            })
+            ->first()->totalPaid;
     }
 
     /**
@@ -71,7 +87,7 @@ class LoanInterestRepaymentRepository extends BaseRepository implements LoanInte
                 $amount = $amount - $paidInterestAmount;
             }
         }
-
+        event(new PaidLoan($loanId));
         return $paidInterestAmount;
     }
 

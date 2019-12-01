@@ -20,6 +20,7 @@ class CreateLoanApplicationsTable extends Migration
             $table->string('branch_id', 36);
 
             $table->string('member_id', 36);
+            $table->string('loan_officer_id', 36);
 
             $table->string('loan_type_id', 36);
             $table->string('interest_type_id', 36)->nullable();

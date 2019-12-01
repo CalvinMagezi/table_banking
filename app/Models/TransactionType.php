@@ -37,6 +37,7 @@ class TransactionType extends BaseModel
         'description'
     ];
 
+    // e.g interest_payments, principal_payment, penalty_payment, penalty_waiver
     // e.g Deposit, Withdrawal, Payment, Refund, Adjustment
 
     /**

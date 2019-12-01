@@ -25,6 +25,8 @@ class LoanApplicationResource extends JsonResource
             'branch_id'         => $this->branch_id,
 
             'member_id'         => $this->member_id,
+            'loan_officer_id'         => $this->loan_officer_id,
+            'loanOfficer'           => UserResource::make($this->loanOfficer),
             'member'            => $this->member,
             'guarantors'        => $this->guarantors,
             'assets'            => $this->assets,

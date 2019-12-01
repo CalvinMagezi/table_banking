@@ -9,10 +9,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\Payment\PaymentReceived;
 use App\Http\Requests\CapitalRequest;
 use App\Http\Resources\CapitalResource;
-use App\Models\Capital;
 use App\SmartMicro\Repositories\Contracts\CapitalInterface;
 
 use App\SmartMicro\Repositories\Contracts\JournalInterface;

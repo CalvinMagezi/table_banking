@@ -22,6 +22,8 @@ class CreateLoansTable extends Migration
 
             $table->string('loan_application_id', 36)->unique();
             $table->string('member_id', 36);
+            $table->string('loan_officer_id', 36);
+
             $table->string('loan_type_id', 36)->nullable();
             $table->string('interest_rate');
             $table->string('interest_type_id', 36);
@@ -41,7 +43,7 @@ class CreateLoansTable extends Migration
             $table->date('end_date')->nullable();
             $table->string('payment_frequency_id', 36);
 
-            $table->date('next_repayment_date');
+            $table->date('next_repayment_date')->nullable();
 
             $table->timestamp('closed_on')->nullable();
 

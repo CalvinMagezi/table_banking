@@ -38,6 +38,7 @@ class LoanApplication extends BaseModel
     protected $fillable = [
         'branch_id',
         'member_id',
+        'loan_officer_id',
 
         'loan_type_id',
         'interest_type_id',
@@ -110,8 +111,19 @@ class LoanApplication extends BaseModel
          * @var array
          */
         'columns' => [
-            'loan_applications.member_id' => 2,
+            'loan_applications.repayment_period' => 2,
             'loan_applications.amount_applied' => 1,
+            'branches.name' => 5,
+            'members.first_name' => 2,
+            'members.middle_name' => 3,
+            'members.last_name' => 4,
+            'members.id_number' => 5,
+            'loan_types.name' => 2,
+        ],
+        'joins' => [
+            'branches' => ['loan_applications.branch_id','branches.id'],
+            'members' => ['loan_applications.member_id','members.id'],
+            'loan_types' => ['loan_applications.loan_type_id','loan_types.id'],
         ]
     ];
 
@@ -121,6 +133,14 @@ class LoanApplication extends BaseModel
     public function loanApplicationStatus()
     {
         return $this->belongsTo(LoanApplicationStatus::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loanOfficer()
+    {
+        return $this->belongsTo(User::class, 'loan_officer_id');
     }
 
     /**

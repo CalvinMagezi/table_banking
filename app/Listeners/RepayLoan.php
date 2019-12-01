@@ -70,8 +70,23 @@ class RepayLoan
         $loan = $this->loanRepository->getActiveLoan($memberId, 'paymentFrequency');
         $loanId = $loan ? $loan->id : null;
 
+        // The loan could have ended (End date isn't null -  after last calculation)
+        // ...but still have penalties, interests or principal to pay
+
+        // Check if member has any pending amount to pay
+        $allMemberLoans = $this->loanRepository->memberLoans($memberId);
+        $totalDue = 0;
+        foreach ($allMemberLoans as $loan){
+            $penalty = $this->loanRepository->pendingPenalty($loan['id']);
+            $interest = $this->loanRepository->pendingInterest($loan['id']);
+            $principal = $this->loanRepository->pendingPrincipal($loan['id']);
+
+            $pending = $penalty + $interest + $principal;
+            $totalDue = $totalDue + $pending;
+        }
+
         // For the amount received, assign it to different dues
-        if(!is_null($loanId) && null !== $this->paymentAmount &&  $this->paymentAmount > 0){
+      /*  if(!is_null($loan) && null !== $this->paymentAmount &&  $this->paymentAmount > 0){
             // 1. pay penalty
             $penaltyPaid = $this->penaltyRepository->payDuePenalty($paymentId, $this->paymentAmount, $loanId);
             if($penaltyPaid < $this->paymentAmount) {
@@ -92,8 +107,20 @@ class RepayLoan
                         // So we decide whether to reduce the principal balance or use existing balance to calculate dues.
                         if($this->paymentAmount > 0){
                          //   dd($this->differenceBetweenPaymentDateAndDueDate($paymentDate, $loan));
+
+                            if(array_key_exists('reduce_principal_early', $loan) && isset($loan['reduce_principal_early'])){
+                                // reduce balance here
+                            }
+
                             if($this->differenceBetweenPaymentDateAndDueDate($paymentDate, $loan) > 1){
                                 // reduce balance
+
+                                // On balance reduction
+
+                                // Check loan variable on whether balance should be reduced
+                                //
+
+
                                 $this->transactionRepository->balanceReductionEntry($this->paymentAmount, $paymentId, $loan);
                                 $this->paymentAmount = 0;
                             } else {
@@ -114,8 +141,60 @@ class RepayLoan
             }
         }else{
             // This member has no loan. We therefore reject their deposit attempt.
-            throw new NotFoundHttpException('Selected Member has no active loan. We do not accept deposits.');
-        }
+            throw new NotFoundHttpException('Rejected !! Member has no active loan. We do not accept deposits.');
+        }*/
+
+            // For the amount received, assign it to different dues (penalty, interest, principal)
+            if(!is_null($loan) && null !== $this->paymentAmount &&  $this->paymentAmount > 0){
+                // 1. pay penalty
+                $penaltyPaid = $this->payPenalty($paymentId, $this->paymentAmount, $loanId);
+
+                if($penaltyPaid < $this->paymentAmount) {
+                    $this->paymentAmount = $this->paymentAmount - $penaltyPaid;
+                    // 2. Pay interest
+                    $interestPaid = $this->payInterest($paymentId, $this->paymentAmount, $loanId);
+
+                    if($interestPaid < $this->paymentAmount){
+                        $this->paymentAmount = $this->paymentAmount - $interestPaid;
+                        // 3. pay principal
+                        $principalPaid = $this->payPrincipal($paymentId, $this->paymentAmount, $loanId);
+                        if($principalPaid < $this->paymentAmount){
+                            $this->paymentAmount = $this->paymentAmount - $principalPaid;
+
+                            // 4. Any excess funds, reduce loan balance
+
+                            // Means there were no existing records to pay, or some cash remains
+                            // So we decide whether to reduce the principal balance or use existing balance to recalculate dues.
+                            if($this->paymentAmount > 0){
+                                if(array_key_exists('reduce_principal_early', $loan) && $loan['reduce_principal_early'] == true){
+                                    // reduce balance here
+                                    //   dd($this->differenceBetweenPaymentDateAndDueDate($paymentDate, $loan));
+                                    if($this->differenceBetweenPaymentDateAndDueDate($paymentDate, $loan) > 1){
+                                        // reduce balance
+                                        $this->transactionRepository->balanceReductionEntry($this->paymentAmount, $paymentId, $loan);
+                                        $this->paymentAmount = 0;
+                                    }
+                                }else {
+                                    // recalculate dues and initiate a payment
+                                    $this->loanRepository->calculateLoanRepaymentDue($loan['next_repayment_date']);
+
+                                    // Re-initiate this payment process as though a new payment was received
+                                    $payment = $event->payment;
+                                    // dd($payment);
+                                    $payment['amount'] = $this->paymentAmount;
+                                    // dd($payment['amount']);
+                                    event(new PaymentReceived($payment));
+                                }
+                            }
+
+                        }
+                    }
+
+                }
+            }else{
+                // This member has no loan. We therefore reject their deposit attempt.
+                throw new NotFoundHttpException('Rejected !! Member has no active loan. We do not accept deposits.');
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
@@ -146,5 +225,91 @@ class RepayLoan
             }
         }
         return $difference;
+    }
+
+    private function doPayments($loan, $totalAmount, $paymentId) {
+        $loanId = $loan ? $loan->id : null;
+
+        // For the amount received, assign it to different dues
+        if(!is_null($loan) && null !== $totalAmount &&  $totalAmount > 0){
+            // 1. pay penalty
+            $penaltyPaid = $this->payPenalty($paymentId, $totalAmount, $loanId);
+
+            if($penaltyPaid < $totalAmount) {
+                $totalAmountLessPenalty = $totalAmount - $penaltyPaid;
+                // 2. Pay interest
+                $interestPaid = $this->payInterest($paymentId, $totalAmountLessPenalty, $loanId);
+
+                if($interestPaid < $totalAmountLessPenalty){
+                    $totalAmountLessPenLessInt = $totalAmountLessPenalty - $interestPaid;
+                    // 3. pay principal
+                    $principalPaid = $this->payPrincipal($paymentId, $totalAmountLessPenLessInt, $loanId);
+                    if($principalPaid < $totalAmountLessPenLessInt){
+                        $totalAmountLessPenLessIntLessPri = $totalAmountLessPenLessInt - $principalPaid;
+
+                        // 4. Any excess funds, reduce loan balance
+
+                        // Means there were no existing records to pay, or some cash remains
+                        // So we decide whether to reduce the principal balance or use existing balance to recalculate dues.
+                        if($totalAmountLessPenLessIntLessPri > 0){
+                            if(array_key_exists('reduce_principal_early', $loan) && $loan['reduce_principal_early'] == true){
+                                // reduce balance here
+                                //   dd($this->differenceBetweenPaymentDateAndDueDate($paymentDate, $loan));
+                                if($this->differenceBetweenPaymentDateAndDueDate($paymentDate, $loan) > 1){
+                                    // reduce balance
+                                    $this->transactionRepository->balanceReductionEntry($this->paymentAmount, $paymentId, $loan);
+                                    $this->paymentAmount = 0;
+                                }
+                            }else {
+                                // recalculate dues and initiate a payment
+                                $this->loanRepository->calculateLoanRepaymentDue($loan['next_repayment_date']);
+
+                                // Re-initiate this payment process as though a new payment was received
+                                $payment = $event->payment;
+                                // dd($payment);
+                                $payment['amount'] = $this->paymentAmount;
+                                // dd($payment['amount']);
+                                event(new PaymentReceived($payment));
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }else{
+            // This member has no loan. We therefore reject their deposit attempt.
+            throw new NotFoundHttpException('Rejected !! Member has no active loan. We do not accept deposits.');
+        }
+    }
+
+    /**
+     * @param $paymentId
+     * @param $amount
+     * @param $loanId
+     * @return mixed
+     */
+    private function payPenalty($paymentId, $amount, $loanId) {
+        return $this->penaltyRepository->payDuePenalty($paymentId, $amount, $loanId);
+    }
+
+    /**
+     * @param $paymentId
+     * @param $amount
+     * @param $loanId
+     * @return float|int
+     */
+    private function payInterest($paymentId, $amount, $loanId) {
+        return $this->loanInterestRepaymentRepository->payDueInterest($paymentId, $amount, $loanId);
+    }
+
+    /**
+     * @param $paymentId
+     * @param $amount
+     * @param $loanId
+     * @return mixed
+     */
+    private function payPrincipal($paymentId, $amount, $loanId) {
+        return $this->loanPrincipalRepaymentRepository->payDuePrincipal($paymentId, $amount, $loanId);
     }
 }

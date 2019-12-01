@@ -14,6 +14,7 @@ use App\Models\Member;
 use App\SmartMicro\Repositories\Contracts\AccountInterface;
 use App\SmartMicro\Repositories\Contracts\MemberInterface;
 
+use App\Traits\CommunicationMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -112,6 +113,8 @@ class MemberController  extends ApiController
         if($save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
+            // New member email / sms
+            CommunicationMessage::send('new_member_welcome', $save, $save);
             return $this->respondWithSuccess('Success !! Member has been created.');
         }
     }

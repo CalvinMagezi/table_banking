@@ -31,6 +31,7 @@ class UserProfileController extends ApiController
      */
     public function __construct(UserInterface $userInterface)
     {
+        // $this->middleware('scope:user-profile');
         $this->userRepository = $userInterface;
     }
 

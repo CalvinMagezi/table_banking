@@ -62,7 +62,9 @@ class SmartMicroServiceProvider extends ServiceProvider {
         'EmailTemplate',
         'SmsTemplate',
         'PenaltyFrequency',
-        'PenaltyType'
+        'PenaltyType',
+        'SmsSend',
+        'CommunicationSetting'
     ];
 
     /**

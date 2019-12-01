@@ -22,7 +22,16 @@ class LoanPenaltyResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id'            => $this->id,
+
+            'loan_id'       => $this->loan_id,
+            'loan'          => $this->loan,
+            'period_count'  => $this->period_count,
+            'due_date'      => $this->due_date,
+            'amount'        => $this->amount,
+            'paid_on'       => $this->paid_on,
+            'paid_amount'   => $this->paid_amount,
+            'balance'       => $this->balance,
 
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

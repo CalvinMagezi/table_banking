@@ -13,6 +13,7 @@ use App\Http\Resources\LoanApplicationResource;
 use App\Models\LoanApplication;
 use App\SmartMicro\Repositories\Contracts\LoanApplicationInterface;
 
+use App\Traits\CommunicationMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -30,7 +31,7 @@ class LoanApplicationController  extends ApiController
     public function __construct(LoanApplicationInterface $loanApplicationInterface)
     {
         $this->loanApplicationRepository   = $loanApplicationInterface;
-        $this->load = ['member', 'guarantors', 'assets', 'guarantors', 'loanType', 'interestType', 'loan', 'paymentFrequency'];
+        $this->load = ['member', 'guarantors', 'assets', 'guarantors', 'loanType', 'interestType', 'loan', 'paymentFrequency', 'loanOfficer'];
     }
 
     /**
@@ -87,12 +88,12 @@ class LoanApplicationController  extends ApiController
 
         $save = $this->loanApplicationRepository->create($request->all());
 
-      //  dd($save);
-
-
         if($save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
+          //  $member = $this->memberRepository->getWhere('id', $save['id']);
+            // New loan application email / sms
+         //   CommunicationMessage::send('new_loan_application', $member, $save);
             return $this->respondWithSuccess('Success !! LoanApplication has been created.');
         }
 

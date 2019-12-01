@@ -22,14 +22,15 @@ class EmailTemplateResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'        => $this->id,
-            'name'      => $this->name,
-            'subject'   => $this->subject,
-            'body'      => $this->body,
-            'tags'      => $this->tags,
+            'id'            => $this->id,
+            'name'          => $this->name,
+            'display_name'  => $this->display_name,
+            'subject'       => $this->subject,
+            'body'          => $this->body,
+            'tags'          => $this->tags,
 
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at
         ];
     }
 }

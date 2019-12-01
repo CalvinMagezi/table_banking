@@ -93,4 +93,50 @@ interface LoanInterface extends BaseInterface {
      * @return mixed
      */
     function paidAmount($loanId);
+
+    /**
+     * Loans due on the provided date or current date
+     * @param string $date
+     * @return mixed
+     */
+    public function dueOnDate($date = '');
+
+    /**
+     * Loans Overdue as per today''s date
+     * Loans overdue
+     * @return mixed
+     */
+    public function overDue();
+
+    /**
+     * @param $loanId
+     * @return mixed
+     */
+    public function pendingPenalty($loanId);
+
+    /**
+     * @param $loanId
+     * @return mixed
+     */
+    public function pendingInterest($loanId);
+
+    /**
+     * @param $loanId
+     * @return mixed
+     */
+    public function pendingPrincipal($loanId);
+
+    /**
+     * @param $loanId
+     * @return mixed
+     */
+    public function totalPendingAmount($loanId);
+
+    /**
+     * @param $memberId
+     * @param array $load
+     * @return mixed
+     */
+    public function memberLoans($memberId, $load = array());
+
 }

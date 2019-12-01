@@ -14,6 +14,7 @@ use App\Http\Resources\UserResource;
 use App\SmartMicro\Repositories\Contracts\EmployeeInterface;
 use App\SmartMicro\Repositories\Contracts\UserInterface;
 
+use App\Traits\CommunicationMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -43,12 +44,10 @@ class UserController  extends ApiController
      */
     public function index(Request $request)
     {
-
         if ($select = request()->query('list')) {
-            return $this->userRepository->listAll($this->formatFields($select));
+            return $this->userRepository->listAll($this->formatFields($select), ['role']);
         } else
             $data = UserResource::collection($this->userRepository->getAllPaginate($this->load));
-
         return $this->respondWithData($data);
     }
 
@@ -86,6 +85,8 @@ class UserController  extends ApiController
         if($save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
+            // New user email / sms
+            CommunicationMessage::send('new_user_welcome', $save, $save);
             return $this->respondWithSuccess('Success !! User has been created.');
 
         }

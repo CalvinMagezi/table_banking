@@ -9,8 +9,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\Loan\LoanDueChecked;
+use App\Events\Payment\PaidLoan;
 use App\Http\Requests\LoanRequest;
 use App\Http\Resources\LoanResource;
+use App\Notifications\PaymentReceivedNotification;
+use App\Notifications\PaymentReceivedSms;
 use App\SmartMicro\Repositories\Contracts\FinanceStatementInterface;
 use App\SmartMicro\Repositories\Contracts\InterestTypeInterface;
 use App\SmartMicro\Repositories\Contracts\JournalInterface;
@@ -19,9 +22,12 @@ use App\SmartMicro\Repositories\Contracts\LoanInterestRepaymentInterface;
 use App\SmartMicro\Repositories\Contracts\LoanInterface;
 
 use App\SmartMicro\Repositories\Contracts\LoanPrincipalRepaymentInterface;
+use App\SmartMicro\Repositories\Contracts\SmsSendInterface;
+use App\Traits\CommunicationMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class LoanController  extends ApiController
 {
@@ -29,7 +35,7 @@ class LoanController  extends ApiController
      * @var LoanInterface
      */
     protected $loanRepository, $loanApplicationRepository, $interestTypeRepository,
-        $journalRepository, $load, $loanInterestRepayment, $loanPrincipalRepayment, $financeStatement;
+        $journalRepository, $load, $loanInterestRepayment, $loanPrincipalRepayment, $financeStatement, $smsSend;
 
     /**
      * LoanController constructor.
@@ -39,10 +45,12 @@ class LoanController  extends ApiController
      * @param LoanInterestRepaymentInterface $loanInterestRepayment
      * @param LoanPrincipalRepaymentInterface $loanPrincipalRepayment
      * @param InterestTypeInterface $interestTypeRepository
+     * @param FinanceStatementInterface $financeStatement
      */
     public function __construct(LoanInterface $loanInterface, LoanApplicationInterface $loanApplicationInterface,
                                 JournalInterface $journalInterface, LoanInterestRepaymentInterface $loanInterestRepayment,
-    LoanPrincipalRepaymentInterface $loanPrincipalRepayment, InterestTypeInterface $interestTypeRepository, FinanceStatementInterface $financeStatement
+    LoanPrincipalRepaymentInterface $loanPrincipalRepayment, InterestTypeInterface $interestTypeRepository,
+                                FinanceStatementInterface $financeStatement, SmsSendInterface $smsSend
     )
     {
         $this->loanRepository   = $loanInterface;
@@ -53,8 +61,9 @@ class LoanController  extends ApiController
         $this->loanPrincipalRepayment   = $loanPrincipalRepayment;
         $this->interestTypeRepository   = $interestTypeRepository;
         $this->financeStatement   = $financeStatement;
+        $this->smsSend   = $smsSend;
 
-        $this->load = ['loanType', 'member', 'interestType', 'paymentFrequency'];
+        $this->load = ['loanType', 'member', 'interestType', 'paymentFrequency', 'loanOfficer'];
     }
 
     /**
@@ -64,6 +73,30 @@ class LoanController  extends ApiController
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
+
+       // $user->notify(new PaymentReceivedNotification());
+
+        $user->email = 'gikure.mungai@gmail.com';
+
+       // return $this->smsSend->send('+254724475357', 'hallo there');
+
+      //  Notification::send($user, new PaymentReceivedSms($user));
+      // Notification::send($user, new PaymentReceivedNotification($user));
+
+        // event(new PaidLoan('2a0822f4-d44f-4598-a389-e5721d0c6e78'));
+
+
+        // $loan = $this->loanRepository->getActiveLoan('d814720e-1377-4459-bec8-ea2fe2fae8d6', 'paymentFrequency');
+
+        //return $loan;
+
+       // return $this->loanRepository->memberLoans('3cc71001-ebb8-49d3-b407-e7e993081678');
+       // return $this->loanRepository->pendingPenalty('52177b38-2dbf-4118-ad94-4dedfb61a079');
+      //  return $this->loanRepository->overDue();
+      //  return $this->loanRepository->dueOnDate();
+      //  return $this->loanRepository->dueLoans();
+     //   return $this->loanRepository->dueLoans();
         if ($select = request()->query('list')) {
             return $this->loanRepository->listAll($this->formatFields($select));
         }
@@ -120,6 +153,9 @@ class LoanController  extends ApiController
             DB::commit();
             // Calculate loan dues immediately after loan is issued
             event(new LoanDueChecked());
+            // New loan email / sms
+            //  $member = $this->memberRepository->getWhere('id', $save['id']);
+           // CommunicationMessage::send('loan_application_approved', $member, $newLoan);
 
             return $this->respondWithSuccess('Success !! Loan has been created.');
 

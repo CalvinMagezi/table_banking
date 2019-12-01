@@ -36,21 +36,22 @@ class LoanApplicationRequest extends BaseRequest
                     $rules = [
                         'branch_id'                     => 'exists:branches,id',
                         'member_id'                     => 'required|exists:members,id',
+                        'loan_officer_id'               => 'required|exists:users,id',
 
                         'loan_type_id'                  => 'required|exists:loan_types,id',
                         'interest_type_id'              => 'exists:interest_types,id',
-                        'service_fee'                   => '',
+                        'service_fee'                   => 'nullable|numeric',
 
                         'penalty_type_id'       => 'exists:penalty_types,id',
-                        'penalty_value'         => '',
+                        'penalty_value'         => 'nullable|numeric',
                         'penalty_frequency_id'  => 'exists:penalty_frequencies,id',
 
                         'amount_applied'                => 'required|numeric|min:3|max:999999999',
 
-                        'interest_rate'                 => '',
-                        'repayment_period'              => '',
+                        'interest_rate'                 => 'nullable|numeric',
+                        'repayment_period'              => 'nullable|numeric',
                         'payment_frequency_id'          => 'exists:payment_frequencies,id',
-                        'periodic_payment_amount'       => '',
+                        'periodic_payment_amount'       => 'nullable|numeric',
 
                         'application_date'              => 'required|date',
                         'disburse_method_id'            => '',
@@ -88,6 +89,7 @@ class LoanApplicationRequest extends BaseRequest
                     $rules = [
                         'branch_id'                     => 'exists:branches,id',
                         'member_id'                     => 'required|exists:members,id',
+                        'loan_officer_id'               => 'required|exists:users,id',
 
                         'loan_type_id'                  => 'required|exists:loan_types,id',
                         'interest_type_id'              => 'required|exists:interest_types,id',

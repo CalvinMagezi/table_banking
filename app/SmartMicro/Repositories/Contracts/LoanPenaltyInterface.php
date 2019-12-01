@@ -12,6 +12,12 @@ namespace App\SmartMicro\Repositories\Contracts;
 interface LoanPenaltyInterface extends BaseInterface
 {
     /**
+     * @param $penaltyRepaymentId
+     * @return mixed
+     */
+    function paidAmount($penaltyRepaymentId);
+
+    /**
      * @param $paymentId
      * @param $amount
      * @param $loanId

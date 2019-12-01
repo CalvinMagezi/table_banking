@@ -12,11 +12,12 @@ use App\Traits\BranchFilterScope;
 use App\Traits\BranchScope;
 use App\Traits\NextDueDate;
 use Carbon\Carbon;
+use Illuminate\Notifications\Notifiable;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Loan extends BaseModel
 {
-    use SearchableTrait, BranchScope, NextDueDate, BranchFilterScope;
+    use Notifiable, SearchableTrait, BranchScope, NextDueDate, BranchFilterScope;
 
     /**
      * The database table used by the model.
@@ -39,6 +40,7 @@ class Loan extends BaseModel
     protected $fillable = [
         'branch_id',
         'member_id',
+        'loan_officer_id',
 
         'loan_reference_number',
         'loan_application_id',
@@ -65,7 +67,7 @@ class Loan extends BaseModel
 
         'payment_frequency_id',
 
-        // 'closed_on',
+        'closed_on',
 
         'created_by',
         'updated_by',
@@ -113,6 +115,15 @@ class Loan extends BaseModel
         'columns' => [
             'loans.loan_reference_number' => 2,
             'loans.amount_approved' => 1,
+            'members.first_name' => 2,
+            'members.middle_name' => 3,
+            'members.last_name' => 4,
+            'members.id_number' => 5,
+            'loan_types.name' => 2,
+        ],
+        'joins' => [
+            'members' => ['loans.member_id','members.id'],
+            'loan_types' => ['loans.loan_type_id','loan_types.id'],
         ]
     ];
 
@@ -149,6 +160,14 @@ class Loan extends BaseModel
     public function member()
     {
         return $this->belongsTo(Member::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loanOfficer()
+    {
+        return $this->belongsTo(User::class, 'loan_officer_id');
     }
 
     /**

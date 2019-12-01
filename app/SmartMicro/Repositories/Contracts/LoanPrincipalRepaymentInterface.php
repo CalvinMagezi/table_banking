@@ -12,6 +12,12 @@ namespace App\SmartMicro\Repositories\Contracts;
 interface LoanPrincipalRepaymentInterface extends BaseInterface
 {
     /**
+     * @param $principalRepaymentId
+     * @return mixed
+     */
+    function paidAmount($principalRepaymentId);
+
+    /**
      * @param $paymentId
      * @param $amount
      * @param $loanId

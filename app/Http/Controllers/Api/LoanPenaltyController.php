@@ -30,7 +30,7 @@ class LoanPenaltyController extends ApiController
     public function __construct(LoanPenaltyInterface $loanPenaltyInterface)
     {
         $this->loanPenaltyRepository = $loanPenaltyInterface;
-        $this->load = ['interestType', 'paymentFrequency'];
+        $this->load = ['loan'];
     }
 
     /**
@@ -41,12 +41,17 @@ class LoanPenaltyController extends ApiController
     public function index(Request $request)
     {
         if ($select = request()->query('list')) {
-            // return $this->loanPenaltyRepository->listAll($this->formatFields($select));
-            return $this->loanPenaltyRepository->listAll($this->formatFields($select), $this->load);
-        } else
-            $data = LoanPenaltyResource::collection($this->loanPenaltyRepository->getAllPaginate($this->load));
+            return $this->loanPenaltyRepository->listAll($this->formatFields($select));
+        }
+        $data = $this->loanPenaltyRepository->getAllPaginate($this->load);
 
-        return $this->respondWithData($data);
+        $data->map(function($item) {
+            $item['balance'] =  $this->formatMoney($item['amount'] - $this->loanPenaltyRepository->paidAmount($item['id']));
+            $item['paid_amount'] =  $this->formatMoney($this->loanPenaltyRepository->paidAmount($item['id']));
+            return $item;
+        });
+
+        return $this->respondWithData(LoanPenaltyResource::collection($data));
     }
 
     /**

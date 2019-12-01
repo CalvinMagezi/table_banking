@@ -35,17 +35,15 @@ class LoanRequest extends BaseRequest
                     $rules = [
                         'branch_id'             => 'exists:branches,id',
                         'loan_reference_number' => '',
-                        'loan_application_id'   => 'required|exists:loan_applications,id|unique:loans,loan_application_id,NULL,id,deleted_at,NULL',
-                    //    'member_id'             => 'required|exists:members,id|unique:loans,member_id,NULL,id,deleted_at,NULL',
+                        'loan_officer_id'       => 'required|exists:users,id',
 
+                        'loan_application_id'   => 'required|exists:loan_applications,id|unique:loans,loan_application_id,NULL,id,deleted_at,NULL',
                         'member_id' => [
                             'required', 'exists:members,id',
                             Rule::unique('loans')->where(function ($query) {
                                 $query->where('deleted_at', NULL)->where('end_date', NULL);
                             })
                         ],
-
-                      //  'member_id'             => 'required|exists:members,id',
                         'loan_type_id'          => 'required|exists:loan_types,id',
                         'interest_rate'         => 'required|numeric|between:0,99.99',
                         'interest_type_id'      => 'required',
@@ -53,18 +51,18 @@ class LoanRequest extends BaseRequest
                         'loan_status_id'        => '',
                         'approved_by_user_id'   => '',
                         'amount_approved'       => 'required',
-                        'service_fee'           => '',
+                        'service_fee'           => 'nullable|numeric',
 
-                        'penalty_type_id'       => 'exists:penalty_types,id',
-                        'penalty_value'         => '',
-                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id',
+                        'penalty_type_id'       => 'nullable|exists:penalty_types,id',
+                        'penalty_value'         => 'nullable|numeric',
+                        'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id',
 
                         'loan_disbursed'        => '',
                         'start_date'            => 'required|date',
                         'end_date'              => 'nullable|date|after_or_equal:start_date',
                         'next_repayment_date'   => '',
 
-                        'payment_frequency_id'  => 'required|exists:payment_frequencies,id'
+                        'payment_frequency_id'  => 'nullable|exists:payment_frequencies,id'
                     ];
 
                     break;
@@ -74,6 +72,7 @@ class LoanRequest extends BaseRequest
                 {
                     $rules = [
                         'branch_id'             => 'exists:branches,id',
+                        'loan_officer_id'       => 'required|exists:users,id',
 
                         'loan_reference_number'                 => [Rule::unique('loans')->ignore($this->loan, 'id')
                             ->where(function ($query) {

@@ -28,6 +28,8 @@ class LoanResource extends JsonResource
             'loan_reference_number' => $this->loan_reference_number,
             'loan_application_id'   => $this->loan_application_id,
             'member_id'             => $this->member_id,
+            'loan_officer_id'             => $this->loan_officer_id,
+            'loanOfficer'           => UserResource::make($this->loanOfficer),
             'loan_type_id'          => $this->loan_type_id,
             'loanType'              => $this->loanType,
 

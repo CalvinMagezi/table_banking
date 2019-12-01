@@ -35,7 +35,7 @@ class SmsTemplateRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'name'   => 'required|unique:sms_templates,name,NULL,id,deleted_at,NULL',
+                        'name'   => 'unique:sms_templates,name,NULL,id,deleted_at,NULL',
                         'body'   => 'required',
                         'tags'   => ''
                     ];
@@ -46,7 +46,7 @@ class SmsTemplateRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'name'      => ['required', Rule::unique('sms_templates')->ignore($this->sms_template, 'id')
+                        'name'      => [Rule::unique('sms_templates')->ignore($this->sms_template, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],

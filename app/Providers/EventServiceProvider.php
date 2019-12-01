@@ -33,6 +33,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Oauth\Logout' => [
             'App\Listeners\LogoutSuccessfulListener',
         ],
+        'App\Events\Payment\PaidLoan' => [
+            'App\Listeners\Payment\CheckCloseLoanListener'
+        ],
     ];
 
     /**

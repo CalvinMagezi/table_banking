@@ -11,6 +11,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\EmailTemplateRequest;
 use App\Http\Resources\EmailTemplateResource;
+use App\Models\EmailTemplate;
 use App\SmartMicro\Repositories\Contracts\EmailTemplateInterface;
 
 use Illuminate\Http\Request;

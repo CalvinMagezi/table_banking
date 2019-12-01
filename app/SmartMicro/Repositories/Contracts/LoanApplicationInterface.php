@@ -10,5 +10,10 @@ namespace App\SmartMicro\Repositories\Contracts;
 
 interface LoanApplicationInterface extends BaseInterface {
 
+    /**
+     * @param array $load
+     * @return mixed
+     */
+    public function getAllPending($load = array());
 
 }

@@ -37,14 +37,14 @@ class LoanTypeRequest extends BaseRequest
                         'name'                  => 'required|unique:loan_types,name,NULL,id,deleted_at,NULL',
                         'description'           => '',
                         'active_status'         => '',
-                        'interest_rate'         => '',
+                        'interest_rate'         => 'numeric',
                         'interest_type_id'      => 'required|exists:interest_types,id',
                         'payment_frequency_id'  => 'required|exists:payment_frequencies,id',
-                        'repayment_period'      => '',
-                        'service_fee'           => '',
+                        'repayment_period'      => 'numeric',
+                        'service_fee'           => 'numeric',
 
                         'penalty_type_id'       => 'exists:penalty_types,id',
-                        'penalty_value'         => '',
+                        'penalty_value'         => 'numeric',
                         'penalty_frequency_id'  => 'exists:penalty_frequencies,id'
                     ];
                     break;
@@ -59,14 +59,14 @@ class LoanTypeRequest extends BaseRequest
                             })],
                         'description'           => '',
                         'active_status'         => '',
-                        'interest_rate'         => '',
+                        'interest_rate'         => 'numeric',
                         'interest_type_id'      =>'required|exists:interest_types,id',
                         'payment_frequency_id'  => 'required|exists:payment_frequencies,id',
-                        'repayment_period'      => '',
-                        'service_fee'           => '',
+                        'repayment_period'      => 'numeric',
+                        'service_fee'           => 'numeric',
 
                         'penalty_type_id'       => 'exists:penalty_types,id',
-                        'penalty_value'         => '',
+                        'penalty_value'         => 'numeric',
                         'penalty_frequency_id'  => 'exists:penalty_frequencies,id'
                     ];
                     break;

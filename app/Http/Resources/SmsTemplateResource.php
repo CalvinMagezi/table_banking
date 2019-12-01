@@ -25,6 +25,7 @@ class SmsTemplateResource extends JsonResource
             'id' => $this->id,
 
             'name' => $this->name,
+            'display_name'  => $this->display_name,
             'body' => $this->body,
             'tags' => $this->tags,
 

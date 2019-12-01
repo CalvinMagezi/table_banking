@@ -30,7 +30,7 @@ class LoanPrincipalRepaymentController extends ApiController
     public function __construct(LoanPrincipalRepaymentInterface $loanPrincipalRepaymentInterface)
     {
         $this->loanPrincipalRepaymentRepository = $loanPrincipalRepaymentInterface;
-        $this->load = ['interestType', 'paymentFrequency'];
+        $this->load = ['loan'];
     }
 
     /**
@@ -41,12 +41,17 @@ class LoanPrincipalRepaymentController extends ApiController
     public function index(Request $request)
     {
         if ($select = request()->query('list')) {
-            // return $this->loanPrincipalRepaymentRepository->listAll($this->formatFields($select));
-            return $this->loanPrincipalRepaymentRepository->listAll($this->formatFields($select), $this->load);
-        } else
-            $data = LoanPrincipalRepaymentResource::collection($this->loanPrincipalRepaymentRepository->getAllPaginate($this->load));
+            return $this->loanPrincipalRepaymentRepository->listAll($this->formatFields($select));
+        }
+        $data = $this->loanPrincipalRepaymentRepository->getAllPaginate($this->load);
 
-        return $this->respondWithData($data);
+        $data->map(function($item) {
+            $item['balance'] =  $this->formatMoney($item['amount'] - $this->loanPrincipalRepaymentRepository->paidAmount($item['id']));
+            $item['paid_amount'] =  $this->formatMoney($this->loanPrincipalRepaymentRepository->paidAmount($item['id']));
+            return $item;
+        });
+
+        return $this->respondWithData(LoanPrincipalRepaymentResource::collection($data));
     }
 
     /**

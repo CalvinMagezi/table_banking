@@ -19,11 +19,11 @@ class CreateEmailTemplatesTable extends Migration
             $table->uuid('id')->unique()->primary();
 
             $table->string('name');
+            $table->string('display_name');
             $table->string('subject');
             $table->text('body');
             $table->string('tags')->nullable();
             $table->string('created_by', 36)->nullable();
-
 
             $table->softDeletes();
             $table->timestamps();

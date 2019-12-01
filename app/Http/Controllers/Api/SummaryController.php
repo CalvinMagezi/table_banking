@@ -18,27 +18,30 @@ use App\SmartMicro\Repositories\Contracts\LoanApplicationInterface;
 use App\SmartMicro\Repositories\Contracts\LoanInterface;
 use App\SmartMicro\Repositories\Contracts\LoanPrincipalRepaymentInterface;
 use App\SmartMicro\Repositories\Contracts\PaymentInterface;
+use App\SmartMicro\Repositories\Contracts\UserInterface;
 use Illuminate\Http\Request;
 
 class SummaryController extends ApiController
 {
-    protected $branchRepository, $load, $loanRepository, $loanApplicationRepository,
+    protected $branchRepository, $userRepository, $load, $loanRepository, $loanApplicationRepository,
         $paymentsRepo, $loanPrincipalRepaymentInterface;
 
     /**
      * SummaryController constructor.
      * @param BranchInterface $branchRepository
+     * @param UserInterface $userRepository
      * @param LoanInterface $loanRepository
      * @param LoanApplicationInterface $loanApplicationRepository
      * @param LoanPrincipalRepaymentInterface $loanPrincipalRepaymentInterface
      * @param PaymentInterface $paymentsRepo
      */
-    public function __construct(BranchInterface $branchRepository, LoanInterface $loanRepository,
+    public function __construct(BranchInterface $branchRepository, UserInterface $userRepository, LoanInterface $loanRepository,
                                 LoanApplicationInterface $loanApplicationRepository,
                                 LoanPrincipalRepaymentInterface $loanPrincipalRepaymentInterface,
                                 PaymentInterface $paymentsRepo)
     {
         $this->branchRepository = $branchRepository;
+        $this->userRepository = $userRepository;
         $this->loanRepository = $loanRepository;
         $this->loanApplicationRepository = $loanApplicationRepository;
         $this->paymentsRepo = $paymentsRepo;
@@ -54,8 +57,23 @@ class SummaryController extends ApiController
      */
     public function index(Request $request)
     {
+
+        // Admin Dashboard
+        // 1. Total Branches.totals users per branch, active loans per branch, overdue amounts
+
+
+        // 2. Total loans given, total amount, amount paid, amount overdue
+        // 3. Daily reports (last 24 hrs) - Arrears, loans paid, amount received, amount due, expected amount, amount overdue
+        // 4. pending loan applications
+        // 5. new loan applications
+        // 6. Graphs - membership, loan repayments (weekly, monthly etc), loan applications,
+
+
+
+
         // branches summary
         $branches = $this->branchRepository->getAll();
+        $users = $this->userRepository->getAll();
         $branchesCount = count($branches);
 
         $branchId = auth('api')->user()->branch_id;
@@ -67,14 +85,17 @@ class SummaryController extends ApiController
 
                 $currentBranch = $this->branchRepository->getById($branchId, $this->load);
            //     $currentBranch = $this->branchRepository->getById('d50dcd86-7930-4dc9-8c82-55f08b6b3b1c', $this->load);
+
+                // Admin only
+                $x['count_branches'] = count($branches);
                 $x['current_branch'] = $currentBranch;
+                $x['count_users'] = count($users);
 
                 $x['count_assets'] = count($currentBranch->assets);
                 $x['count_employees'] = count($currentBranch->employees);
                 $x['count_loans'] = count($currentBranch->loans);
-                $x['count_loanApplications'] = count($currentBranch->loanApplications);
+                $x['count_loan_applications'] = count($currentBranch->loanApplications);
                 $x['count_members'] = count($currentBranch->members);
-                $x['count_users'] = count($currentBranch->users);
                 $x['count_payments'] = count($currentBranch->payments);
 
                 // active loans
@@ -83,35 +104,45 @@ class SummaryController extends ApiController
                 $x['count_loans'] = count($activeLoans);
                 $x['loans_sum'] = $this->formatMoney($this->loanRepository->getSum('amount_approved'));
 
-                foreach ($activeLoans as $loan){
-                    if(!is_null($loan)){
-                        // fetch paid amount from loan_principal_repayments
-                        $amountPaid = LoanPrincipalRepayment::where('loan_id', $loan->id)->sum('amount');
-                    }
-                }
-                // todo total amount of loans paid
+                // For all branches
+                // All loans
+                $allActiveLoans = $this->loanRepository->getAllActiveLoans();
+                $x['count_loans'] = count($allActiveLoans);
+                $x['loans_sum'] = $this->formatMoney($allActiveLoans->sum('amount_approved'));
+
+
+
+
+
+        // todo total amount of loans paid
                 // todo total loans balance
 
                 $today = date('Y-m-d');
 
                 // Loans due today
-                $paymentsDueToday = LoanPrincipalRepayment::where('due_date', '=', $today)->get('loan_id');
-                $x['payments_due_today'] = $paymentsDueToday;
-                $x['loans_due_today'] = $this->loanRepository->getByIds($paymentsDueToday);
+                $loanDueToday = $this->loanRepository->dueOnDate($today);
+                $x['loans_due_today'] = $loanDueToday;
+                $x['count_loans_due_today'] = count($loanDueToday);
 
                 // Overdue Loans
-                $paymentsOverDue = LoanPrincipalRepayment::where('due_date', '<', $today)
-                    ->where('paid_on', null)->get('loan_id');
-                $x['payments_over_due'] = $paymentsOverDue;
-                $x['loans_over_due'] = $this->loanRepository->getByIds($paymentsOverDue);
-                // todo total overdue loans
-                // todo count overdue loans
+                $loansOverDue = $this->loanRepository->overDue();
+                $x['loans_over_due'] = $loansOverDue;
+                $x['count_loans_over_due'] = count($loansOverDue);
+
+                // Total loan amount overdue
+                $total = 0;
+                foreach ($loansOverDue as $loan){
+                    $total = $total + $loan->totalDue;
+                }
+                $x['total_amount_over_due'] = $this->formatMoney($total);
+
 
                 // loan Applications
-                $pendingApplications = $this->loanApplicationRepository->getAll(['member', 'loanType']);
+                $pendingApplications = $this->loanApplicationRepository->getAllPending(['member', 'loanType']);
                 $x['pending_applications'] = $pendingApplications;
                 $x['count_pending_applications'] = count($pendingApplications);
-                $x['applications_sum'] = $this->formatMoney($this->loanApplicationRepository->getSum('amount_applied'));
+              //  $x['applications_sum'] = $this->formatMoney($this->loanApplicationRepository->getSum('amount_applied'));
+                $x['applications_sum'] = $this->formatMoney($pendingApplications->sum('amount_applied'));
 
                 // maybe all records for the last 24 hrs ?
                 // latest 5 payments

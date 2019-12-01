@@ -37,7 +37,8 @@ class LoanPenalty extends BaseModel
         'loan_id',
         'period_count',
         'due_date',
-        'amount'
+        'amount',
+        'paid_on'
     ];
 
     /**
@@ -58,4 +59,12 @@ class LoanPenalty extends BaseModel
             'loan_penalties.due_date' => 1,
         ]
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loan()
+    {
+        return $this->belongsTo(Loan::class, 'loan_id');
+    }
 }

@@ -29,7 +29,11 @@ class DatabaseSeeder extends Seeder
         'database\seeds\ReportTypeSeeder',
         'database\seeds\FinanceStatementSeeder',
         'database\seeds\PenaltyTypeSeeder',
-        'database\seeds\PenaltyFrequencySeeder'
+        'database\seeds\PenaltyFrequencySeeder',
+        'database\seeds\EmailTemplateSeeder',
+        'database\seeds\SmsTemplateSeeder',
+        'database\seeds\WitnessTypeSeeder',
+        'database\seeds\CommunicationSettingSeeder'
     ];
 
     /**

@@ -383,15 +383,23 @@ class LoanRepository extends BaseRepository implements LoanInterface {
     }
 
     /**
+     * An active loan has positive sum of penalties, interests or principal due.
      * @param $memberId
      * @param array $load
      * @return Loan|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
      */
     public function getActiveLoan($memberId, $load = array()) {
-        return $this->model->with($load)
-            ->where('member_id', $memberId)
-            ->where('end_date', null)
-            ->orderBy('updated_at', 'desc')->first();
+        $loans = $this->memberLoans($memberId, $load);
+        foreach ($loans as $loan){
+            $penalty = $this->pendingPenalty($loan['id']);
+            $interest = $this->pendingInterest($loan['id']);
+            $principal = $this->pendingPrincipal($loan['id']);
+
+            $pending = $penalty + $interest + $principal;
+            if ($pending > 0)
+                return $loan;
+        }
+        return null;
     }
 
     /**
@@ -400,7 +408,7 @@ class LoanRepository extends BaseRepository implements LoanInterface {
      */
     public function getAllActiveLoans($load = array()) {
         return $this->model->with($load)
-            ->where('end_date', null)->get();
+            ->where('closed_on', null)->get();
     }
 
     /**
@@ -488,6 +496,24 @@ class LoanRepository extends BaseRepository implements LoanInterface {
                         }
                     }
 
+                    // Check for the first time calculations and push the due date forward by one period
+                    // As we calculate loan repayments immediately a loan is awarded...
+                    //These calculations aren't due till end of first period...
+                    // Otherwise we risk applying undue penalties
+
+                  /*  if($count == 1){
+                        $dueDate = $this->calculateDueDate(
+                            $loan['next_repayment_date'],
+                            $loan->paymentFrequency->name,
+                            1
+                        );
+                    }*/
+
+                    $dueDate = $this->calculateDueDate($loan['start_date'],
+                        $loan->paymentFrequency->name,
+                        $count
+                    );
+
                     // Due interest repayment entry
                     $interestDue = $this->loanInterestRepayment->create([
                         'loan_id'=> $loan['id'],
@@ -518,7 +544,8 @@ class LoanRepository extends BaseRepository implements LoanInterface {
                     // We have come to the end of periodic payments
                     if($periodCounter+1 == $totalPeriods){
                         Loan::where('id', $loan['id'])->update([
-                            'end_date' => $next_repayment_date
+                            'end_date' => $next_repayment_date,
+                            'next_repayment_date' => null
                         ]);
                     }
                 }
@@ -684,11 +711,448 @@ class LoanRepository extends BaseRepository implements LoanInterface {
     }
 
     /**
-     *
+     * Loans due on given date / today
+     * @param string $date
+     * @return array
      */
-    public function getOverDueLoans() {
+    public function dueOnDate($date = ''){
+        if(is_null($date) || $date == '')
+            $date = date('Y-m-d');
+      // $date = '2019-11-18';
 
+        $penalties = DB::table(DB::raw("(SELECT
+                      loan_penalties.id,
+                      loan_penalties.loan_id,
+                      loan_penalties.paid_on,
+                      loan_penalties.due_date,
+                      loan_penalties.amount from loan_penalties GROUP BY loan_penalties.id
+                      )as t1"))
+            ->where('t1.paid_on', '=', null)
+            ->where('t1.due_date', '=', $date)
+            ->select(DB::raw(
+                't1.loan_id as loan_id,
+                    COALESCE(sum(t2.paid), 0.0) as paidPenalty,
+                    COALESCE(sum(t1.amount), 0.0) - COALESCE(sum(t2.paid), 0.0) as pendingPenalty,
+                    COALESCE(sum(t1.amount), 0.0) as totalPenalty'
+            ))
+            ->groupBy("t1.loan_id")
+            ->leftJoin(DB::raw("(SELECT
+                      transactions.loan_penalties_id,
+                      COALESCE(sum(transactions.amount), 0.0) as paid,
+                      transactions.amount from transactions GROUP BY transactions.loan_penalties_id
+                      )as t2"),function($join){
+                $join->on('t1.id', '=', 't2.loan_penalties_id');
+            })
+            ->get();
+
+        $interests = DB::table(DB::raw("(SELECT
+                      loan_interest_repayments.id,
+                      loan_interest_repayments.loan_id,
+                      loan_interest_repayments.paid_on,
+                      loan_interest_repayments.due_date,
+                      loan_interest_repayments.amount from loan_interest_repayments GROUP BY loan_interest_repayments.id
+                      )as t1"))
+            ->where('t1.paid_on', '=', null)
+            ->where('t1.due_date', '=', $date)
+            ->select(DB::raw(
+                't1.loan_id as loan_id,
+                    COALESCE(sum(t2.paid), 0.0) as paidInterest,
+                    COALESCE(sum(t1.amount), 0.0) - COALESCE(sum(t2.paid), 0.0) as pendingInterest,
+                    COALESCE(sum(t1.amount), 0.0) as totalInterest'
+            ))
+            ->groupBy("t1.loan_id")
+            ->leftJoin(DB::raw("(SELECT
+                      transactions.loan_interest_repayments_id,
+                      COALESCE(sum(transactions.amount), 0.0) as paid,
+                      transactions.amount from transactions GROUP BY transactions.loan_interest_repayments_id
+                      )as t2"),function($join){
+                $join->on('t1.id', '=', 't2.loan_interest_repayments_id');
+            })
+            ->get();
+
+        $principals = DB::table(DB::raw("(SELECT
+                      loan_principal_repayments.id,
+                      loan_principal_repayments.loan_id,
+                      loan_principal_repayments.paid_on,
+                      loan_principal_repayments.due_date,
+                      loan_principal_repayments.amount from loan_principal_repayments GROUP BY loan_principal_repayments.id
+                      )as t1"))
+            ->where('t1.paid_on', '=', null)
+            ->where('t1.due_date', '=', $date)
+
+            ->select(DB::raw(
+                't1.loan_id as loan_id,
+                    COALESCE(sum(t2.paid), 0.0) as paidPrincipal,
+                    COALESCE(sum(t1.amount), 0.0) - COALESCE(sum(t2.paid), 0.0) as pendingPrincipal,
+                    COALESCE(sum(t1.amount), 0.0) as totalPrincipal'
+            ))
+            ->groupBy("t1.loan_id")
+            ->leftJoin(DB::raw("(SELECT
+                      transactions.loan_principal_repayments_id,
+                      COALESCE(sum(transactions.amount), 0.0) as paid,
+                      transactions.amount from transactions GROUP BY transactions.loan_principal_repayments_id
+                      )as t2"),function($join){
+                $join->on('t1.id', '=', 't2.loan_principal_repayments_id');
+            })
+            ->get();
+
+        $dues = $penalties->merge($interests);
+        $allDue = $dues->merge($principals)->groupBy('loan_id');
+
+        $data = [];
+
+
+        foreach ($allDue as $key => $value){
+            $x = new \stdClass();
+            $x->loan_id = $key;
+            // Fetch Loan for extra data
+            $loan =  $this->model
+                ->with(['member', 'loanType', 'paymentFrequency', 'loanType', 'interestType', 'loanOfficer'])
+                ->where('id', $x->loan_id)
+                ->first()->toArray();
+
+            $x->branch_id = $loan['branch_id'];
+            $x->loan_reference_number = $loan['loan_reference_number'];
+
+            $x->loan_type_id = $loan['loan_type_id'];
+            $x->loan_type_name = $loan['loan_type']['name'];
+
+            $x->payment_frequency = $loan['payment_frequency']['name'];
+            $x->interest_rate = $loan['interest_rate'];
+            $x->interest_type = $loan['interest_type']['name'];
+            $x->repayment_period = $loan['repayment_period'];
+
+            $x->member_id = $loan['member_id'];
+            $x->member_first_name = $loan['member']['first_name'];
+            $x->member_last_name = $loan['member']['last_name'];
+            $x->member_phone = $loan['member']['phone'];
+
+            $x->loan_officer_id = $loan['loan_officer_id'];
+            $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
+
+            $x->paidPenalty = 0;
+            $x->pendingPenalty = 0;
+            $x->totalPenalty = 0;
+
+            $x->paidInterest = 0;
+            $x->pendingInterest = 0;
+            $x->totalInterest = 0;
+
+            $x->paidPrincipal = 0;
+            $x->pendingPrincipal = 0;
+            $x->totalPrincipal = 0;
+
+            $totalDue = 0;
+
+            foreach ($value as $due){
+                if(property_exists($due, 'paidPenalty')){
+                    $x->paidPenalty = $due->paidPenalty;
+                    $x->pendingPenalty = $due->pendingPenalty;
+                    $x->totalPenalty = $due->totalPenalty;
+                    $totalDue = $totalDue + $due->pendingPenalty;
+                }
+                if(property_exists($due, 'paidInterest')){
+                    $x->paidInterest = $due->paidInterest;
+                    $x->pendingInterest = $due->pendingInterest;
+                    $x->totalInterest = $due->totalInterest;
+                    $totalDue = $totalDue + $due->pendingInterest;
+                }
+                if(property_exists($due, 'paidPrincipal')){
+                    $x->paidPrincipal = $due->paidPrincipal;
+                    $x->pendingPrincipal = $due->pendingPrincipal;
+                    $x->totalPrincipal = $due->totalPrincipal;
+                    $totalDue = $totalDue + $due->pendingPrincipal;
+                }
+                $x->totalDue = $totalDue;
+            }
+            $data[] = $x;
+        }
+
+        return $data;
     }
 
+    /**
+     * Loans overdue as of today
+     */
+    public function overDue() {
+        $date = date('Y-m-d');
+       // $date = '2019-11-16';
+
+        $penalties = DB::table(DB::raw("(SELECT
+                      loan_penalties.id,
+                      loan_penalties.loan_id,
+                      loan_penalties.paid_on,
+                      loan_penalties.due_date,
+                      loan_penalties.amount from loan_penalties GROUP BY loan_penalties.id
+                      )as t1"))
+            ->where('t1.paid_on', '=', null)
+            ->where('t1.due_date', '<', $date)
+            ->select(DB::raw(
+                't1.loan_id as loan_id,
+                    t1.due_date as penaltyDueDate,
+                    COALESCE(sum(t2.paid), 0.0) as paidPenalty,
+                    COALESCE(sum(t1.amount), 0.0) - COALESCE(sum(t2.paid), 0.0) as pendingPenalty,
+                    COALESCE(sum(t1.amount), 0.0) as totalPenalty'
+            ))
+            ->groupBy("t1.loan_id")
+            ->leftJoin(DB::raw("(SELECT
+                      transactions.loan_penalties_id,
+                      COALESCE(sum(transactions.amount), 0.0) as paid,
+                      transactions.amount from transactions GROUP BY transactions.loan_penalties_id
+                      )as t2"),function($join){
+                $join->on('t1.id', '=', 't2.loan_penalties_id');
+            })
+            ->get();
+
+        $interests = DB::table(DB::raw("(SELECT
+                      loan_interest_repayments.id,
+                      loan_interest_repayments.loan_id,
+                      loan_interest_repayments.paid_on,
+                      loan_interest_repayments.due_date,
+                      loan_interest_repayments.amount from loan_interest_repayments GROUP BY loan_interest_repayments.id
+                      )as t1"))
+            ->where('t1.paid_on', '=', null)
+            ->where('t1.due_date', '<', $date)
+            ->select(DB::raw(
+                't1.loan_id as loan_id,
+                    t1.due_date as interestDueDate,
+                    COALESCE(sum(t2.paid), 0.0) as paidInterest,
+                    COALESCE(sum(t1.amount), 0.0) - COALESCE(sum(t2.paid), 0.0) as pendingInterest,
+                    COALESCE(sum(t1.amount), 0.0) as totalInterest'
+            ))
+            ->groupBy("t1.loan_id")
+            ->leftJoin(DB::raw("(SELECT
+                      transactions.loan_interest_repayments_id,
+                      COALESCE(sum(transactions.amount), 0.0) as paid,
+                      transactions.amount from transactions GROUP BY transactions.loan_interest_repayments_id
+                      )as t2"),function($join){
+                $join->on('t1.id', '=', 't2.loan_interest_repayments_id');
+            })
+            ->get();
+
+        $principals = DB::table(DB::raw("(SELECT
+                      loan_principal_repayments.id,
+                      loan_principal_repayments.loan_id,
+                      loan_principal_repayments.paid_on,
+                      loan_principal_repayments.due_date,
+                      loan_principal_repayments.amount from loan_principal_repayments GROUP BY loan_principal_repayments.id
+                      )as t1"))
+            ->where('t1.paid_on', '=', null)
+            ->where('t1.due_date', '<', $date)
+
+            ->select(DB::raw(
+                't1.loan_id as loan_id,
+                    t1.due_date as principalDueDate,
+                    COALESCE(sum(t2.paid), 0.0) as paidPrincipal,
+                    COALESCE(sum(t1.amount), 0.0) - COALESCE(sum(t2.paid), 0.0) as pendingPrincipal,
+                    COALESCE(sum(t1.amount), 0.0) as totalPrincipal'
+            ))
+            ->groupBy("t1.loan_id")
+            ->leftJoin(DB::raw("(SELECT
+                      transactions.loan_principal_repayments_id,
+                      COALESCE(sum(transactions.amount), 0.0) as paid,
+                      transactions.amount from transactions GROUP BY transactions.loan_principal_repayments_id
+                      )as t2"),function($join){
+                $join->on('t1.id', '=', 't2.loan_principal_repayments_id');
+            })
+            ->get();
+
+        $dues = $penalties->merge($interests);
+        $allDue = $dues->merge($principals)->groupBy('loan_id');
+
+        $data = [];
+
+
+        foreach ($allDue as $key => $value){
+            $x = new \stdClass();
+            $x->loan_id = $key;
+            // Fetch Loan for extra data
+            $loan =  $this->model
+                ->with(['member', 'loanType', 'paymentFrequency', 'loanType', 'interestType', 'loanOfficer'])
+                ->where('id', $x->loan_id)
+                ->first()->toArray();
+
+            $x->branch_id = $loan['branch_id'];
+            $x->loan_reference_number = $loan['loan_reference_number'];
+
+            $x->loan_type_id = $loan['loan_type_id'];
+            $x->loan_type_name = $loan['loan_type']['name'];
+
+            $x->payment_frequency = $loan['payment_frequency']['name'];
+            $x->interest_rate = $loan['interest_rate'];
+            $x->interest_type = $loan['interest_type']['name'];
+            $x->repayment_period = $loan['repayment_period'];
+
+            $x->member_id = $loan['member_id'];
+            $x->member_first_name = $loan['member']['first_name'];
+            $x->member_last_name = $loan['member']['last_name'];
+            $x->member_phone = $loan['member']['phone'];
+
+            $x->loan_officer_id = $loan['loan_officer_id'];
+            $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
+
+            $x->penaltyDueDate = '';
+            $x->paidPenalty = 0;
+            $x->pendingPenalty = 0;
+            $x->totalPenalty = 0;
+
+            $x->interestDueDate = '';
+            $x->paidInterest = 0;
+            $x->pendingInterest = 0;
+            $x->totalInterest = 0;
+
+            $x->principalDueDate = '';
+            $x->paidPrincipal = 0;
+            $x->pendingPrincipal = 0;
+            $x->totalPrincipal = 0;
+
+            $totalDue = 0;
+
+            foreach ($value as $due){
+                if(property_exists($due, 'paidPenalty')){
+                    $x->penaltyDueDate = $due->penaltyDueDate;
+                    $x->paidPenalty = $due->paidPenalty;
+                    $x->pendingPenalty = $due->pendingPenalty;
+                    $x->totalPenalty = $due->totalPenalty;
+                    $totalDue = $totalDue + $due->pendingPenalty;
+                }
+                if(property_exists($due, 'paidInterest')){
+                    $x->interestDueDate = $due->interestDueDate;
+                    $x->paidInterest = $due->paidInterest;
+                    $x->pendingInterest = $due->pendingInterest;
+                    $x->totalInterest = $due->totalInterest;
+                    $totalDue = $totalDue + $due->pendingInterest;
+                }
+                if(property_exists($due, 'paidPrincipal')){
+                    $x->principalDueDate = $due->principalDueDate;
+                    $x->paidPrincipal = $due->paidPrincipal;
+                    $x->pendingPrincipal = $due->pendingPrincipal;
+                    $x->totalPrincipal = $due->totalPrincipal;
+                    $totalDue = $totalDue + $due->pendingPrincipal;
+                }
+                $x->totalDue = $totalDue;
+            }
+            $data[] = $x;
+        }
+        return $data;
+    }
+
+    /**
+     * For a loan, calculate pending penalty  amount
+     * @param $loanId
+     * @return mixed
+     */
+    public function pendingPenalty($loanId) {
+
+        return DB::table(DB::raw("(SELECT
+                      loan_penalties.id,
+                      loan_penalties.loan_id,
+                      loan_penalties.paid_on,
+                      loan_penalties.due_date,
+                      loan_penalties.amount from loan_penalties GROUP BY loan_penalties.id
+                      )as t1"))
+            ->where('t1.paid_on', '=', null)
+            ->where('t1.loan_id', '=', $loanId)
+            ->select(DB::raw(
+                't1.loan_id as loan_id,
+                    t1.due_date as penaltyDueDate,
+                    COALESCE(sum(t2.paid), 0.0) as paidPenalty,
+                    COALESCE(sum(t1.amount), 0.0) - COALESCE(sum(t2.paid), 0.0) as pendingPenalty,
+                    COALESCE(sum(t1.amount), 0.0) as totalPenalty'
+            ))
+            ->leftJoin(DB::raw("(SELECT
+                      transactions.loan_penalties_id,
+                      COALESCE(sum(transactions.amount), 0.0) as paid,
+                      transactions.amount from transactions GROUP BY transactions.loan_penalties_id
+                      )as t2"),function($join){
+                $join->on('t1.id', '=', 't2.loan_penalties_id');
+            })
+            ->first()->pendingPenalty;
+    }
+
+    /**
+     * For a loan calculate pending interest amount
+     * @param $loanId
+     * @return mixed
+     */
+    public function pendingInterest($loanId) {
+        return DB::table(DB::raw("(SELECT
+                      loan_interest_repayments.id,
+                      loan_interest_repayments.loan_id,
+                      loan_interest_repayments.paid_on,
+                      loan_interest_repayments.amount from loan_interest_repayments GROUP BY loan_interest_repayments.id
+                      )as t1"))
+            ->where('t1.paid_on', '=', null)
+            ->where('t1.loan_id', '=', $loanId)
+            ->select(DB::raw(
+                't1.loan_id as loan_id,
+                    COALESCE(sum(t2.paid), 0.0) as paidInterest,
+                    COALESCE(sum(t1.amount), 0.0) - COALESCE(sum(t2.paid), 0.0) as pendingInterest,
+                    COALESCE(sum(t1.amount), 0.0) as totalInterest'
+            ))
+            ->leftJoin(DB::raw("(SELECT
+                      transactions.loan_interest_repayments_id,
+                      COALESCE(sum(transactions.amount), 0.0) as paid,
+                      transactions.amount from transactions GROUP BY transactions.loan_interest_repayments_id
+                      )as t2"),function($join){
+                $join->on('t1.id', '=', 't2.loan_interest_repayments_id');
+            })
+            ->first()->pendingInterest;
+    }
+
+    /**
+     * For a loan, calculate pending principal amount
+     * @param $loanId
+     * @return mixed
+     */
+    public function pendingPrincipal($loanId) {
+        return DB::table(DB::raw("(SELECT
+                      loan_principal_repayments.id,
+                      loan_principal_repayments.loan_id,
+                      loan_principal_repayments.paid_on,
+                      loan_principal_repayments.due_date,
+                      loan_principal_repayments.amount from loan_principal_repayments GROUP BY loan_principal_repayments.id
+                      )as t1"))
+            ->where('t1.paid_on', '=', null)
+            ->where('t1.loan_id', '=', $loanId)
+            ->select(DB::raw(
+                't1.loan_id as loan_id,
+                    t1.due_date as principalDueDate,
+                    COALESCE(sum(t2.paid), 0.0) as paidPrincipal,
+                    COALESCE(sum(t1.amount), 0.0) - COALESCE(sum(t2.paid), 0.0) as pendingPrincipal,
+                    COALESCE(sum(t1.amount), 0.0) as totalPrincipal'
+            ))
+            ->leftJoin(DB::raw("(SELECT
+                      transactions.loan_principal_repayments_id,
+                      COALESCE(sum(transactions.amount), 0.0) as paid,
+                      transactions.amount from transactions GROUP BY transactions.loan_principal_repayments_id
+                      )as t2"),function($join){
+                $join->on('t1.id', '=', 't2.loan_principal_repayments_id');
+            })
+            ->first()->pendingPrincipal;
+    }
+
+    /**
+     * Total Loan calculated due amount
+     * @param $loanId
+     * @return mixed
+     */
+    public function totalPendingAmount($loanId){
+        $penalty = $this->pendingPenalty($loanId);
+        $interest = $this->pendingInterest($loanId);
+        $principal = $this->pendingPrincipal($loanId);
+
+        return $penalty + $interest + $principal;
+    }
+
+    /**
+     * Loans For a member - active or in past
+     * @param $memberId
+     * @param array $load
+     * @return Loan[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|mixed
+     */
+    public function memberLoans($memberId, $load = array()) {
+        return $this->model->with($load)->where('member_id', $memberId)->get();
+    }
 
 }
