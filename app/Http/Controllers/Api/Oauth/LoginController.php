@@ -20,8 +20,8 @@ class LoginController extends ApiController
 
     /**
      * @param LoginRequest $request
-     * @return mixed
-     * @throws \League\Flysystem\Exception
+     * @return array
+     * @throws \Exception
      */
     public function login(LoginRequest $request)
     {
@@ -29,8 +29,7 @@ class LoginController extends ApiController
         $password = $request->get('password');
 
         return $this->loginProxy->attemptLogin($email, $password);
-
-        return $this->respondWithData($this->loginProxy->attemptLogin($email, $password));
+       // return $this->respondWithData($this->loginProxy->attemptLogin($email, $password));
     }
 
     /**
@@ -40,7 +39,7 @@ class LoginController extends ApiController
     public function refresh(Request $request)
     {
         return $this->loginProxy->attemptRefresh();
-        return $this->respondWithData($this->loginProxy->attemptRefresh());
+       // return $this->respondWithData($this->loginProxy->attemptRefresh());
     }
 
     /**

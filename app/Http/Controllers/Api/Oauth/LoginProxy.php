@@ -10,8 +10,7 @@ use App\SmartMicro\Repositories\Contracts\RoleInterface;
 use App\SmartMicro\Repositories\Contracts\UserInterface;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Foundation\Application;
-//use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use League\Flysystem\Exception;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -21,16 +20,10 @@ class LoginProxy
 
     private $apiConsumer;
 
+    protected $app;
 
-    private $auth;
+    private $auth, $cookie, $db, $request, $userRepository, $roleRepository, $generalSettingRepository;
 
-    private $cookie;
-
-    private $db;
-
-    private $request;
-
-    private $userRepository, $roleRepository, $generalSettingRepository;
 
     /**
      * LoginProxy constructor.
@@ -46,7 +39,9 @@ class LoginProxy
         $this->roleRepository = $roleRepository;
         $this->generalSettingRepository = $generalSettingRepository;
 
-        $this->apiConsumer = $app->make('apiconsumer');
+        $this->app = $app;
+
+       // $this->apiConsumer = $app->make('apiconsumer');
 
         $this->auth = $app->make('auth');
         $this->cookie = $app->make('cookie');
@@ -59,15 +54,13 @@ class LoginProxy
      * @param $email
      * @param $password
      * @return array
+     * @throws \Exception
      */
     public function attemptLogin($email, $password)
     {
         $user = $this->userRepository->getWhere('email', $email);
         if (!is_null($user)) {
-
             $scope = trim($this->checkPermissions($user->role_id));
-           // $scope = trim($this->checkRole($user->role_id));
-          //  $scope = 'admin';
 
             return $this->proxy('password', [
                 'username'  => $email,
@@ -75,7 +68,7 @@ class LoginProxy
                 'scope'     => $scope ? $scope : 'null'
             ], $user);
         }
-        // event login failed
+        // log event
         event(new LoginFailed($email));
         throw new UnauthorizedHttpException("", Exception::class, null, 0);
     }
@@ -107,6 +100,7 @@ class LoginProxy
      * @param array $credentials
      * @param array $user
      * @return array
+     * @throws \Exception
      */
     public function proxy($grantType, array $credentials = [], $user = array())
     {
@@ -116,7 +110,18 @@ class LoginProxy
             'grant_type'    => $grantType
         ]);
 
-        $response = $this->apiConsumer->post('/oauth/token', $data);
+        // Make internal POST request
+      //  $response = $this->apiConsumer->post('/oauth/token', $data);
+
+        $request = Request::create('/oauth/token', 'POST', $data, [], [], [
+            'HTTP_Accept'             => 'application/json',
+        ]);
+
+        try{
+            $response = $this->app->handle($request);
+        }catch (\Exception $e) {
+            throw new UnauthorizedHttpException("", $e->getMessage(), null, 0);
+        }
 
         if (!$response->isSuccessful()) {
             // event login failed
@@ -124,7 +129,6 @@ class LoginProxy
 
            // throw new InvalidCredentialsException('Invalid Credentials..');
             throw new UnauthorizedHttpException("", Exception::class, null, 0);
-
         }
 
         $data = json_decode($response->getContent());
@@ -148,6 +152,9 @@ class LoginProxy
             'expires_in' 	=> $data->expires_in,
             'settings'      => $this->generalSettingRepository->getFirst(),
             'branch_id'     => $user ? $user['branch_id'] : null,
+            'first_name'    => $user ? $user['first_name'] : null,
+            'middle_name'   => $user ? $user['middle_name'] : null,
+            'last_name'     => $user ? $user['last_name'] : null,
 			//'scope' 		=> $credentials['scope']
         ];
     }

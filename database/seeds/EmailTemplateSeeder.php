@@ -23,7 +23,7 @@ class EmailTemplateSeeder extends Seeder
         // 1.
         EmailTemplate::create([
             'name' => 'new_member_welcome',
-            'display_name' => 'New member Welcome',
+            'display_name' => 'New Member Welcome',
             'subject' => 'New member Welcome',
             'body' => "Hi {first_name}, Welcome.",
             'tags' => "{first_name}, {middle_name}, {last_name}, {phone}"

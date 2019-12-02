@@ -79,7 +79,7 @@ class CommunicationSettingSeeder extends Seeder
         // 8.
         CommunicationSetting::create([
             'name'              => 'system_summary',
-            'display_name'      => 'Payment Received',
+            'display_name'      => 'System Summary',
             'email_template' => false,
             'sms_template'   => false
         ]);
