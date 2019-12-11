@@ -54,7 +54,7 @@ class SmsTemplateController extends ApiController
     {
         $save = $this->smsTemplateRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! SmsTemplate has been created.');
@@ -87,7 +87,7 @@ class SmsTemplateController extends ApiController
     {
         $save = $this->smsTemplateRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

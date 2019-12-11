@@ -54,7 +54,7 @@ class FiscalPeriodController extends ApiController
     {
         $save = $this->fiscalPeriodRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! FiscalPeriod has been created.');
@@ -87,7 +87,7 @@ class FiscalPeriodController extends ApiController
     {
         $save = $this->fiscalPeriodRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

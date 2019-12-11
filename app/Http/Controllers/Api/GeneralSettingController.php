@@ -57,6 +57,7 @@ class GeneralSettingController  extends ApiController
         $data = $request->all();
 
         // Upload logo
+        $data['logo'] = null;
         if($request->hasFile('logo')) {
             $filenameWithExt = $request->file('logo')->getClientOriginalName();
 
@@ -76,7 +77,7 @@ class GeneralSettingController  extends ApiController
 
         $save = $this->generalSettingRepository->create($data);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! GeneralSetting has been created.');
@@ -107,7 +108,7 @@ class GeneralSettingController  extends ApiController
     {
         $data = $request->all();
         $save = $this->generalSettingRepository->update($data, $uuid);
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
             return $this->respondWithSuccess('Success !! GeneralSetting has been updated.');

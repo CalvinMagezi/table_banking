@@ -55,7 +55,7 @@ class InterestTypeController extends ApiController
     {
         $save = $this->interestTypeRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! InterestType has been created.');
@@ -87,7 +87,7 @@ class InterestTypeController extends ApiController
     {
         $save = $this->interestTypeRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

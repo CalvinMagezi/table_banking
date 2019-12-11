@@ -53,7 +53,7 @@ class AssetPhotoController extends ApiController
     {
         $save = $this->assetPhotoRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! AssetPhoto has been created.');
@@ -83,7 +83,7 @@ class AssetPhotoController extends ApiController
     {
         $save = $this->assetPhotoRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
             return $this->respondWithSuccess('Success !! AssetPhoto has been updated.');

@@ -55,7 +55,7 @@ class TransactionTypeController extends ApiController
     {
         $save = $this->transactionTypeRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! TransactionType has been created.');
@@ -88,7 +88,7 @@ class TransactionTypeController extends ApiController
     {
         $save = $this->transactionTypeRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

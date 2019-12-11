@@ -56,7 +56,7 @@ class CommunicationSettingController extends ApiController
     {
         $save = $this->communicationSettingRepository->create($request->all());
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! CommunicationSetting has been created.');
@@ -88,7 +88,7 @@ class CommunicationSettingController extends ApiController
     {
         $save = $this->communicationSettingRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

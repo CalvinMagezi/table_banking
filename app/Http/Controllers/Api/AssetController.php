@@ -53,7 +53,7 @@ class AssetController extends ApiController
     {
         $save = $this->assetRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! Asset has been created.');
@@ -82,7 +82,7 @@ class AssetController extends ApiController
     public function update(AssetRequest $request, $uuid)
     {
         $save = $this->assetRepository->update($request->all(), $uuid);
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
             return $this->respondWithSuccess('Success !! Asset has been updated.');

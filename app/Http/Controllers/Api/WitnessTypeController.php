@@ -54,7 +54,7 @@ class WitnessTypeController extends ApiController
     {
         $save = $this->witnessTypeRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! WitnessType has been created.');
@@ -87,12 +87,10 @@ class WitnessTypeController extends ApiController
     {
         $save = $this->witnessTypeRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
-
             return $this->respondWithSuccess('Success !! WitnessType has been updated.');
-
     }
 
     /**

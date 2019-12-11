@@ -82,7 +82,7 @@ class UserController  extends ApiController
 
         $save = $this->userRepository->create($data);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             // New user email / sms
@@ -119,7 +119,7 @@ class UserController  extends ApiController
 
         $save = $this->userRepository->update(array_filter($request->all()), $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
 

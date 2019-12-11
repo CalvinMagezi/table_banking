@@ -53,7 +53,7 @@ class BorrowerController  extends ApiController
     {
         $save = $this->borrowerRepository->create($request->all());
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! Borrower has been created.');
@@ -87,7 +87,7 @@ class BorrowerController  extends ApiController
     {
         $save = $this->borrowerRepository->update($request->all(), $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
 

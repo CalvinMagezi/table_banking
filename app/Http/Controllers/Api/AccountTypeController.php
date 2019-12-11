@@ -56,7 +56,7 @@ class AccountTypeController extends ApiController
     {
         $save = $this->accountTypeRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! AccountType has been created.');
@@ -89,7 +89,7 @@ class AccountTypeController extends ApiController
     {
         $save = $this->accountTypeRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

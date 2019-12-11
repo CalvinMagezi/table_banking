@@ -91,7 +91,7 @@ class LoanTypeController  extends ApiController
     {
         $save = $this->loanTypeRepository->update($request->all(), $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
 

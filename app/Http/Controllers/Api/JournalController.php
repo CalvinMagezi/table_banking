@@ -55,7 +55,7 @@ class JournalController extends ApiController
     {
         $save = $this->journalRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! Journal has been created.');
@@ -88,7 +88,7 @@ class JournalController extends ApiController
     {
         $save = $this->journalRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

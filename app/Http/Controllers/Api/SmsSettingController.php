@@ -57,7 +57,7 @@ class SmsSettingController extends ApiController
     {
         $save = $this->smsSettingRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! SmsSetting has been created.');
@@ -90,7 +90,7 @@ class SmsSettingController extends ApiController
     {
         $save = $this->smsSettingRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

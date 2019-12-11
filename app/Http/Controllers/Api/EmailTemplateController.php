@@ -55,7 +55,7 @@ class EmailTemplateController extends ApiController
     {
         $save = $this->emailTemplateRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! EmailTemplate has been created.');
@@ -88,7 +88,7 @@ class EmailTemplateController extends ApiController
     {
         $save = $this->emailTemplateRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

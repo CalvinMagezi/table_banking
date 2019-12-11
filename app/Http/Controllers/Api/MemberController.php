@@ -112,7 +112,7 @@ class MemberController  extends ApiController
 
         $save = $this->memberRepository->create($data);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             // New member email / sms
@@ -146,7 +146,7 @@ class MemberController  extends ApiController
     {
         $save = $this->memberRepository->update($request->all(), $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
 

@@ -54,7 +54,7 @@ class AccountStatusController extends ApiController
     {
         $save = $this->accountStatusRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! AccountStatus has been created.');
@@ -87,7 +87,7 @@ class AccountStatusController extends ApiController
     {
         $save = $this->accountStatusRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

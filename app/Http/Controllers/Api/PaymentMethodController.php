@@ -53,7 +53,7 @@ class PaymentMethodController  extends ApiController
     {
         $save = $this->paymentMethodRepository->create($request->all());
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! PaymentMethod has been created.');
@@ -87,7 +87,7 @@ class PaymentMethodController  extends ApiController
     {
         $save = $this->paymentMethodRepository->update($request->all(), $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
 

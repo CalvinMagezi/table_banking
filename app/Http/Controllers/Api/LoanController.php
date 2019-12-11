@@ -73,11 +73,11 @@ class LoanController  extends ApiController
      */
     public function index(Request $request)
     {
-        $user = auth()->user();
+      //  $user = auth()->user();
 
        // $user->notify(new PaymentReceivedNotification());
 
-        $user->email = 'gikure.mungai@gmail.com';
+      //  $user->email = 'gikure.mungai@gmail.com';
 
        // return $this->smsSend->send('+254724475357', 'hallo there');
 
@@ -217,7 +217,7 @@ class LoanController  extends ApiController
     {
         $save = $this->loanRepository->update($request->all(), $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
             return $this->respondWithSuccess('Success !! Loan has been updated.');

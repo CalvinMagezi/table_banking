@@ -52,6 +52,7 @@ class LoanHistoryController extends ApiController
 
     /**
      * @param $id
+     * @return \Illuminate\Support\Collection
      */
     public function show($id) {
 

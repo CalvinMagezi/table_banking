@@ -94,7 +94,7 @@ class UserProfileController extends ApiController
 
         $save = $this->userRepository->update(array_filter($data), $user->id);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
             return $this->respondWithSuccess('Success !! User has been updated.');

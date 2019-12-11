@@ -53,7 +53,7 @@ class LoanApplicationStatusController  extends ApiController
     {
         $save = $this->loanApplicationStatusRepository->create($request->all());
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! LoanApplicationStatus has been created.');
@@ -87,7 +87,7 @@ class LoanApplicationStatusController  extends ApiController
     {
         $save = $this->loanApplicationStatusRepository->update($request->all(), $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
 

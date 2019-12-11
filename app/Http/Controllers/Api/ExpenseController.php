@@ -101,7 +101,7 @@ class ExpenseController extends ApiController
         $data = $request->all();
         $updatedRecord = $this->expenseRepository->update($data, $uuid);
 
-        if ($updatedRecord['error']) {
+        if(!is_null($updatedRecord) && $updatedRecord['error']){
             return $this->respondNotSaved($updatedRecord['message']);
         } else {
             if ($data['amount'] != $original['amount']){

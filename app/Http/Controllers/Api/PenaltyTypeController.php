@@ -55,7 +55,7 @@ class PenaltyTypeController extends ApiController
     {
         $save = $this->penaltyTypeRepository->create($request->all());
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! PenaltyType has been created.');
@@ -87,7 +87,7 @@ class PenaltyTypeController extends ApiController
     {
         $save = $this->penaltyTypeRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

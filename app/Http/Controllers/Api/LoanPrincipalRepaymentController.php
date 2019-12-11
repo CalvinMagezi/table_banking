@@ -96,7 +96,7 @@ class LoanPrincipalRepaymentController extends ApiController
     {
         $save = $this->loanPrincipalRepaymentRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 

@@ -13,7 +13,8 @@
         "laravel/helpers": "^1.1",
         "laravel/passport": "^7.0",
         "laravel/tinker": "^1.0",
-        "nicolaslopezj/searchable": "1.*"
+        "nicolaslopezj/searchable": "1.*",
+        "rachidlaasri/laravel-installer": "^4.0"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

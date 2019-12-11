@@ -88,7 +88,7 @@ class LoanApplicationController  extends ApiController
 
         $save = $this->loanApplicationRepository->create($data);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
           //  $member = $this->memberRepository->getWhere('id', $save['id']);
@@ -134,7 +134,7 @@ class LoanApplicationController  extends ApiController
 
         $save = $this->loanApplicationRepository->update($data, $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! LoanApplication has been updated.');

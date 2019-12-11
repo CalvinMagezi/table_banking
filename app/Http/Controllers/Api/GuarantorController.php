@@ -54,7 +54,7 @@ class GuarantorController  extends ApiController
     {
         $save = $this->guarantorRepository->create($request->all());
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! Guarantor has been created.');
@@ -88,7 +88,7 @@ class GuarantorController  extends ApiController
     {
         $save = $this->guarantorRepository->update($request->all(), $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
 

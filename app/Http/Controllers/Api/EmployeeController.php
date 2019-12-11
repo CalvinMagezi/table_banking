@@ -53,7 +53,7 @@ class EmployeeController  extends ApiController
     {
         $save = $this->employeeRepository->create($request->all());
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! Employee has been created.');
@@ -87,7 +87,7 @@ class EmployeeController  extends ApiController
     {
         $save = $this->employeeRepository->update($request->all(), $uuid);
 
-        if($save['error']){
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
 

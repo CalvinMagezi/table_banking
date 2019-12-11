@@ -67,7 +67,7 @@ class ExpenseCategoryController extends ApiController
         ];
         $save = $this->accountRepository->create($data);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! ExpenseCategory has been created.');
@@ -101,7 +101,7 @@ class ExpenseCategoryController extends ApiController
         $data['account_name'] =  ucwords($request->name);*/
         $save = $this->accountRepository->update($request->all(), $uuid);
 
-        if ($save['error']) {
+        if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 
