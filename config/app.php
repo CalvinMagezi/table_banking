@@ -165,10 +165,7 @@ return [
         /*
         * Custom providers
         */
-        App\Providers\SmartMicroServiceProvider::class,
-
-        Optimus\ApiConsumer\Provider\LaravelServiceProvider::class,
-
+        App\Providers\SmartMicroServiceProvider::class
     ],
 
     /*
@@ -183,7 +180,6 @@ return [
     */
 
     'aliases' => [
-
         'App' => Illuminate\Support\Facades\App::class,
         'Artisan' => Illuminate\Support\Facades\Artisan::class,
         'Auth' => Illuminate\Support\Facades\Auth::class,

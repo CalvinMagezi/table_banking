@@ -59,6 +59,8 @@ class Loan extends BaseModel
         'penalty_value',
         'penalty_frequency_id',
 
+        'reduce_principal_early',
+
         'loan_disbursed',
 
         'start_date',

@@ -42,6 +42,8 @@ class LoanApplicationResource extends JsonResource
             'penalty_value'         => $this->penalty_value,
             'penalty_frequency_id'  => $this->penalty_frequency_id,
 
+            'reduce_principal_early'  => $this->reduce_principal_early,
+
             'amount_applied'                => $this->amount_applied,
             'interest_rate'                 => $this->interest_rate,
             'repayment_period'              => $this->repayment_period,

@@ -34,6 +34,7 @@ class LoanPenaltyRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
+                        'branch_id'     => 'required|exists:branches,id',
                         'loan_id'       => 'required|exists:loans,id',
                         'period_count'  => '',
                         'due_date'      => '',
@@ -46,6 +47,7 @@ class LoanPenaltyRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
+                        'branch_id'     => 'required|exists:branches,id',
                         'loan_id'       => 'required|exists:loans,id',
                         'period_count'  => '',
                         'due_date'      => '',

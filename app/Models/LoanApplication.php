@@ -48,6 +48,8 @@ class LoanApplication extends BaseModel
         'penalty_value',
         'penalty_frequency_id',
 
+        'reduce_principal_early',
+
         'amount_applied',
         'interest_rate',
         'repayment_period',

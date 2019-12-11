@@ -22,7 +22,7 @@ abstract class BaseRepository {
      * @return int
      */
     private function limit(){
-        return (int)(request()->query('limit'))?:5;
+        return (int)(request()->query('limit')) ? : 5;
     }
 
     /**

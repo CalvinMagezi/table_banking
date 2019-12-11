@@ -16,7 +16,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class PasswordResetSms extends Notification
+class PasswordResetSms extends Notification implements ShouldQueue
 {
     use Queueable;
 

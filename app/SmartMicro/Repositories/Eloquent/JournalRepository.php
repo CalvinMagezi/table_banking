@@ -223,6 +223,25 @@ class JournalRepository extends BaseRepository implements JournalInterface
     }
 
     /**
+     * @param $loan
+     * @param $waivedAmount
+     * @param $penaltyDueId
+     * @throws \Exception
+     */
+    public function penaltyWaiver($loan, $waivedAmount, $penaltyDueId) {
+        $data = [
+            'narration'             => 'Penalty Waived #'.$loan['loan_reference_number'],
+            'amount'                => $waivedAmount,
+            'transaction_id'        => $penaltyDueId,
+            'debit_account_id'      => $this->accountId(PENALTY_ACCOUNT_NAME, $loan['branch_id']), // penalty a/c
+            'credit_account_id'     => $this->getMemberAccount($loan), // xyz a/c
+            'branch_id'             => $loan['branch_id'], // NOTE: There will be no logged in user for the scheduled calculations.
+            'created_by'            => 'system'
+        ];
+        $this->create($data);
+    }
+
+    /**
      * Journal entry for payment received
      * @param $paymentData
      * @return mixed|void

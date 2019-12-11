@@ -40,9 +40,19 @@ class LoanPenaltyRepository extends BaseRepository implements LoanPenaltyInterfa
             ->select(DB::raw('COALESCE(sum(transactions.amount), 0.0) as totalPaid'))
             ->where('loan_penalties_id', $penaltyRepaymentId)
             ->where(function($query) {
-                $query->where('transaction_type', 'penalty_payment');
+                $query->where('transaction_type', 'penalty_payment')
+                        ->orWhere('transaction_type', 'penalty_waiver');
             })
             ->first()->totalPaid;
+    }
+
+    /**
+     * @param $loanPenaltyRepaymentId
+     * @param $amount
+     * @param $loanId
+     */
+    public function waivePenalty($loanPenaltyRepaymentId, $amount, $loanId) {
+        $this->transactionRepository->penaltyWaiverEntry($loanPenaltyRepaymentId, $amount, $loanId);
     }
 
     /**
@@ -61,29 +71,33 @@ class LoanPenaltyRepository extends BaseRepository implements LoanPenaltyInterfa
             ->where('loan_id', $loanId)
             ->where('paid_on', null)
             ->orderBy('created_at', 'asc')
-            ->get()->toArray();
+            ->get();
 
-        if (!is_null($loanPenaltyPaymentDueRecords) && count($loanPenaltyPaymentDueRecords) > 0) {
+        if(!is_null($loanPenaltyPaymentDueRecords)){
+            $loanPenaltyPaymentDueRecords = $loanPenaltyPaymentDueRecords->toArray();
 
-            foreach ($loanPenaltyPaymentDueRecords as $dueRecord){
+            if (!is_null($loanPenaltyPaymentDueRecords) && count($loanPenaltyPaymentDueRecords) > 0) {
 
-                $penaltyDue = $dueRecord['amount'];
+                foreach ($loanPenaltyPaymentDueRecords as $dueRecord){
 
-                // Past partial payments
-                $paidInterest = DB::table('transactions')
-                    ->select(DB::raw('SUM(amount) as paid'))
-                    ->where('loan_penalties_id', $dueRecord['id'])->get()->toArray();
+                    $penaltyDue = $dueRecord['amount'];
 
-                // Actual penalty amount due
-                foreach ($paidInterest as $paidAmount) {
-                    if (null !== $paidAmount) {
-                        $penaltyDue = $penaltyDue - ($paidAmount->paid);
+                    // Past partial payments
+                    $paidInterest = DB::table('transactions')
+                        ->select(DB::raw('SUM(amount) as paid'))
+                        ->where('loan_penalties_id', $dueRecord['id'])->get()->toArray();
+
+                    // Actual penalty amount due
+                    foreach ($paidInterest as $paidAmount) {
+                        if (null !== $paidAmount) {
+                            $penaltyDue = $penaltyDue - ($paidAmount->paid);
+                        }
                     }
+                    // Now pay
+                    if($amount > 0)
+                        $paidPenaltyAmount = $paidPenaltyAmount + $this->transactPayment($loanId, $penaltyDue, $amount, $paymentId, $dueRecord['id']);
+                    $amount = $amount - $paidPenaltyAmount;
                 }
-                // Now pay
-                if($amount > 0)
-                    $paidPenaltyAmount = $paidPenaltyAmount + $this->transactPayment($loanId, $penaltyDue, $amount, $paymentId, $dueRecord['id']);
-                $amount = $amount - $paidPenaltyAmount;
             }
         }
        event(new PaidLoan($loanId));

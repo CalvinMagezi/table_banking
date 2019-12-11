@@ -57,6 +57,8 @@ class LoanRequest extends BaseRequest
                         'penalty_value'         => 'nullable|numeric',
                         'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id',
 
+                        'reduce_principal_early'    => '',
+
                         'loan_disbursed'        => '',
                         'start_date'            => 'required|date',
                         'end_date'              => 'nullable|date|after_or_equal:start_date',

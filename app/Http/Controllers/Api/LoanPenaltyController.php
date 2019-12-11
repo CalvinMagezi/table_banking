@@ -10,27 +10,32 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\LoanPenaltyRequest;
+use App\Http\Requests\WaiverRequest;
 use App\Http\Resources\LoanPenaltyResource;
 use App\Models\LoanPenalty;
+use App\SmartMicro\Repositories\Contracts\JournalInterface;
 use App\SmartMicro\Repositories\Contracts\LoanPenaltyInterface;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LoanPenaltyController extends ApiController
 {
     /**
-     * @var \App\SmartMicro\Repositories\Contracts\LoanPenaltyInterface
+     * @var LoanPenaltyInterface
      */
-    protected $loanPenaltyRepository, $load;
+    protected $loanPenaltyRepository, $load, $journalRepository;
 
     /**
      * LoanPenaltyController constructor.
      * @param LoanPenaltyInterface $loanPenaltyInterface
+     * @param JournalInterface $journalInterface
      */
-    public function __construct(LoanPenaltyInterface $loanPenaltyInterface)
+    public function __construct(LoanPenaltyInterface $loanPenaltyInterface, JournalInterface $journalInterface)
     {
         $this->loanPenaltyRepository = $loanPenaltyInterface;
         $this->load = ['loan'];
+        $this->journalRepository   = $journalInterface;
     }
 
     /**
@@ -114,5 +119,31 @@ class LoanPenaltyController extends ApiController
             return $this->respondWithSuccess('Success !! LoanPenalty has been deleted');
         }
         return $this->respondNotFound('LoanPenalty not deleted');
+    }
+
+    /**
+     * @param WaiverRequest $request
+     * @return array
+     * @throws \Exception
+     */
+    public function waive(WaiverRequest $request){
+        $data = $request->all();
+        DB::beginTransaction();
+        try
+        {
+            // the waiver transaction
+            if(array_key_exists('waiver_amount', $data) && !is_null($data['waiver_amount']) && $data['waiver_amount'] > 0)
+                $this->loanPenaltyRepository->waivePenalty($data['id'], $data['waiver_amount'], $data['loan_id']);
+
+            // the waiver journal entry
+            if(array_key_exists('waiver_amount', $data) && !is_null($data['waiver_amount']) && $data['waiver_amount'] > 0)
+                $this->journalRepository->penaltyWaiver($data['loan'], $data['waiver_amount'], $data['id']);
+
+            DB::commit();
+            return $this->respondWithSuccess('Success !! Penalty Waived successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 }

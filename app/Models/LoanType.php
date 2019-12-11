@@ -45,7 +45,8 @@ class LoanType extends BaseModel
 
         'penalty_type_id',
         'penalty_value',
-        'penalty_frequency_id'
+        'penalty_frequency_id',
+        'reduce_principal_early'
     ];
 
     /**

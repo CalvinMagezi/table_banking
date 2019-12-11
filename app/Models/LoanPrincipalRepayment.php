@@ -34,6 +34,7 @@ class LoanPrincipalRepayment extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'branch_id',
         'loan_id',
         'period_count',
         'due_date',
@@ -58,6 +59,14 @@ class LoanPrincipalRepayment extends BaseModel
             'loan_principal_repayments.amount' => 1,
         ]
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

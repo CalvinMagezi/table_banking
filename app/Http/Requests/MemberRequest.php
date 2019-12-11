@@ -43,7 +43,7 @@ class MemberRequest extends BaseRequest
                         'nationality'           => 'required',
                         'county'                => '',
                         'city'                  => '',
-                        'national_id_image'     => '',
+                        'extra_images'      => '',
                         'id_number'             => 'required|unique:members,id_number,NULL,id,deleted_at,NULL',
                         'passport_number'       => '',
                         'phone'                 => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
@@ -51,7 +51,9 @@ class MemberRequest extends BaseRequest
                         'postal_address'        => 'required',
                         'residential_address'   => 'required',
                         'status_id'             => '',
-                        'passport_photo'        => ''
+                        'passport_photo'        => '',
+                        'membership_form'       => 'nullable|file|mimes:doc,pdf,docx,zip|max:10000'
+
                     ];
 
                     break;
@@ -69,7 +71,7 @@ class MemberRequest extends BaseRequest
                         'nationality'           => 'required',
                         'county'                => '',
                         'city'                  => '',
-                        'national_id_image'     => '',
+                        'extra_images'     => '',
                         'id_number'                 => ['required', Rule::unique('members')->ignore($this->member, 'id')
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
@@ -80,7 +82,8 @@ class MemberRequest extends BaseRequest
                         'postal_address'        => 'required',
                         'residential_address'   => 'required',
                         'status_id'             => '',
-                        'passport_photo'        => ''
+                        'passport_photo'        => '',
+                        'membership_form'       => 'nullable|file|mimes:doc,pdf,docx,zip|max:10000'
                     ];
                     break;
                 }

@@ -43,9 +43,11 @@ class LoanTypeRequest extends BaseRequest
                         'repayment_period'      => 'numeric',
                         'service_fee'           => 'numeric',
 
-                        'penalty_type_id'       => 'exists:penalty_types,id',
+                        'reduce_principal_early'    => '',
+
+                        'penalty_type_id'       => 'nullable|exists:penalty_types,id',
                         'penalty_value'         => 'numeric',
-                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id'
+                        'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id'
                     ];
                     break;
                 }
@@ -65,9 +67,11 @@ class LoanTypeRequest extends BaseRequest
                         'repayment_period'      => 'numeric',
                         'service_fee'           => 'numeric',
 
-                        'penalty_type_id'       => 'exists:penalty_types,id',
+                        'reduce_principal_early'    => '',
+
+                        'penalty_type_id'       => 'nullable|exists:penalty_types,id',
                         'penalty_value'         => 'numeric',
-                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id'
+                        'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id'
                     ];
                     break;
                 }

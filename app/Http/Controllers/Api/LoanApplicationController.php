@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\LoanApplicationRequest;
+use App\Http\Requests\ApplicationFormRequest;
 use App\Http\Resources\LoanApplicationResource;
 use App\Models\LoanApplication;
 use App\SmartMicro\Repositories\Contracts\LoanApplicationInterface;
@@ -63,9 +64,11 @@ class LoanApplicationController  extends ApiController
     {
         $data = $request->all();
 
+        // Upload application form
         if($request->hasFile('attach_application_form')) {
+            // return $this->respondWithData($data);
             // Get filename with extension
-           $filenameWithExt = $request->file('attach_application_form')->getClientOriginalName();
+            $filenameWithExt = $request->file('attach_application_form')->getClientOriginalName();
 
             // Get just filename
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
@@ -77,16 +80,13 @@ class LoanApplicationController  extends ApiController
             $fileNameToStore = $filename.'_'.time().'.'.$extension;
 
             // Upload Image
-           // $path = $request->file('attach_application_form')->storeAs('public/cover_images', $fileNameToStore);
+            // $path = $request->file('attach_application_form')->storeAs('public/cover_images', $fileNameToStore);
             $path = $request->file('attach_application_form')->storeAs('loan_application_forms', $fileNameToStore);
 
             $data['attach_application_form'] = $fileNameToStore;
-
-        } else {
-            $fileNameToStore = 'nofile.pdf';
         }
 
-        $save = $this->loanApplicationRepository->create($request->all());
+        $save = $this->loanApplicationRepository->create($data);
 
         if($save['error']){
             return $this->respondNotSaved($save['message']);
@@ -160,11 +160,34 @@ class LoanApplicationController  extends ApiController
     public function applicationForm(Request $request)
     {
         $data = $request->all();
+       // return $data;
         if( array_key_exists('file_path', $data) ) {
             $file_path = $data['file_path'];
             $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'loan_application_forms'.DIRECTORY_SEPARATOR. $file_path;
             return response()->file($local_path);
         }
         return $this->respondNotFound('file_path not provided');
+    }
+
+    /**
+     * @param ApplicationFormRequest $request
+     */
+    public function updateApplicationForm(ApplicationFormRequest $request) {
+        $data = $request->all();
+        // Upload
+        if($request->hasFile('attach_application_form')) {
+            $filenameWithExt = $request->file('attach_application_form')->getClientOriginalName();
+            // Get just filename
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            // Get just ext
+            $extension = $request->file('attach_application_form')->getClientOriginalExtension();
+            // Filename to store
+            $fileNameToStore = $filename.'_'.time().'.'.$extension;
+            $path = $request->file('attach_application_form')->storeAs('loan_application_forms', $fileNameToStore);
+            // $data['logo'] = $fileNameToStore;
+            $data['attach_application_form'] = $fileNameToStore;
+        }
+        // TODO also, delete previous image file from server
+        $this->loanApplicationRepository->update(array_filter($data), $data['id']);
     }
 }

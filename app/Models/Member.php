@@ -56,14 +56,19 @@ class Member extends BaseModel
         'residential_address',
         'status_id',
 
-        'national_id_image',
         'passport_photo',
+        'extra_images',
+
+        'membership_form',
 
         'created_by',
         'updated_by',
         'deleted_by'
     ];
 
+    protected $casts = [
+        'extra_images' => 'array'
+    ];
     /**
      * @param $first_name
      */

@@ -9,7 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class PaymentReceivedSms extends Notification
+class PaymentReceivedSms extends Notification implements ShouldQueue
 {
     use Queueable;
 

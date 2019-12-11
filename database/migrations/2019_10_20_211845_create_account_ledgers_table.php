@@ -19,7 +19,7 @@ class CreateAccountLedgersTable extends Migration
             $table->increments('id')->unique();
 
             $table->string('account_id', 36);
-            $table->string('journal_id');
+            $table->integer('journal_id');
             $table->string('created_at');
             $table->string('amount');
         });

@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class LoanApplicationRejectedSms extends Notification
+class LoanApplicationRejectedSms extends Notification implements ShouldQueue
 {
     use Queueable;
 

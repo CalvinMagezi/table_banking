@@ -43,6 +43,8 @@ class CreateLoansTable extends Migration
             $table->date('end_date')->nullable();
             $table->string('payment_frequency_id', 36);
 
+            $table->boolean('reduce_principal_early')->default(false);
+
             $table->date('next_repayment_date')->nullable();
 
             $table->timestamp('closed_on')->nullable();

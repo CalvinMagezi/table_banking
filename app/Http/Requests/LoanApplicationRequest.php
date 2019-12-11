@@ -46,6 +46,8 @@ class LoanApplicationRequest extends BaseRequest
                         'penalty_value'         => 'nullable|numeric',
                         'penalty_frequency_id'  => 'exists:penalty_frequencies,id',
 
+                        'reduce_principal_early'    => '',
+
                         'amount_applied'                => 'required|numeric|min:3|max:999999999',
 
                         'interest_rate'                 => 'nullable|numeric',

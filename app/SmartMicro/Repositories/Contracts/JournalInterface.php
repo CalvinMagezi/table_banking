@@ -58,6 +58,14 @@ interface JournalInterface extends BaseInterface
     function paymentReceivedEntry($paymentData);
 
     /**
+     * @param $loan
+     * @param $waivedAmount
+     * @param $penaltyDueId
+     * @return mixed
+     */
+    function penaltyWaiver($loan, $waivedAmount, $penaltyDueId);
+
+    /**
      * @param $expense
      * @return mixed
      */

@@ -80,12 +80,9 @@ class AccountRepository extends BaseRepository implements AccountInterface
             ))
             ->join('account_ledgers AS t2', function($join){
                 $join->on('t2.account_id', '=', 't1.account_id')
-                    // ->on('t2.created_at', '<=', 't1.created_at');
                     ->on('t2.journal_id', '<=', 't1.journal_id');
             })
-            // ->groupBy('t1.account_id', 't1.created_at', 't1.amount')
             ->groupBy('t1.account_id', 't1.journal_id', 't1.amount')
-            // ->orderBy('t1.created_at')
             ->orderBy('t1.id', 'asc')
             ->get();
     }

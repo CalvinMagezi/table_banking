@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Permission;
 
 class ApiController extends Controller
 {
@@ -136,7 +137,37 @@ class ApiController extends Controller
     }
 
 
+    /**
+     * @param $amount
+     * @return string
+     */
     function formatMoney($amount) {
         return number_format($amount, 2, '.', ',');
+    }
+
+    /**
+     * Checks if current active user has all available permissions (Thus admin)
+     * @return bool
+     */
+    public function isAdmin() {
+        // System wide permissions
+        $allPermissions = Permission::all()->toArray();
+        $allPermissions = array_map(function($allPermission) {
+            return $allPermission['name'];
+        }, $allPermissions);
+
+        // Current user permissions
+        $userPerms = [];
+        if(auth()->user()){
+            $userPerms = auth()->user()->role->permissions->toArray();
+            $userPerms = array_map(function($userPerm) {
+                return $userPerm['name'];
+            }, $userPerms);
+        }
+
+        if(empty(array_diff($allPermissions, $userPerms))) {
+            return true;
+        }
+        return false;
     }
 }

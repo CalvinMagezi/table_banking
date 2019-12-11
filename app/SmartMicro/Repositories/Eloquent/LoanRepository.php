@@ -516,11 +516,12 @@ class LoanRepository extends BaseRepository implements LoanInterface {
 
                     // Due interest repayment entry
                     $interestDue = $this->loanInterestRepayment->create([
-                        'loan_id'=> $loan['id'],
-                        'period_count' => $count,
-                        'due_date' => $dueDate,
-                        'amount'=> $interest,
-                        'paid_on' => null
+                        'branch_id'     => $loan['branch_id'],
+                        'loan_id'       => $loan['id'],
+                        'period_count'  => $count,
+                        'due_date'      => $dueDate,
+                        'amount'        => $interest,
+                        'paid_on'       => null
                     ]);
 
                     // Journal entry for the interest due
@@ -528,11 +529,12 @@ class LoanRepository extends BaseRepository implements LoanInterface {
 
                     // Due principal repayment entry
                     $this->loanPrincipalRepayment->create([
-                        'loan_id'=> $loan['id'],
-                        'period_count' => $count,
-                        'due_date' => $dueDate,
-                        'amount'=> $principal,
-                        'paid_on' => null
+                        'branch_id'     => $loan['branch_id'],
+                        'loan_id'       => $loan['id'],
+                        'period_count'  => $count,
+                        'due_date'      => $dueDate,
+                        'amount'        => $principal,
+                        'paid_on'       => null
                     ]);
 
                     // Update loan for future due date
@@ -574,6 +576,7 @@ class LoanRepository extends BaseRepository implements LoanInterface {
             ->get();
 
         foreach ($loans as $loan) {
+            $branchId = $loan->branch_id;
             $loanId = $loan->id;
             DB::beginTransaction();
             try
@@ -600,11 +603,12 @@ class LoanRepository extends BaseRepository implements LoanInterface {
                         if ($penaltyAmount > 0) {
                             // Due penalty entry (loan_penalties)
                             $penaltyDue = $this->penaltyRepository->create([
-                                'loan_id'=> $loanId,
-                                'period_count' => 0,
-                                'due_date' => $date,
-                                'amount'=> $penaltyAmount,
-                                'paid_on' => null
+                                'branch_id'     => $branchId,
+                                'loan_id'       => $loanId,
+                                'period_count'  => 0,
+                                'due_date'      => $date,
+                                'amount'        => $penaltyAmount,
+                                'paid_on'       => null
                             ]);
                             // Journal entry for Due penalty
                             $this->journalRepository->penaltyDue($loan, $penaltyAmount, $penaltyDue->id);
@@ -807,65 +811,70 @@ class LoanRepository extends BaseRepository implements LoanInterface {
             $x->loan_id = $key;
             // Fetch Loan for extra data
             $loan =  $this->model
-                ->with(['member', 'loanType', 'paymentFrequency', 'loanType', 'interestType', 'loanOfficer'])
+                ->with(['member', 'loanOfficer', 'loanType', 'paymentFrequency', 'loanType', 'interestType'])
                 ->where('id', $x->loan_id)
-                ->first()->toArray();
+                ->first();
 
-            $x->branch_id = $loan['branch_id'];
-            $x->loan_reference_number = $loan['loan_reference_number'];
+            if(!is_null($loan)){
+                $loan = $loan->toArray();
 
-            $x->loan_type_id = $loan['loan_type_id'];
-            $x->loan_type_name = $loan['loan_type']['name'];
+                $x->branch_id = $loan['branch_id'];
+                $x->loan_reference_number = $loan['loan_reference_number'];
 
-            $x->payment_frequency = $loan['payment_frequency']['name'];
-            $x->interest_rate = $loan['interest_rate'];
-            $x->interest_type = $loan['interest_type']['name'];
-            $x->repayment_period = $loan['repayment_period'];
+                $x->loan_type_id = $loan['loan_type_id'];
+                $x->loan_type_name = $loan['loan_type']['name'];
 
-            $x->member_id = $loan['member_id'];
-            $x->member_first_name = $loan['member']['first_name'];
-            $x->member_last_name = $loan['member']['last_name'];
-            $x->member_phone = $loan['member']['phone'];
+                $x->payment_frequency = $loan['payment_frequency']['name'];
+                $x->interest_rate = $loan['interest_rate'];
+                $x->interest_type = $loan['interest_type']['name'];
+                $x->repayment_period = $loan['repayment_period'];
 
-            $x->loan_officer_id = $loan['loan_officer_id'];
-            $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
+                $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
+                $x->member_id = $loan['member_id'];
+                $x->member_first_name = $loan['member']['first_name'];
+                $x->member_last_name = $loan['member']['last_name'];
+                $x->member_phone = $loan['member']['phone'];
 
-            $x->paidPenalty = 0;
-            $x->pendingPenalty = 0;
-            $x->totalPenalty = 0;
+                $x->loan_officer_id = $loan['loan_officer_id'];
+                $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
 
-            $x->paidInterest = 0;
-            $x->pendingInterest = 0;
-            $x->totalInterest = 0;
+                $x->paidPenalty = 0;
+                $x->pendingPenalty = 0;
+                $x->totalPenalty = 0;
 
-            $x->paidPrincipal = 0;
-            $x->pendingPrincipal = 0;
-            $x->totalPrincipal = 0;
+                $x->paidInterest = 0;
+                $x->pendingInterest = 0;
+                $x->totalInterest = 0;
 
-            $totalDue = 0;
+                $x->paidPrincipal = 0;
+                $x->pendingPrincipal = 0;
+                $x->totalPrincipal = 0;
 
-            foreach ($value as $due){
-                if(property_exists($due, 'paidPenalty')){
-                    $x->paidPenalty = $due->paidPenalty;
-                    $x->pendingPenalty = $due->pendingPenalty;
-                    $x->totalPenalty = $due->totalPenalty;
-                    $totalDue = $totalDue + $due->pendingPenalty;
+                $totalDue = 0;
+
+                foreach ($value as $due){
+                    if(property_exists($due, 'paidPenalty')){
+                        $x->paidPenalty = $due->paidPenalty;
+                        $x->pendingPenalty = $due->pendingPenalty;
+                        $x->totalPenalty = $due->totalPenalty;
+                        $totalDue = $totalDue + $due->pendingPenalty;
+                    }
+                    if(property_exists($due, 'paidInterest')){
+                        $x->paidInterest = $due->paidInterest;
+                        $x->pendingInterest = $due->pendingInterest;
+                        $x->totalInterest = $due->totalInterest;
+                        $totalDue = $totalDue + $due->pendingInterest;
+                    }
+                    if(property_exists($due, 'paidPrincipal')){
+                        $x->paidPrincipal = $due->paidPrincipal;
+                        $x->pendingPrincipal = $due->pendingPrincipal;
+                        $x->totalPrincipal = $due->totalPrincipal;
+                        $totalDue = $totalDue + $due->pendingPrincipal;
+                    }
+                    $x->totalDue = $totalDue;
                 }
-                if(property_exists($due, 'paidInterest')){
-                    $x->paidInterest = $due->paidInterest;
-                    $x->pendingInterest = $due->pendingInterest;
-                    $x->totalInterest = $due->totalInterest;
-                    $totalDue = $totalDue + $due->pendingInterest;
-                }
-                if(property_exists($due, 'paidPrincipal')){
-                    $x->paidPrincipal = $due->paidPrincipal;
-                    $x->pendingPrincipal = $due->pendingPrincipal;
-                    $x->totalPrincipal = $due->totalPrincipal;
-                    $totalDue = $totalDue + $due->pendingPrincipal;
-                }
-                $x->totalDue = $totalDue;
+                $data[] = $x;
             }
-            $data[] = $x;
         }
 
         return $data;
@@ -877,6 +886,13 @@ class LoanRepository extends BaseRepository implements LoanInterface {
     public function overDue() {
         $date = date('Y-m-d');
        // $date = '2019-11-16';
+
+        $branchId = auth('api')->user()->branch_id;
+        //if current user is admin, show data for all branches
+        //otherwise show data for only current branch
+
+        // ??? branchId is provided by the caller... if none is provided, we show data for current user.
+        // for admin user, we show all branches data
 
         $penalties = DB::table(DB::raw("(SELECT
                       loan_penalties.id,
@@ -970,69 +986,74 @@ class LoanRepository extends BaseRepository implements LoanInterface {
             $loan =  $this->model
                 ->with(['member', 'loanType', 'paymentFrequency', 'loanType', 'interestType', 'loanOfficer'])
                 ->where('id', $x->loan_id)
-                ->first()->toArray();
+                ->first();
 
-            $x->branch_id = $loan['branch_id'];
-            $x->loan_reference_number = $loan['loan_reference_number'];
+            if(!is_null($loan)){
+                $loan = $loan->toArray();
 
-            $x->loan_type_id = $loan['loan_type_id'];
-            $x->loan_type_name = $loan['loan_type']['name'];
+                $x->branch_id = $loan['branch_id'];
+                $x->loan_reference_number = $loan['loan_reference_number'];
 
-            $x->payment_frequency = $loan['payment_frequency']['name'];
-            $x->interest_rate = $loan['interest_rate'];
-            $x->interest_type = $loan['interest_type']['name'];
-            $x->repayment_period = $loan['repayment_period'];
+                $x->loan_type_id = $loan['loan_type_id'];
+                $x->loan_type_name = $loan['loan_type']['name'];
 
-            $x->member_id = $loan['member_id'];
-            $x->member_first_name = $loan['member']['first_name'];
-            $x->member_last_name = $loan['member']['last_name'];
-            $x->member_phone = $loan['member']['phone'];
+                $x->payment_frequency = $loan['payment_frequency']['name'];
+                $x->interest_rate = $loan['interest_rate'];
+                $x->interest_type = $loan['interest_type']['name'];
+                $x->repayment_period = $loan['repayment_period'];
 
-            $x->loan_officer_id = $loan['loan_officer_id'];
-            $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
+                $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
+                $x->member_id = $loan['member_id'];
+                $x->member_first_name = $loan['member']['first_name'];
+                $x->member_last_name = $loan['member']['last_name'];
+                $x->member_phone = $loan['member']['phone'];
 
-            $x->penaltyDueDate = '';
-            $x->paidPenalty = 0;
-            $x->pendingPenalty = 0;
-            $x->totalPenalty = 0;
+                $x->loan_officer_id = $loan['loan_officer_id'];
+                $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
 
-            $x->interestDueDate = '';
-            $x->paidInterest = 0;
-            $x->pendingInterest = 0;
-            $x->totalInterest = 0;
+                $x->penaltyDueDate = '';
+                $x->paidPenalty = 0;
+                $x->pendingPenalty = 0;
+                $x->totalPenalty = 0;
 
-            $x->principalDueDate = '';
-            $x->paidPrincipal = 0;
-            $x->pendingPrincipal = 0;
-            $x->totalPrincipal = 0;
+                $x->interestDueDate = '';
+                $x->paidInterest = 0;
+                $x->pendingInterest = 0;
+                $x->totalInterest = 0;
 
-            $totalDue = 0;
+                $x->principalDueDate = '';
+                $x->paidPrincipal = 0;
+                $x->pendingPrincipal = 0;
+                $x->totalPrincipal = 0;
 
-            foreach ($value as $due){
-                if(property_exists($due, 'paidPenalty')){
-                    $x->penaltyDueDate = $due->penaltyDueDate;
-                    $x->paidPenalty = $due->paidPenalty;
-                    $x->pendingPenalty = $due->pendingPenalty;
-                    $x->totalPenalty = $due->totalPenalty;
-                    $totalDue = $totalDue + $due->pendingPenalty;
+                $totalDue = 0;
+
+                foreach ($value as $due){
+                    if(property_exists($due, 'paidPenalty')){
+                        $x->penaltyDueDate = $due->penaltyDueDate;
+                        $x->paidPenalty = $due->paidPenalty;
+                        $x->pendingPenalty = $due->pendingPenalty;
+                        $x->totalPenalty = $due->totalPenalty;
+                        $totalDue = $totalDue + $due->pendingPenalty;
+                    }
+                    if(property_exists($due, 'paidInterest')){
+                        $x->interestDueDate = $due->interestDueDate;
+                        $x->paidInterest = $due->paidInterest;
+                        $x->pendingInterest = $due->pendingInterest;
+                        $x->totalInterest = $due->totalInterest;
+                        $totalDue = $totalDue + $due->pendingInterest;
+                    }
+                    if(property_exists($due, 'paidPrincipal')){
+                        $x->principalDueDate = $due->principalDueDate;
+                        $x->paidPrincipal = $due->paidPrincipal;
+                        $x->pendingPrincipal = $due->pendingPrincipal;
+                        $x->totalPrincipal = $due->totalPrincipal;
+                        $totalDue = $totalDue + $due->pendingPrincipal;
+                    }
+                    $x->totalDue = $totalDue;
                 }
-                if(property_exists($due, 'paidInterest')){
-                    $x->interestDueDate = $due->interestDueDate;
-                    $x->paidInterest = $due->paidInterest;
-                    $x->pendingInterest = $due->pendingInterest;
-                    $x->totalInterest = $due->totalInterest;
-                    $totalDue = $totalDue + $due->pendingInterest;
-                }
-                if(property_exists($due, 'paidPrincipal')){
-                    $x->principalDueDate = $due->principalDueDate;
-                    $x->paidPrincipal = $due->paidPrincipal;
-                    $x->pendingPrincipal = $due->pendingPrincipal;
-                    $x->totalPrincipal = $due->totalPrincipal;
-                    $totalDue = $totalDue + $due->pendingPrincipal;
-                }
-                $x->totalDue = $totalDue;
+                $data[] = $x;
             }
-            $data[] = $x;
         }
         return $data;
     }

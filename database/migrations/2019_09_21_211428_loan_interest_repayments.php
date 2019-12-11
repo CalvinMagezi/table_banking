@@ -18,6 +18,7 @@ class LoanInterestRepayments extends Migration
 
             $table->string('id', 36)->primary()->unique();
 
+            $table->string('branch_id', 36);
             $table->string('loan_id', 36);
             $table->integer('period_count'); // interval
             $table->date('due_date');

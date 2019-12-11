@@ -17,6 +17,7 @@ class CreateLoanPenaltiesTable extends Migration
             $table->engine = 'InnoDB';
 
             $table->string('id', 36)->primary()->unique();
+            $table->string('branch_id', 36);
             $table->string('loan_id', 36);
             $table->integer('period_count')->nullable(); // interval
             $table->date('due_date');

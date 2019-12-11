@@ -24,6 +24,7 @@ class LoanPrincipalRepaymentResource extends JsonResource
         return [
             'id' => $this->id,
 
+            'branch_id'     => $this->branch_id,
             'loan_id'       => $this->loan_id,
             'loan'          => $this->loan,
             'period_count'  => $this->period_count,

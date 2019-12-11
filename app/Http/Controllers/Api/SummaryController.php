@@ -57,18 +57,7 @@ class SummaryController extends ApiController
      */
     public function index(Request $request)
     {
-
-        // Admin Dashboard
-        // 1. Total Branches.totals users per branch, active loans per branch, overdue amounts
-
-
-        // 2. Total loans given, total amount, amount paid, amount overdue
-        // 3. Daily reports (last 24 hrs) - Arrears, loans paid, amount received, amount due, expected amount, amount overdue
-        // 4. pending loan applications
-        // 5. new loan applications
-        // 6. Graphs - membership, loan repayments (weekly, monthly etc), loan applications,
-
-
+        //TODO branches scope when viewing members
 
 
         // branches summary
@@ -135,7 +124,6 @@ class SummaryController extends ApiController
                     $total = $total + $loan->totalDue;
                 }
                 $x['total_amount_over_due'] = $this->formatMoney($total);
-
 
                 // loan Applications
                 $pendingApplications = $this->loanApplicationRepository->getAllPending(['member', 'loanType']);

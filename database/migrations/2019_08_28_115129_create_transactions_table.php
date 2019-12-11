@@ -32,9 +32,9 @@ class CreateTransactionsTable extends Migration
             $table->enum('transaction_type',
                 [
                     'interest_payment',
-                    'interest_waiver',
                     'principal_payment',
                     'penalty_payment',
+                    'penalty_waiver',
                     'balance_reduction',
                 ])->default(null)->nullable();
 

@@ -33,18 +33,18 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::routes();
 
-        Passport::tokensExpireIn(Carbon::now()->addMinutes(60));
+        Passport::tokensExpireIn(Carbon::now()->addMinutes(600));
 
-        Passport::refreshTokensExpireIn(Carbon::now()->addMinutes(90));
+        Passport::refreshTokensExpireIn(Carbon::now()->addMinutes(900));
 
         $data = [];
 
         if(Schema::hasTable('permissions')){
             //Fetch all available permissions to be used for tokensCan
             try{
-                $permissions = Permission::all()->toArray();
+                $permissions = Permission::all();
                 if(!is_null($permissions)){
-                    foreach ($permissions as $key => $value)
+                    foreach ($permissions->toArray() as $key => $value)
                         $data[trim($value['name'])] =  trim($value['display_name'] );
                 }
 

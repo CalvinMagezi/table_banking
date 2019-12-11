@@ -9,11 +9,11 @@
         "africastalking/africastalking": "^2.3",
         "barryvdh/laravel-cors": "^0.11.2",
         "fideloper/proxy": "^4.0",
-        "laravel/framework": "5.8.*",
+        "laravel/framework": "^6.0",
+        "laravel/helpers": "^1.1",
         "laravel/passport": "^7.0",
         "laravel/tinker": "^1.0",
-        "nicolaslopezj/searchable": "1.*",
-        "optimus/api-consumer": "0.2.*"
+        "nicolaslopezj/searchable": "1.*"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

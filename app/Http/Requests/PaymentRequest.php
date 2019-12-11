@@ -34,7 +34,7 @@ class PaymentRequest extends BaseRequest
                     $rules = [
                         'branch_id'         => 'exists:branches,id',
                         'member_id'        => 'required|exists:members,id',
-                        'amount'            => 'required|numeric',
+                        'amount'            => 'required|numeric|min:0|not_in:0',
                         'method_id'         => 'required|exists:payment_methods,id',
                         'transaction_id'    => '',
                        // 'payment_date'      => 'required|date_format:"DD-MM-YYYY"',
@@ -52,7 +52,7 @@ class PaymentRequest extends BaseRequest
                     $rules = [
                         'branch_id'         => 'exists:branches,id',
                         'member_id'         => 'required|exists:members,id',
-                        'amount'            => 'required',
+                        'amount'            => 'required|numeric|min:0|not_in:0',
                         'method_id'         => 'required|exists:payment_methods,id',
                         'transaction_id'    => '',
                         'payment_date'      => 'required',

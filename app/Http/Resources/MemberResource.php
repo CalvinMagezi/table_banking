@@ -33,7 +33,7 @@ class MemberResource extends JsonResource
             'nationality'           => $this->nationality,
             'county'                => $this->county,
             'city'                  => $this->city,
-            'national_id_image'     => $this->national_id_image,
+            'extra_images'          => $this->extra_images,
             'id_number'             => $this->id_number,
             'passport_number'       => $this->passport_number,
             'phone'                 => $this->phone,
@@ -60,6 +60,7 @@ class MemberResource extends JsonResource
            // 'account'               => $this->account,
             'account'               => AccountResource::make($this->account),
             'guaranteedLoans'       => $this->guaranteedLoans,
+            'membership_form'       => $this->membership_form,
 
             'created_by'        => $this->created_by,
             'updated_by'        => $this->updated_by,

@@ -35,7 +35,9 @@ class CreateMembersTable extends Migration
             $table->string('status_id')->nullable();
 
             $table->string('passport_photo')->nullable();
-            $table->string('national_id_image')->nullable();
+            $table->json('extra_images')->nullable();
+
+            $table->string('membership_form')->nullable();
 
             $table->string('created_by', 36)->nullable();
             $table->string('updated_by', 36)->nullable();

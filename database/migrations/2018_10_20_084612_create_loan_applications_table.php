@@ -31,6 +31,8 @@ class CreateLoanApplicationsTable extends Migration
             $table->string('penalty_value')->nullable();
             $table->string('penalty_frequency_id', 36)->nullable();
 
+            $table->boolean('reduce_principal_early')->default(false);
+
             $table->string('amount_applied');
             $table->string('repayment_period')->nullable();
 

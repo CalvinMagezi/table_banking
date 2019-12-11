@@ -3,15 +3,15 @@
  * Created by PhpStorm.
  * User: kevin
  * Email: robisignals@gmail.com
- * Date: 21/09/2019
- * Time: 21:25
+ * Date: 05/12/2019
+ * Time: 11:43
  */
 
 namespace App\Http\Requests;
 
 use Illuminate\Validation\Rule;
 
-class LoanPrincipalRepaymentRequest extends BaseRequest
+class WaiverRequest extends BaseRequest
 {
 
     /**
@@ -34,25 +34,24 @@ class LoanPrincipalRepaymentRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'branch_id'     => 'required|exists:branches,id',
+                        'balance'       => 'required|numeric',
+                        'waiver_amount'    => 'required|numeric|min:0.01|lte:balance',
+                        'id'            => 'required|exists:loan_penalties,id',
                         'loan_id'       => 'required|exists:loans,id',
-                        'period_count'  => '',
-                        'due_date'      => '',
-                        'amount'        => 'required',
-                        'paid_on'       => ''
+                        'loan'          => 'required',
                     ];
+
                     break;
                 }
             case 'PUT':
             case 'PATCH':
                 {
                     $rules = [
-                        'branch_id'     => 'required|exists:branches,id',
+                        'balance'       => 'required|numeric',
+                        'waiver_amount'    => 'required|numeric|lte:balance',
+                        'id'            => 'required|exists:loan_penalties,id',
                         'loan_id'       => 'required|exists:loans,id',
-                        'period_count'  => '',
-                        'due_date'      => '',
-                        'amount'        => 'required',
-                        'paid_on'       => ''
+                        'loan'          => 'required',
                     ];
                     break;
                 }

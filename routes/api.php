@@ -19,7 +19,10 @@ use Illuminate\Http\Request;
 Route::group(array('prefix' => '/v1'), function () {
     Route::post('/login', 'Api\Oauth\LoginController@login');
     Route::post('/login/refresh', 'Api\Oauth\LoginController@refresh');
-    Route::post('forgot_password', 'Api\Oauth\ForgotPasswordController@forgotPassword');
+    Route::post('forgot_password', 'Api\Oauth\ForgotPasswordController');
+   // Route::post('forgot_password', 'Api\Oauth\ForgotPasswordController@forgotPassword');
+    Route::post('password/reset', 'Api\Oauth\ForgotPasswordController')->name('password.reset');
+
 });
 /**
  * System routes
@@ -52,6 +55,14 @@ Route::namespace('Api')->prefix('v1')->middleware('auth:api', 'throttle:60,1')->
         ->middleware(['scope:member-add']);
     Route::post('members/profile_pic', 'MemberController@profilePic')->where(['file_name' => '.*'])
         ->middleware(['scope:member-add']);
+    Route::post('members/membership_form', 'MemberController@membershipForm')->where(['file_name' => '.*'])
+        ->middleware(['scope:member-add']);
+    Route::post('members/membership_form_update', 'MemberController@updateMembershipForm')
+        ->middleware(['scope:member-add']);
+    Route::post('members/fetch_photo', 'MemberController@fetchPhoto')->where(['file_name' => '.*'])
+        ->middleware(['scope:member-add']);
+    Route::post('members/update_photo', 'MemberController@updatePhoto')
+        ->middleware(['scope:member-add']);
 
     Route::resource('loans', 'LoanController', ['except' => ['create', 'edit']])
         ->middleware(['scope:loans-view']);
@@ -62,11 +73,16 @@ Route::namespace('Api')->prefix('v1')->middleware('auth:api', 'throttle:60,1')->
         ->middleware(['scope:loan-application-add']);
     Route::post('loan_applications/application_form', 'LoanApplicationController@applicationForm')->where(['file_name' => '.*'])
         ->middleware(['scope:loan-application-add']);
+    Route::post('loan_applications/application_form_update', 'LoanApplicationController@updateApplicationForm')
+        ->middleware(['scope:loan-application-add']);
 
     Route::resource('loan_statuses', 'LoanStatusController', ['except' => ['create', 'edit']]);
     Route::resource('loan_application_statuses', 'LoanApplicationStatusController', ['except' => ['create', 'edit']]);
 
     Route::resource('loan_penalties', 'LoanPenaltyController', ['only' => ['index', 'show']]);
+    Route::post('loan_penalties/waive', 'LoanPenaltyController@waive')
+        ->middleware(['scope:loans-view']);
+
     Route::resource('loan_interests', 'LoanInterestRepaymentController', ['only' => ['index', 'show']]);
     Route::resource('loan_principals', 'LoanPrincipalRepaymentController', ['only' => ['index', 'show']]);
 

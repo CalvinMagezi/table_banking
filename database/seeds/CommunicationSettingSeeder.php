@@ -24,7 +24,7 @@ class CommunicationSettingSeeder extends Seeder
         CommunicationSetting::create([
             'name'              => 'new_member_welcome',
             'display_name'      => 'New Member Welcome',
-            'email_template' => false,
+            'email_template' => true,
             'sms_template'   => false
         ]);
 
@@ -32,7 +32,7 @@ class CommunicationSettingSeeder extends Seeder
         CommunicationSetting::create([
             'name'              => 'new_user_welcome',
             'display_name'      => 'New User Welcome',
-            'email_template' => false,
+            'email_template' => true,
             'sms_template'   => false
         ]);
 
@@ -40,7 +40,7 @@ class CommunicationSettingSeeder extends Seeder
         CommunicationSetting::create([
             'name'              => 'reset_password',
             'display_name'      => 'Reset Password',
-            'email_template' => false,
+            'email_template' => true,
             'sms_template'   => false
         ]);
 
@@ -48,32 +48,32 @@ class CommunicationSettingSeeder extends Seeder
         CommunicationSetting::create([
             'name'              => 'new_loan_application',
             'display_name'      => 'New Loan Application',
-            'email_template' => false,
-            'sms_template'   => false
+            'email_template' => true,
+            'sms_template'   => true
         ]);
 
         // 5.
         CommunicationSetting::create([
             'name'              => 'loan_application_approved',
             'display_name'      => 'Loan Application Approved',
-            'email_template' => false,
-            'sms_template'   => false
+            'email_template' => true,
+            'sms_template'   => true
         ]);
 
         // 6.
         CommunicationSetting::create([
             'name'              => 'loan_application_rejected',
             'display_name'      => 'Loan Application Rejected',
-            'email_template' => false,
-            'sms_template'   => false
+            'email_template' => true,
+            'sms_template'   => true
         ]);
 
         // 7.
         CommunicationSetting::create([
             'name'              => 'payment_received',
             'display_name'      => 'Payment Received',
-            'email_template' => false,
-            'sms_template'   => false
+            'email_template' => true,
+            'sms_template'   => true
         ]);
 
         // 8.

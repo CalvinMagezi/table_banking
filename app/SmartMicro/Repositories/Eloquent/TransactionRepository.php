@@ -48,6 +48,23 @@ class TransactionRepository extends BaseRepository implements TransactionInterfa
     }
 
     /**
+     * @param $loanPenaltyRepaymentId
+     * @param $amount
+     * @param $loanId
+     */
+    public function penaltyWaiverEntry($loanPenaltyRepaymentId, $amount, $loanId) {
+        $data = [
+            'loan_penalties_id' => $loanPenaltyRepaymentId,
+            'payment_id' => null,
+            'transaction_type' => 'penalty_waiver',
+            'transaction_date' =>  $this->today,
+            'loan_id' => $loanId,
+            'amount' => $amount,
+        ];
+        $this->create($data);
+    }
+
+    /**
      * @param $amount
      * @param $loanInterestRepaymentId
      * @param $paymentId

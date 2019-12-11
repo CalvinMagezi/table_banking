@@ -52,6 +52,8 @@ class LoanResource extends JsonResource
             'penalty_value'         => $this->penalty_value,
             'penalty_frequency_id'  => $this->penalty_frequency_id,
 
+            'reduce_principal_early'  => $this->reduce_principal_early,
+
             'loan_disbursed'        => $this->loan_disbursed,
             'start_date'            => $this->start_date,
             'end_date'              => $this->end_date,

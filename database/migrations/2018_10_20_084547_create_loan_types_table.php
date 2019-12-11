@@ -26,6 +26,8 @@ class CreateLoanTypesTable extends Migration
             $table->string('repayment_period')->nullable();
             $table->string('service_fee')->nullable();
 
+            $table->boolean('reduce_principal_early')->default(false);
+
             $table->string('penalty_type_id', 36)->nullable(); // Fixed Amount, Percentage on Due
             $table->string('penalty_value')->nullable();
             $table->string('penalty_frequency_id', 36)->nullable(); // Daily, monthly etc

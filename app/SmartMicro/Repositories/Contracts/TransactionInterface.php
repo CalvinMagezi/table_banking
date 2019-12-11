@@ -12,6 +12,14 @@ namespace App\SmartMicro\Repositories\Contracts;
 interface TransactionInterface extends BaseInterface
 {
     /**
+     * @param $loanPenaltyRepaymentId
+     * @param $amount
+     * @param $loanId
+     * @return mixed
+     */
+    function penaltyWaiverEntry($loanPenaltyRepaymentId, $amount, $loanId);
+
+    /**
      * Transaction for penalty amount payment
      * @param $amount
      * @param $loanPenaltyRepaymentId
