@@ -22,6 +22,7 @@ use App\SmartMicro\Repositories\Contracts\LoanInterestRepaymentInterface;
 use App\SmartMicro\Repositories\Contracts\LoanInterface;
 
 use App\SmartMicro\Repositories\Contracts\LoanPrincipalRepaymentInterface;
+use App\SmartMicro\Repositories\Contracts\MemberInterface;
 use App\SmartMicro\Repositories\Contracts\SmsSendInterface;
 use App\Traits\CommunicationMessage;
 use Carbon\Carbon;
@@ -34,7 +35,7 @@ class LoanController  extends ApiController
     /**
      * @var LoanInterface
      */
-    protected $loanRepository, $loanApplicationRepository, $interestTypeRepository,
+    protected $loanRepository, $loanApplicationRepository, $interestTypeRepository, $memberRepository,
         $journalRepository, $load, $loanInterestRepayment, $loanPrincipalRepayment, $financeStatement, $smsSend;
 
     /**
@@ -46,11 +47,13 @@ class LoanController  extends ApiController
      * @param LoanPrincipalRepaymentInterface $loanPrincipalRepayment
      * @param InterestTypeInterface $interestTypeRepository
      * @param FinanceStatementInterface $financeStatement
+     * @param SmsSendInterface $smsSend
+     * @param MemberInterface $memberRepository
      */
     public function __construct(LoanInterface $loanInterface, LoanApplicationInterface $loanApplicationInterface,
                                 JournalInterface $journalInterface, LoanInterestRepaymentInterface $loanInterestRepayment,
     LoanPrincipalRepaymentInterface $loanPrincipalRepayment, InterestTypeInterface $interestTypeRepository,
-                                FinanceStatementInterface $financeStatement, SmsSendInterface $smsSend
+                                FinanceStatementInterface $financeStatement, SmsSendInterface $smsSend, MemberInterface $memberRepository
     )
     {
         $this->loanRepository   = $loanInterface;
@@ -62,6 +65,7 @@ class LoanController  extends ApiController
         $this->interestTypeRepository   = $interestTypeRepository;
         $this->financeStatement   = $financeStatement;
         $this->smsSend   = $smsSend;
+        $this->memberRepository   = $memberRepository;
 
         $this->load = ['loanType', 'member', 'interestType', 'paymentFrequency', 'loanOfficer'];
     }
@@ -153,9 +157,11 @@ class LoanController  extends ApiController
             DB::commit();
             // Calculate loan dues immediately after loan is issued
             event(new LoanDueChecked());
+
             // New loan email / sms
-            //  $member = $this->memberRepository->getWhere('id', $save['id']);
-           // CommunicationMessage::send('loan_application_approved', $member, $newLoan);
+            $member = $this->memberRepository->getWhere('id', $newLoan['member_id']);
+            if(!is_null($member) && !is_null($newLoan))
+                CommunicationMessage::send('loan_application_approved', $member, $newLoan);
 
             return $this->respondWithSuccess('Success !! Loan has been created.');
 

@@ -31,13 +31,15 @@ class LoanTypeResource extends JsonResource
             'paymentFrequency'      => $this->paymentFrequency,
             'interestType'          => $this->interestType,
             'repayment_period'      => $this->repayment_period,
-            'service_fee'           => $this->service_fee,
+            'service_fee'           => (float) $this->service_fee,
 
-            'penalty_type_id'       => $this->penalty_type_id,
-            'penalty_value'         => $this->penalty_value,
-            'penalty_frequency_id'  => $this->penalty_frequency_id,
+           // 'penalty_type_id'       => $this->penalty_type_id ? $this->penalty_type_id : null,
+            'penalty_type_id'       => $this->penalty_type_id ?? '',
 
-            'reduce_principal_early'  => $this->reduce_principal_early,
+            'penalty_value'         => (float) $this->penalty_value,
+            'penalty_frequency_id'  => $this->penalty_frequency_id ? $this->penalty_frequency_id : null,
+
+            'reduce_principal_early'  => (boolean) $this->reduce_principal_early,
 
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at,

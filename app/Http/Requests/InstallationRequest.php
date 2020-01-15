@@ -2,15 +2,14 @@
 /**
  * Created by PhpStorm.
  * User: kevin
- * Date: 27/10/2018
- * Time: 12:39
+ * Email: robisignals@gmail.com
+ * Date: 31/12/2019
+ * Time: 18:12
  */
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
-
-class GuarantorRequest extends BaseRequest
+class InstallationRequest extends BaseRequest
 {
 
     /**
@@ -23,8 +22,7 @@ class GuarantorRequest extends BaseRequest
 
         $rules = [];
 
-        switch($this->method())
-        {
+        switch ($this->method()) {
             case 'GET':
             case 'DELETE':
                 {
@@ -34,11 +32,10 @@ class GuarantorRequest extends BaseRequest
             case 'POST':
                 {
                     $rules = [
-                        'branch_id'             => 'exists:branches,id',
-                        'member_id'             => 'required|exists:members,id',
-                        'loan_application_id'   => 'required',
-                        'guarantee_amount'      => '',
-                        'notes'      => ''
+                        'host'      => '',
+                        'username'  => 'required',
+                        'password'  => '',
+                        'database'  => 'required'
                     ];
 
                     break;
@@ -47,15 +44,15 @@ class GuarantorRequest extends BaseRequest
             case 'PATCH':
                 {
                     $rules = [
-                        'branch_id'             => 'exists:branches,id',
-                        'member_id'             => 'required|exists:members,id',
-                        'loan_application_id'   => 'required',
-                        'notes'                 => '',
-                        'guarantee_amount'      => '',
+                        'host'      => '',
+                        'username'  => 'required',
+                        'password'  => '',
+                        'database'  => 'required'
                     ];
                     break;
                 }
-            default:break;
+            default:
+                break;
         }
 
         return $rules;
@@ -70,7 +67,7 @@ class GuarantorRequest extends BaseRequest
     public function messages()
     {
         return [
-            'member_id.unique' => 'This member is already a guarantor.',
+          //  'member_id.unique' => 'This member is already a guarantor.',
         ];
     }
 }

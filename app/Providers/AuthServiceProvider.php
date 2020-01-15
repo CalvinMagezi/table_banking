@@ -4,12 +4,10 @@ namespace App\Providers;
 
 use App\Models\Permission;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Passport\Passport;
-use Torzer\Awesome\Landlord\Facades\Landlord;
+use Exception;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -29,33 +27,31 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->registerPolicies();
+            $this->registerPolicies();
 
-        Passport::routes();
+            Passport::routes();
 
-        Passport::tokensExpireIn(Carbon::now()->addMinutes(30));
+            Passport::tokensExpireIn(Carbon::now()->addMinutes(30));
 
-        Passport::refreshTokensExpireIn(Carbon::now()->addMinutes(30));
+            Passport::refreshTokensExpireIn(Carbon::now()->addMinutes(30));
 
-        $data = [];
+            $data = [];
 
-        if(Schema::hasTable('permissions')){
-            //Fetch all available permissions to be used for tokensCan
             try{
-                $permissions = Permission::all();
-                if(!is_null($permissions)){
-                    foreach ($permissions->toArray() as $key => $value)
-                        $data[trim($value['name'])] =  trim($value['display_name'] );
+                if(Schema::hasTable('permissions')){
+                    //Fetch all available permissions to be used for tokensCan
+                    $permissions = Permission::all();
+                    if(!is_null($permissions)){
+                        foreach ($permissions->toArray() as $key => $value)
+                            $data[trim($value['name'])] =  trim($value['display_name'] );
+                    }
+                    if (!is_null($data))
+                        Passport::tokensCan($data);
                 }
-
-                if (!is_null($data))
-                    Passport::tokensCan($data);
-
-            }catch (\Exception $exception){
+            }catch (\PDOException $exception ){
+                Passport::tokensCan([]);
+            }catch (Exception $exception){
                 Passport::tokensCan([]);
             }
-
-        }
-
     }
 }

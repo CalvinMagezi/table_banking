@@ -14,6 +14,8 @@ use App\Http\Resources\EmailSettingResource;
 use App\SmartMicro\Repositories\Contracts\EmailSettingInterface;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 
 class EmailSettingController extends ApiController
 {
@@ -38,15 +40,17 @@ class EmailSettingController extends ApiController
      */
     public function index(Request $request)
     {
-        $emailSetting = $this->emailSettingRepository->first();
+         $configData = [
+             'driver'           => Config::get('mail.driver'),
+             'host'             => Config::get('mail.host'),
+             'username'         => Config::get('mail.username'),
+             'password'         => Config::get('mail.password'),
+             'port'             => Config::get('mail.port'),
+             'from_address'     => Config::get('mail.from.address'),
+             'from_name'        => Config::get('mail.from.name'),
+         ];
 
-        if (!$emailSetting) {
-            // return $this->respondNotFound('General Setting not set.');
-            return null;
-
-        }
-
-        return $this->respondWithData(new EmailSettingResource($emailSetting));
+         return $configData;
     }
 
     /**
@@ -55,15 +59,22 @@ class EmailSettingController extends ApiController
      */
     public function store(EmailSettingRequest $request)
     {
-        $save = $this->emailSettingRepository->create($request->all());
+        $data = $request->all();
 
-        if(!is_null($save) && $save['error']){
-            return $this->respondNotSaved($save['message']);
-        } else {
-            return $this->respondWithSuccess('Success !! EmailSetting has been created.');
+        $driver         = empty($data['driver']) ? '' : $data['driver'];
+        $host           = empty($data['host']) ? null : $data['host'];
+        $username       = empty($data['username']) ? null : $data['username'];
+        $password       = empty($data['password']) ? null : $data['password'];
+        $port           = empty($data['port']) ? null : $data['port'];
+        $from_address   = empty($data['from_address']) ? null : $data['from_address'];
+        $from_name      = empty($data['from_name']) ? null : $data['from_name'];
 
-        }
+        $settings = compact('driver', 'host', 'username', 'password', 'port', 'from_address', 'from_name');
 
+       if($this->updateEnvironmentFile($settings)){
+           return $this->respondWithSuccess('Success !! EmailSetting has been created.');
+       }
+            return $this->respondNotSaved('Error, Settings now updated');
     }
 
     /**
@@ -72,12 +83,12 @@ class EmailSettingController extends ApiController
      */
     public function show($uuid)
     {
-        $emailSetting = $this->emailSettingRepository->getById($uuid);
+        /*$emailSetting = $this->emailSettingRepository->getById($uuid);
 
         if (!$emailSetting) {
             return $this->respondNotFound('EmailSetting not found.');
         }
-        return $this->respondWithData(new EmailSettingResource($emailSetting));
+        return $this->respondWithData(new EmailSettingResource($emailSetting));*/
 
     }
 
@@ -88,13 +99,13 @@ class EmailSettingController extends ApiController
      */
     public function update(EmailSettingRequest $request, $uuid)
     {
-        $save = $this->emailSettingRepository->update($request->all(), $uuid);
+   /*     $save = $this->emailSettingRepository->update($request->all(), $uuid);
 
         if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 
-            return $this->respondWithSuccess('Success !! EmailSetting has been updated.');
+            return $this->respondWithSuccess('Success !! EmailSetting has been updated.');*/
 
     }
 
@@ -104,9 +115,45 @@ class EmailSettingController extends ApiController
      */
     public function destroy($uuid)
     {
-        if ($this->emailSettingRepository->delete($uuid)) {
+       /* if ($this->emailSettingRepository->delete($uuid)) {
             return $this->respondWithSuccess('Success !! EmailSetting has been deleted');
         }
-        return $this->respondNotFound('EmailSetting not deleted');
+        return $this->respondNotFound('EmailSetting not deleted');*/
+    }
+
+
+    /**
+     * @param $settings
+     * @return bool|mixed
+     */
+    private function updateEnvironmentFile($settings)
+    {
+        try{
+            $env_path = base_path('.env');
+            DB::purge(DB::getDefaultConnection());
+
+            foreach($settings as $key => $value){
+                $key = 'MAIL_' . strtoupper($key);
+                $line = $value ? ($key . '=' . $value) : $key;
+                putenv($line);
+                file_put_contents($env_path, preg_replace(
+                    '/^' . $key . '.*/m',
+                    $line,
+                    file_get_contents($env_path)
+                ));
+            }
+
+            config(['mail.driver'       => $settings['driver']]);
+            config(['mail.host'         => $settings['host']]);
+            config(['mail.username'     => $settings['username']]);
+            config(['mail.password'     => $settings['password']]);
+            config(['mail.port'         => $settings['port']]);
+            config(['mail.from_address' => $settings['from_address']]);
+            config(['mail.from_name'    => $settings['from_name']]);
+
+        }catch (\Exception $exception){
+            return $this->respondNotSaved($exception->getMessage());
+        }
+        return true;
     }
 }

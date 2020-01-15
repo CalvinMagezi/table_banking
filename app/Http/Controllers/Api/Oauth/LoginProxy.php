@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\OAuth;
 use App\Events\Oauth\LoginFailed;
 use App\Events\Oauth\LoginSuccess;
 use App\Events\Oauth\Logout;
+use App\Models\OauthClient;
 use App\SmartMicro\Repositories\Contracts\GeneralSettingInterface;
 use App\SmartMicro\Repositories\Contracts\RoleInterface;
 use App\SmartMicro\Repositories\Contracts\UserInterface;
@@ -104,9 +105,16 @@ class LoginProxy
      */
     public function proxy($grantType, array $credentials = [], $user = array())
     {
+        $clients = OauthClient::where('password_client', 1)->latest()->first();
+        $clientId = !is_null($clients) ? $clients->id : null;
+        $clientSecret = !is_null($clients) ? $clients->secret : null;
+
+       /* 'client_id'     => env('PASSWORD_CLIENT_ID'),
+            'client_secret' => env('PASSWORD_CLIENT_SECRET'),*/
+
         $data = array_merge($credentials, [
-            'client_id'     => env('PASSWORD_CLIENT_ID'),
-            'client_secret' => env('PASSWORD_CLIENT_SECRET'),
+            'client_id'     => $clientId,
+            'client_secret' => $clientSecret,
             'grant_type'    => $grantType
         ]);
 

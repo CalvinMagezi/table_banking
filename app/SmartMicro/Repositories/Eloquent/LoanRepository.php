@@ -636,7 +636,9 @@ class LoanRepository extends BaseRepository implements LoanInterface {
         $loanId = $loan->id;
         $loanPenaltyTypeId = $loan->penalty_type_id;
         $loanPenaltyValue = $loan->penalty_value;
-        $loanPenaltyFrequencyName = $loan->penaltyFrequency->name;
+
+        if(isset($loan) && isset($loan->penaltyFrequency))
+            $loanPenaltyFrequencyName = $loan->penaltyFrequency->name;
 
         $latestPenalty = $this->penaltyRepository->getLatestWhere(1, 'loan_id', $loanId);
         if (!is_null($latestPenalty)){
@@ -674,8 +676,12 @@ class LoanRepository extends BaseRepository implements LoanInterface {
 
         $penaltyAmount = 0;
         if($periodDifference > 0 || $latestDueDate == null) {
-            $loanPenaltyType = '';
+            $loanPenalty = null;
             if(!is_null($loanPenaltyTypeId))
+                $loanPenalty = $this->penaltyTypeRepository->getWhere('id', $loanPenaltyTypeId);
+
+            $loanPenaltyType = '';
+            if(!is_null($loanPenalty))
                 $loanPenaltyType = $this->penaltyTypeRepository->getWhere('id', $loanPenaltyTypeId)->name;
 
             switch ($loanPenaltyType){

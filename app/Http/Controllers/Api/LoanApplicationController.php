@@ -14,6 +14,7 @@ use App\Http\Resources\LoanApplicationResource;
 use App\Models\LoanApplication;
 use App\SmartMicro\Repositories\Contracts\LoanApplicationInterface;
 
+use App\SmartMicro\Repositories\Contracts\MemberInterface;
 use App\Traits\CommunicationMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -23,15 +24,17 @@ class LoanApplicationController  extends ApiController
     /**
      * @var LoanApplicationInterface
      */
-    protected $loanApplicationRepository, $load;
+    protected $loanApplicationRepository, $load, $memberRepository;
 
     /**
      * LoanApplicationController constructor.
      * @param LoanApplicationInterface $loanApplicationInterface
+     * @param MemberInterface $memberRepository
      */
-    public function __construct(LoanApplicationInterface $loanApplicationInterface)
+    public function __construct(LoanApplicationInterface $loanApplicationInterface, MemberInterface $memberRepository)
     {
         $this->loanApplicationRepository   = $loanApplicationInterface;
+        $this->memberRepository   = $memberRepository;
         $this->load = ['member', 'guarantors', 'assets', 'guarantors', 'loanType', 'interestType', 'loan', 'paymentFrequency', 'loanOfficer'];
     }
 
@@ -91,9 +94,10 @@ class LoanApplicationController  extends ApiController
         if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
-          //  $member = $this->memberRepository->getWhere('id', $save['id']);
             // New loan application email / sms
-         //   CommunicationMessage::send('new_loan_application', $member, $save);
+            $member = $this->memberRepository->getWhere('id', $save['member_id']);
+            if(!is_null($member) && !is_null($save))
+                CommunicationMessage::send('new_loan_application', $member, $save);
             return $this->respondWithSuccess('Success !! LoanApplication has been created.');
         }
 
@@ -137,6 +141,12 @@ class LoanApplicationController  extends ApiController
         if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else{
+            if( array_key_exists('review', $data)) {
+                $member = $this->memberRepository->getWhere('id', $data['member_id']);
+                $loanApplication = $this->loanApplicationRepository->getWhere('id', $data['id']);
+                if(!is_null($member) && !is_null($loanApplication))
+                    CommunicationMessage::send('loan_application_rejected', $member, $loanApplication);
+            }
             return $this->respondWithSuccess('Success !! LoanApplication has been updated.');
         }
     }

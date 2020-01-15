@@ -32,11 +32,11 @@ class CreateLoansTable extends Migration
             $table->string('approved_by_user_id')->nullable();
 
             $table->string('amount_approved');
-            $table->string('service_fee')->default(0);
+            $table->double('service_fee')->default(0);
 
-            $table->string('penalty_type_id', 36)->nullable();
-            $table->string('penalty_value')->nullable();
-            $table->string('penalty_frequency_id', 36)->nullable();
+            $table->string('penalty_type_id', 36)->nullable()->default('');
+            $table->double('penalty_value')->default(0);
+            $table->string('penalty_frequency_id', 36)->nullable()->default('');
 
             $table->boolean('loan_disbursed')->default(false);
             $table->date('start_date');

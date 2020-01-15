@@ -25,11 +25,11 @@ class CreateLoanApplicationsTable extends Migration
             $table->string('loan_type_id', 36);
             $table->string('interest_type_id', 36)->nullable();
             $table->string('interest_rate')->nullable();
-            $table->string('service_fee')->nullable();
+            $table->double('service_fee')->default(0);
 
-            $table->string('penalty_type_id', 36)->nullable();
-            $table->string('penalty_value')->nullable();
-            $table->string('penalty_frequency_id', 36)->nullable();
+            $table->string('penalty_type_id', 36)->nullable()->default('');
+            $table->double('penalty_value')->default(0);
+            $table->string('penalty_frequency_id', 36)->nullable()->default('');
 
             $table->boolean('reduce_principal_early')->default(false);
 

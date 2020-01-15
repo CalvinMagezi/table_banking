@@ -116,7 +116,8 @@ class MemberController  extends ApiController
             return $this->respondNotSaved($save['message']);
         }else{
             // New member email / sms
-          //  CommunicationMessage::send('new_member_welcome', $save, $save);
+            if(!is_null($save))
+            CommunicationMessage::send('new_member_welcome', $save, $save);
             return $this->respondWithSuccess('Success !! Member has been created.');
         }
     }

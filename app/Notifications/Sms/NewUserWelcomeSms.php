@@ -49,6 +49,10 @@ class NewUserWelcomeSms extends Notification implements ShouldQueue
         $template = SmsTemplate::where('name', 'new_user_welcome')->get()->first();
         $body = $template['body'];
 
+        $body = str_replace('{first_name}', $notifiable['first_name'], $body);
+        $body = str_replace('{middle_name}', $notifiable['middle_name'], $body);
+        $body = str_replace('{last_name}', $notifiable['last_name'], $body);
+        $body = str_replace('{phone}',  $notifiable['phone'], $body);
 
         $this->smsSendRepository->send($phone, $body);
     }

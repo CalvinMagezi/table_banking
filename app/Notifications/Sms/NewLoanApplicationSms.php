@@ -49,6 +49,15 @@ class NewLoanApplicationSms extends Notification implements ShouldQueue
         $template = SmsTemplate::where('name', 'new_loan_application')->get()->first();
         $body = $template['body'];
 
+        $body = str_replace('{first_name}', $notifiable['first_name'], $body);
+        $body = str_replace('{middle_name}', $notifiable['middle_name'], $body);
+        $body = str_replace('{last_name}', $notifiable['last_name'], $body);
+        $body = str_replace('{phone}',  $notifiable['phone'], $body);
+
+        $body = str_replace('{amount_applied}',  $notifiable['amount_applied'], $body);
+        $body = str_replace('{repayment_period}',  $notifiable['repayment_period'], $body);
+        $body = str_replace('{loan_type}',  $notifiable['loan_type'], $body);
+        $body = str_replace('{interest_rate}',  $notifiable['interest_rate'], $body);
 
         $this->smsSendRepository->send($phone, $body);
     }

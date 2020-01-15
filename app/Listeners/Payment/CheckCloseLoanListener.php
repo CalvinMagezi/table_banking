@@ -36,7 +36,10 @@ class CheckCloseLoanListener
 
         $loanId = $event->loanId;
         $loan = $this->loanRepository->getById($loanId);
-        $next_repayment_date = $loan['next_repayment_date'];
+
+        $next_repayment_date = null;
+        if(!is_null($loan))
+            $next_repayment_date = $loan['next_repayment_date'];
 
         $calculatedPendingAmount = $this->loanRepository->totalPendingAmount($loanId);
 

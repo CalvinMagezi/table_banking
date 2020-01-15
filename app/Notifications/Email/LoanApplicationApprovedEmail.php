@@ -42,7 +42,7 @@ class LoanApplicationApprovedEmail extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $template = EmailTemplate::where('name', 'system_summary')->get()->first();
+        $template = EmailTemplate::where('name', 'loan_application_approved')->get()->first();
         $subject = $template['subject'];
         $body = $template['body'];
 

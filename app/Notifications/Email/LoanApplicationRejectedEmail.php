@@ -46,10 +46,23 @@ class LoanApplicationRejectedEmail extends Notification implements ShouldQueue
         $subject = $template['subject'];
         $body = $template['body'];
 
+        $subject = str_replace('{first_name}', $notifiable['first_name'], $subject);
+        $subject = str_replace('{middle_name}', $notifiable['middle_name'], $subject);
+        $subject = str_replace('{last_name}', $notifiable['last_name'], $subject);
+        $subject = str_replace('{phone}',  $notifiable['phone'], $subject);
+        $subject = str_replace('{amount_applied}',  $this->loanApplication->amount_applied, $subject);
+        $subject = str_replace('{rejection_notes}',  $this->loanApplication->rejection_notes, $subject);
+
+        $body = str_replace('{first_name}', $notifiable['first_name'], $body);
+        $body = str_replace('{middle_name}', $notifiable['middle_name'], $body);
+        $body = str_replace('{last_name}', $notifiable['last_name'], $body);
+        $body = str_replace('{phone}',  $notifiable['phone'], $body);
+        $body = str_replace('{amount_applied}',  $this->loanApplication->amount_applied, $body);
+        $body = str_replace('{rejection_notes}',  $this->loanApplication->rejection_notes, $body);
+
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->subject($subject)
+            ->line($body);
     }
 
     /**

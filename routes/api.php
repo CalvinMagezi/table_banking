@@ -13,6 +13,14 @@ use Illuminate\Http\Request;
 |
 */
 
+#Installation and setup
+Route::group(array('prefix'=>'/v1'),function(){
+    Route::get('/install', 'Api\Install\InstallationController@checkRequirements');
+    Route::get('/install/permissions', 'Api\Install\InstallationController@checkPermissions');
+    Route::post('/install/database', 'Api\Install\InstallationController@databaseSetup');
+    Route::post('/install/user', 'Api\Install\InstallationController@userSetup');
+});
+
 /**
  * Routes to obtain access_token and manage token refresh
  */

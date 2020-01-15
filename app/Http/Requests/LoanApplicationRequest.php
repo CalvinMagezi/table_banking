@@ -42,9 +42,13 @@ class LoanApplicationRequest extends BaseRequest
                         'interest_type_id'              => 'exists:interest_types,id',
                         'service_fee'                   => 'nullable|numeric',
 
-                        'penalty_type_id'       => 'exists:penalty_types,id',
+                       /* 'penalty_type_id'       => 'nullable|exists:penalty_types,id',
                         'penalty_value'         => 'nullable|numeric',
-                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id',
+                        'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id',*/
+
+                        'penalty_type_id'       => 'nullable',
+                        'penalty_value'         => 'nullable|numeric',
+                        'penalty_frequency_id'  => 'nullable',
 
                         'reduce_principal_early'    => '',
 
@@ -97,9 +101,13 @@ class LoanApplicationRequest extends BaseRequest
                         'interest_type_id'              => 'required|exists:interest_types,id',
                         'service_fee'                   => '',
 
-                        'penalty_type_id'       => 'exists:penalty_types,id',
-                        'penalty_value'         => '',
-                        'penalty_frequency_id'  => 'exists:penalty_frequencies,id',
+          /*              'penalty_type_id'       => 'nullable|exists:penalty_types,id',
+                        'penalty_value'         => 'nullable|numeric',
+                        'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id',*/
+
+                        'penalty_type_id'       => 'nullable',
+                        'penalty_value'         => 'nullable|numeric',
+                        'penalty_frequency_id'  => 'nullable',
 
                         'amount_applied'                => 'required',
                         'interest_rate'                 => '',

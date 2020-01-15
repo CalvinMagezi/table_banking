@@ -10,6 +10,9 @@ class DatabaseSeeder extends Seeder
         // 'oauth_clients',
         // 'oauth_scopes',
         //'users'
+
+        //  'database\seeds\UsersTableSeeder',
+
     ];
 
     protected $seeders = [
@@ -19,7 +22,6 @@ class DatabaseSeeder extends Seeder
         'database\seeds\EmployeeTableSeeder',
         'database\seeds\PermissionSeeder',
         'database\seeds\RoleSeeder',
-        'database\seeds\UsersTableSeeder',
         'database\seeds\GeneralSettingTableSeeder',
         'database\seeds\EmailSettingTableSeeder',
         'database\seeds\SmsSettingSeeder',

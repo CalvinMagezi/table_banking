@@ -71,7 +71,7 @@ class EmailTemplateSeeder extends Seeder
             'display_name' => 'Loan Application Rejected',
             'subject' => 'Loan Application Review',
             'body' => "Unfortunately. Your Loan Application has been rejected.",
-            'tags' => "{first_name}, {middle_name}, {last_name}, {amount_applied}, {rejection_notes}"
+            'tags' => "{first_name}, {middle_name}, {last_name}, {phone}, {amount_applied}, {rejection_notes}"
         ]);
 
         // 7.

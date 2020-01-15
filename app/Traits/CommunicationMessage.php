@@ -33,7 +33,8 @@ trait CommunicationMessage
 {
     public static function send($event, $notifiable, $data) {
 
-        switch ($event){
+        try{
+            switch ($event){
             case 'new_member_welcome':{
                 $setting = CommunicationSetting::where('name', 'new_member_welcome')->first();
 
@@ -49,7 +50,7 @@ trait CommunicationMessage
                 $setting = CommunicationSetting::where('name', 'new_user_welcome')->first();
 
                 if(!is_null($setting) && $setting->email_template){
-                    Notification::send($notifiable, new NewUserWelcomeEmail($data));
+                        Notification::send($notifiable, new NewUserWelcomeEmail($data));
                 }
                 if(!is_null($setting) && $setting->sms_template){
                     Notification::send($notifiable, new NewUserWelcomeSms($data));
@@ -77,6 +78,7 @@ trait CommunicationMessage
                     Notification::send($notifiable, new NewLoanApplicationSms($data));
                 }
             }
+                break;
             case 'loan_application_approved':{
                 $setting = CommunicationSetting::where('name', 'loan_application_approved')->first();
 
@@ -87,6 +89,7 @@ trait CommunicationMessage
                     Notification::send($notifiable, new LoanApplicationApprovedSms($data));
                 }
             }
+                break;
             case 'loan_application_rejected':{
                 $setting = CommunicationSetting::where('name', 'loan_application_rejected')->first();
 
@@ -123,5 +126,7 @@ trait CommunicationMessage
             default: {
             }
         }
+        }
+        catch (\Exception $exception){}
     }
 }

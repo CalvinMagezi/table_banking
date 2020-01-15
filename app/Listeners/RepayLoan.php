@@ -118,7 +118,7 @@ class RepayLoan
                             // Means there were no existing records to pay, or some cash remains
                             // So we decide whether to reduce the principal balance or use existing balance to recalculate dues.
                             if($this->paymentAmount > 0){
-                                if(array_key_exists('reduce_principal_early', $loan) && $loan['reduce_principal_early'] == true){
+                                if(property_exists('reduce_principal_early', $loan) && $loan['reduce_principal_early'] == true){
                                     // reduce balance here
                                     //   dd($this->differenceBetweenPaymentDateAndDueDate($paymentDate, $loan));
                                     if($this->differenceBetweenPaymentDateAndDueDate($paymentDate, $loan) > 1){

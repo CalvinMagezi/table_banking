@@ -18,9 +18,9 @@ class CreateGuarantorsTable extends Migration
             $table->string('id', 36)->primary()->unique();
             $table->string('branch_id', 36);
 
-            $table->uuid('member_id', 36);
-            $table->uuid('loan_application_id', 36);
-            $table->string('notes');
+            $table->string('member_id', 36);
+            $table->string('loan_application_id', 36);
+            $table->string('notes')->nullable();
             $table->string('guarantee_amount')->nullable();
 
             $table->string('created_by', 36)->nullable();

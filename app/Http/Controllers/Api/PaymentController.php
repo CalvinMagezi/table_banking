@@ -89,7 +89,8 @@ class PaymentController  extends ApiController
             DB::commit();
 
             // Send sms and email notification
-          //  CommunicationMessage::send('payment_received', $member, $newPayment);
+            if(!is_null($member) && !is_null($newPayment))
+            CommunicationMessage::send('payment_received', $member, $newPayment);
 
             return $this->respondWithSuccess('Success !! Payment received.');
 

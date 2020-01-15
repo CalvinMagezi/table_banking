@@ -53,9 +53,10 @@ class PasswordResetSms extends Notification implements ShouldQueue
         $this->smsSendRepository = new SmsSendRepository();
         $phone = $notifiable['phone'];
 
-        $template = SmsTemplate::where('name', 'reset_password')->get()->first();
+        $template = SmsTemplate::where('name', 'password_reset')->get()->first();
         $body = $template['body'];
-        $tags = $template['tags'];
+
+        $body = str_replace('{first_name}', $notifiable['first_name'], $body);
 
         $this->smsSendRepository->send($phone, $body);
     }

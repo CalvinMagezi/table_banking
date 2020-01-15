@@ -46,9 +46,13 @@ class NewMemberWelcomeSms extends Notification implements ShouldQueue
         $this->smsSendRepository = new SmsSendRepository();
         $phone = $notifiable['phone'];
 
-        $template = SmsTemplate::where('name', 'system_summary')->get()->first();
+        $template = SmsTemplate::where('name', 'new_member_welcome')->get()->first();
         $body = $template['body'];
 
+        $body = str_replace('{first_name}', $notifiable['first_name'], $body);
+        $body = str_replace('{middle_name}', $notifiable['middle_name'], $body);
+        $body = str_replace('{last_name}', $notifiable['last_name'], $body);
+        $body = str_replace('{phone}',  $notifiable['phone'], $body);
 
         $this->smsSendRepository->send($phone, $body);
     }

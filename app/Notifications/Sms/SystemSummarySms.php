@@ -48,7 +48,7 @@ class SystemSummarySms extends Notification implements ShouldQueue
         $this->smsSendRepository = new SmsSendRepository();
         $phone = $notifiable['phone'];
 
-        $template = SmsTemplate::where('name', 'new_member_welcome')->get()->first();
+        $template = SmsTemplate::where('name', 'system_summary')->get()->first();
         $body = $template['body'];
 
 

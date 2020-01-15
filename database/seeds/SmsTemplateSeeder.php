@@ -57,7 +57,7 @@ class SmsTemplateSeeder extends Seeder
             'name' => 'loan_application_approved',
             'display_name' => 'Loan Application Approved',
             'body' => "Congratulations. Your loan Application has been approved.",
-            'tags' => "{first_name}, {middle_name}, {last_name}, {amount_applied}, {loan_reference_number}, {repayment_period}, {start_date}"
+            'tags' => "{first_name}, {middle_name}, {last_name}, {phone}, {amount_applied}, {loan_reference_number}, {repayment_period}, {start_date}, {interest_rate}, {loan_type}"
         ]);
 
         // 6.
@@ -65,7 +65,7 @@ class SmsTemplateSeeder extends Seeder
             'name' => 'loan_application_rejected',
             'display_name' => 'Loan Application Rejected',
             'body' => "Unfortunately. Your Loan Application has been rejected.",
-            'tags' => "{first_name}, {middle_name}, {last_name}, {amount_applied}, {rejection_notes}"
+            'tags' => "{first_name}, {middle_name}, {last_name}, {phone}, {amount_applied}, {rejection_notes}"
         ]);
 
         // 7.
