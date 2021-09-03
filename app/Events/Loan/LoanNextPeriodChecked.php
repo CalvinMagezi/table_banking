@@ -10,6 +10,13 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
+/**
+ * Daily - Check for any loan whose next_repayment_date is the given day.
+ * If any, calculations for interest, principal or penalty are done. The date is then updated for the next period.
+ *
+ * Class LoanDueChecked
+ * @package App\Events\Loan
+ */
 class LoanDueChecked
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;

@@ -1,11 +1,17 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Loan;
 
 use App\Events\Loan\LoanDueChecked;
 use App\SmartMicro\Repositories\Contracts\LoanInterface;
 use App\Traits\NextDueDate;
 
+/**
+ * Any loan whose next due date is this given date, calculate due principal and interest to pay.
+ *
+ * Class CalculateLoanPaymentDue
+ * @package App\Listeners\Loan
+ */
 class CalculateLoanPaymentDue
 {
     use NextDueDate;
@@ -24,7 +30,7 @@ class CalculateLoanPaymentDue
     }
 
     /**
-     * Fetch all loans due for payment today. Calculate their interest and principal due.
+     * Fetch all loans whose next due date is today. Calculate their interest and principal to pay.
      * Finally update the next calculation date for the loan.
      *
      * @param  LoanDueChecked  $event
@@ -33,7 +39,7 @@ class CalculateLoanPaymentDue
     public function handle(LoanDueChecked $event)
     {
         $today = date('Y-m-d');
+       // $today = '2020-02-05';
         $this->loanRepository->calculateLoanRepaymentDue($today);
-        $this->loanRepository->calculatePenalties($today);
     }
 }
