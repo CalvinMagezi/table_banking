@@ -27,11 +27,37 @@ Route::group(array('prefix'=>'/v1'),function(){
 Route::group(array('prefix' => '/v1'), function () {
     Route::post('/login', 'Api\Oauth\LoginController@login');
     Route::post('/login/refresh', 'Api\Oauth\LoginController@refresh');
-    Route::post('forgot_password', 'Api\Oauth\ForgotPasswordController');
-   // Route::post('forgot_password', 'Api\Oauth\ForgotPasswordController@forgotPassword');
-    Route::post('password/reset', 'Api\Oauth\ForgotPasswordController')->name('password.reset');
 
+    Route::post('forgot_password', 'Api\Oauth\ForgotPasswordController@forgotPassword');
+    Route::post('reset_password', 'Api\Oauth\ForgotPasswordController@resetPassword');
 });
+
+#Mpesa Payment Routes
+Route::group(array('prefix'=>'/v1'),function(){
+    Route::get('/mobilepay', 'Api\Mpesa\MpesaPaymentController@index');
+
+    // C2B
+    Route::post('/mobilepay/c2b/validation_url', 'Api\Mpesa\MpesaPaymentController@validationC2B');
+    Route::post('/mobilepay/c2b/confirmation', 'Api\Mpesa\MpesaPaymentController@confirmationC2B');
+
+    // B2C Payment Request
+    Route::post('/mobilepay/b2c_request/time_out', 'Api\Mpesa\MpesaPaymentController@b2CPaymentRequestTimeOut');
+    Route::post('/mobilepay/b2c_request/result', 'Api\Mpesa\MpesaPaymentController@b2CPaymentRequestResult');
+
+    //Transaction Status
+    Route::post('/mobilepay/tran_status/time_out', 'Api\Mpesa\MpesaPaymentController@transactionStatusQueueTimeOut');
+    Route::post('/mobilepay/tran_status/result', 'Api\Mpesa\MpesaPaymentController@transactionStatusResult');
+
+    //Reverse Transaction
+    Route::post('/mobilepay/tran_reverse/time_out', 'Api\Mpesa\MpesaPaymentController@reverseTransactionQueueTimeOut');
+    Route::post('/mobilepay/tran_reverse/result', 'Api\Mpesa\MpesaPaymentController@reverseTransactionResult');
+
+    // Account Balance
+    Route::post('/mobilepay/bal/time_out', 'Api\Mpesa\MpesaPaymentController@accountBalanceQueueTimeOut');
+    Route::post('/mobilepay/bal/result', 'Api\Mpesa\MpesaPaymentController@accountBalanceResult');
+});
+
+
 /**
  * System routes
  */
@@ -39,14 +65,10 @@ Route::namespace('Api')->prefix('v1')->middleware('auth:api', 'throttle:60,1')->
 
     Route::resource('users', 'UserController', ['except' => ['create', 'edit']])
         ->middleware('scopes:settings-users');
-        //->middleware('scopes:settings,user-add,user-delete,user-edit');
     Route::resource('roles', 'RoleController', ['except' => ['create', 'edit']])
         ->middleware(['scope:settings-users']);
     Route::resource('permissions', 'PermissionController', ['except' => ['create', 'edit']])
         ->middleware(['scope:settings-users']);
-
-   // Route::post('users/profile_pic', 'UserController@profilePic')->where(['file_name' => '.*']);
-    // ->middleware(['scope:view-user'])
 
     Route::resource('employees', 'EmployeeController', ['except' => ['create', 'edit']])
         ->middleware(['scope:settings-users']);
@@ -74,6 +96,8 @@ Route::namespace('Api')->prefix('v1')->middleware('auth:api', 'throttle:60,1')->
 
     Route::resource('loans', 'LoanController', ['except' => ['create', 'edit']])
         ->middleware(['scope:loans-view']);
+    Route::post('loans/amortization', 'LoanController@amortizationReport');
+    Route::post('loans/calculator', 'LoanController@calculatorReport');
 
     Route::resource('loan_types', 'LoanTypeController', ['except' => ['create', 'edit']])
         ->middleware(['scope:settings-loans']);
@@ -113,6 +137,11 @@ Route::namespace('Api')->prefix('v1')->middleware('auth:api', 'throttle:60,1')->
 
     Route::resource('witness_types', 'WitnessTypeController', ['except' => ['create', 'edit']]);
     Route::resource('accounts', 'AccountController', ['only' => ['index', 'show']]);
+
+    Route::post('accounts/member', 'AccountController@depositAccountStatement');
+    Route::post('accounts/loan', 'AccountController@loanAccountStatement');
+    Route::post('accounts/general', 'AccountController@generalAccountStatement');
+
     Route::resource('account_statuses', 'AccountStatusController', ['except' => ['create', 'edit']]);
     Route::resource('account_types', 'AccountTypeController', ['only' => ['index', 'show']]);
     Route::resource('interest_types', 'InterestTypeController', ['except' => ['create', 'edit']]);
@@ -122,8 +151,19 @@ Route::namespace('Api')->prefix('v1')->middleware('auth:api', 'throttle:60,1')->
     Route::resource('transaction_types', 'TransactionTypeController', ['except' => ['create', 'edit']]);
     Route::resource('account_classes', 'AccountClassController', ['except' => ['create', 'edit']]);
     Route::resource('payment_frequencies', 'PaymentFrequencyController', ['except' => ['create', 'edit']]);
+
     Route::resource('summaries', 'SummaryController', ['only' => ['index']]);
+    Route::post('summaries/due_today', 'SummaryController@downloadLoansDueTodayReport');
+    Route::post('summaries/over_due', 'SummaryController@downloadLoansOverdueReport');
+
     Route::resource('guarantors', 'GuarantorController', ['except' => ['create', 'edit']]);
+
+    Route::resource('withdrawals', 'WithdrawalController', ['except' => ['create', 'edit']]);
+    Route::resource('mpesa_bulk_payments', 'Mpesa\MpesaBulkPaymentController', ['except' => ['create', 'edit']]);
+    Route::get('mpesa_summary', 'Mpesa\MpesaSummaryController@index');
+    Route::get('mpesa_summary/balance', 'Mpesa\MpesaSummaryController@mpesaBalance');
+    Route::resource('mpesa_scheduled_disbursements', 'Mpesa\MpesaScheduledDisbursementController');
+
 
     Route::resource('penalty_frequencies', 'PenaltyFrequencyController', ['except' => ['create', 'edit']]);
     Route::resource('penalty_types', 'PenaltyTypeController', ['except' => ['create', 'edit']]);
@@ -151,6 +191,8 @@ Route::namespace('Api')->prefix('v1')->middleware('auth:api', 'throttle:60,1')->
         ->middleware(['scope:view-reports']);
     Route::resource('finance_statements', 'FinanceStatementController', ['only' => ['index', 'store']])
         ->middleware(['scope:view-reports']);
+    Route::post('finance_statements/report', 'FinanceStatementController@downloadReport')
+        ->middleware(['scope:view-reports']);
 
     Route::resource('capitals', 'CapitalController', ['except' => ['create', 'edit']])
         ->middleware(['scope:settings-accounting']);
@@ -164,61 +206,4 @@ Route::namespace('Api')->prefix('v1')->middleware('auth:api', 'throttle:60,1')->
 
     Route::resource('loan_histories', 'LoanHistoryController', ['only' => ['index']]);
     Route::get('/logout', 'Oauth\LoginController@logout');
-});
-
-// Account constants
-Route::group(['prefix' => ''], function() {
-    // System accounts for each branch
-    define('SERVICE_FEE_ACCOUNT_CODE','403');
-    define('SERVICE_FEE_ACCOUNT_NAME','SERVICE FEE ACCOUNT');
-
-    define('INTEREST_ACCOUNT_CODE','402');
-    define('INTEREST_ACCOUNT_NAME','INTEREST ACCOUNT');
-
-    define('PENALTY_ACCOUNT_CODE','401');
-    define('PENALTY_ACCOUNT_NAME','PENALTY ACCOUNT');
-
-    define('CAPITAL_ACCOUNT_CODE','101');
-    define('CAPITAL_ACCOUNT_NAME','CAPITAL ACCOUNT');
-
-    define('BANK_ACCOUNT_CODE','303');
-    define('BANK_ACCOUNT_NAME','BANK ACCOUNT');
-
-    define('MPESA_ACCOUNT_CODE','302');
-    define('MPESA_ACCOUNT_NAME','MPESA ACCOUNT');
-
-    define('CASH_ACCOUNT_CODE','301');
-    define('CASH_ACCOUNT_NAME','CASH ACCOUNT');
-
-    // Account Classes
-    define('ASSET','ASSET');
-    define('LIABILITY','LIABILITY');
-    define('INCOME','INCOME');
-    define('EXPENDITURE','EXPENDITURE');
-
-    // Account Types
-    define('EXPENSE','EXPENSE');
-    define('EXPENSE_CODE','600');
-
-    define('LOAN_RECEIVABLE','LOAN RECEIVABLE');
-    define('LOAN_RECEIVABLE_CODE','500');
-
-    define('LENDING_ACTIVITY','LENDING ACTIVITY');
-    define('LENDING_ACTIVITY_CODE','400');
-
-    define('CURRENT_ASSET','CURRENT ASSET');
-    define('CURRENT_ASSET_CODE','300');
-
-    define('FIXED_ASSET','FIXED ASSET');
-    define('FIXED_ASSET_CODE','200');
-
-    define('CAPITAL','CAPITAL');
-    define('CAPITAL_CODE','100');
-
-    //Member accounts - Individual loan receivable account
-    define('MEMBER_ACCOUNT_CODE','555');
-
-    // Expense categories
-    define('EXPENSE_CATEGORY_CODE','601');
-
 });

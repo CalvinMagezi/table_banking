@@ -20,9 +20,6 @@ class CreateAccountMembersTable extends Migration
             $table->uuid('member_id');
 
             $table->timestamps();
-
-            //  $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade')->onUpdate('cascade');
-            //   $table->foreign('member_id')->references('id')->on('members')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

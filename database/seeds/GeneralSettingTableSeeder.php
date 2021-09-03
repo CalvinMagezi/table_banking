@@ -25,6 +25,11 @@ class GeneralSettingTableSeeder extends Seeder
             'business_name' => 'Signal Loans',
             'business_type' => 'Finance',
             'email' => "devtest@devtest.com",
+            'phone' => "+254724475357",
+            'date_format' => "d-m-Y",
+            'amount_thousand_separator' => ",",
+            'amount_decimal_separator' => ".",
+            'amount_decimal' => "2"
         ]);
 
     }

@@ -11,7 +11,6 @@ namespace App\Traits;
 
 use App\Models\Account;
 use App\Models\AccountType;
-use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 
 trait BranchAccountsSetup {
@@ -33,7 +32,7 @@ trait BranchAccountsSetup {
                     'account_code'  => CASH_ACCOUNT_CODE,
                     'account_name'  => CASH_ACCOUNT_NAME,
                     'branch_id'  => $branchId,
-                    'account_number'  => $branchCode.'0001',
+                    'account_number'  => $branchCode.'-0001',
                 ],
                 [
                     'id' => Uuid::uuid4(),
@@ -41,8 +40,7 @@ trait BranchAccountsSetup {
                     'account_code'  => MPESA_ACCOUNT_CODE,
                     'account_name'  => MPESA_ACCOUNT_NAME,
                     'branch_id'  => $branchId,
-                    'account_number'  => $branchCode.'0002',
-
+                    'account_number'  => $branchCode.'-0002',
                 ],
                 [
                     'id' => Uuid::uuid4(),
@@ -50,8 +48,7 @@ trait BranchAccountsSetup {
                     'account_code'  => BANK_ACCOUNT_CODE,
                     'account_name'  => BANK_ACCOUNT_NAME,
                     'branch_id'  => $branchId,
-                    'account_number'  => $branchCode.'0003',
-
+                    'account_number'  => $branchCode.'-0003',
                 ],
                 [
                     'id' => Uuid::uuid4(),
@@ -59,8 +56,7 @@ trait BranchAccountsSetup {
                     'account_code'  => CAPITAL_ACCOUNT_CODE,
                     'account_name'  => CAPITAL_ACCOUNT_NAME,
                     'branch_id'  => $branchId,
-                    'account_number'  => $branchCode.'0004',
-
+                    'account_number'  => $branchCode.'-0004',
                 ],
                 [
                     'id' => Uuid::uuid4(),
@@ -68,8 +64,7 @@ trait BranchAccountsSetup {
                     'account_code'  => PENALTY_ACCOUNT_CODE,
                     'account_name'  => PENALTY_ACCOUNT_NAME,
                     'branch_id'  => $branchId,
-                    'account_number'  => $branchCode.'0005',
-
+                    'account_number'  => $branchCode.'-0005',
                 ],
                 [
                     'id' => Uuid::uuid4(),
@@ -77,8 +72,7 @@ trait BranchAccountsSetup {
                     'account_code'  => INTEREST_ACCOUNT_CODE,
                     'account_name'  => INTEREST_ACCOUNT_NAME,
                     'branch_id'  => $branchId,
-                    'account_number'  => $branchCode.'0006',
-
+                    'account_number'  => $branchCode.'-0006',
                 ],
                 [
                     'id' => Uuid::uuid4(),
@@ -86,11 +80,9 @@ trait BranchAccountsSetup {
                     'account_code'  => SERVICE_FEE_ACCOUNT_CODE,
                     'account_name'  => SERVICE_FEE_ACCOUNT_NAME,
                     'branch_id'  => $branchId,
-                    'account_number'  => $branchCode.'0007',
-
+                    'account_number'  => $branchCode.'-0007',
                 ]
             ];
-          // DB::table('accounts')->insert($data);
             foreach ($data as $key => $value){
                 Account::create($value);
             }

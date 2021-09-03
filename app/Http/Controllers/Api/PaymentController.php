@@ -15,6 +15,7 @@ use App\SmartMicro\Repositories\Contracts\JournalInterface;
 use App\SmartMicro\Repositories\Contracts\MemberInterface;
 use App\SmartMicro\Repositories\Contracts\PaymentInterface;
 
+use App\SmartMicro\Repositories\Contracts\PaymentMethodInterface;
 use App\Traits\CommunicationMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,21 +25,23 @@ class PaymentController  extends ApiController
     /**
      * @var PaymentInterface
      */
-    protected $paymentRepository, $load, $journalRepository, $memberRepository;
+    protected $paymentRepository, $load, $journalRepository, $memberRepository, $paymentMethodRepository;
 
     /**
      * PaymentController constructor.
      * @param PaymentInterface $paymentInterface
      * @param JournalInterface $journalInterface
      * @param MemberInterface $memberRepository
+     * @param PaymentMethodInterface $paymentMethodRepository
      */
     public function __construct(PaymentInterface $paymentInterface, JournalInterface $journalInterface,
-                                MemberInterface $memberRepository)
+                                MemberInterface $memberRepository, PaymentMethodInterface $paymentMethodRepository)
     {
         $this->paymentRepository   = $paymentInterface;
         $this->load = ['member', 'paymentMethod', 'branch'];
         $this->journalRepository   = $journalInterface;
         $this->memberRepository   = $memberRepository;
+        $this->paymentMethodRepository   = $paymentMethodRepository;
     }
 
     /**
@@ -68,6 +71,12 @@ class PaymentController  extends ApiController
         {
             $data = $request->all();
 
+            $disburseMethodName = '';
+            $disburseMethod = $this->paymentMethodRepository->getWhere('id', $data['method_id']);
+            if(isset($disburseMethod)) {
+                $disburseMethodName = $disburseMethod['name'];
+            }
+
             $member = $this->memberRepository->getById($data['member_id']);
 
             if(array_key_exists('bank_fields', $data)){
@@ -80,23 +89,32 @@ class PaymentController  extends ApiController
             $newPayment = $this->paymentRepository->create($data);
 
             // journal entry
-            $this->journalRepository->paymentReceivedEntry($newPayment);
+            switch ($disburseMethodName){
+                case 'BANK':
+                    $this->journalRepository->paymentReceivedEntryBank($newPayment);
+                    break;
+                case 'CASH':
+                    $this->journalRepository->paymentReceivedEntryCash($newPayment);
+                    break;
+                default:
+                    break;
+            }
 
             // Handle transactions
-            if($newPayment)
-                event(new PaymentReceived($newPayment));
+            if(isset($newPayment))
+                event(new PaymentReceived($newPayment['member_id']));
 
             DB::commit();
 
             // Send sms and email notification
             if(!is_null($member) && !is_null($newPayment))
-            CommunicationMessage::send('payment_received', $member, $newPayment);
+                CommunicationMessage::send('payment_received', $member, $newPayment);
 
             return $this->respondWithSuccess('Success !! Payment received.');
 
         } catch (\Exception $e) {
             DB::rollback();
-            throw $e;
+            throw new \Exception($e->getMessage());
         }
     }
 

@@ -26,7 +26,7 @@ class AccountTypeSeeder extends Seeder
         $incomeClassId = AccountClass::where('name', INCOME)->select('id')->first()['id'];
         $expenditureClassId  = AccountClass::where('name', EXPENDITURE)->select('id')->first()['id'];
 
-        // Asset Types
+        // Asset Account Types
         AccountType::create([
             'account_class_id' => $assetClassId,
             'name' => CURRENT_ASSET,
@@ -46,7 +46,7 @@ class AccountTypeSeeder extends Seeder
             'description' => LOAN_RECEIVABLE
         ]);
 
-        //Income Types
+        //Income Account Types
         AccountType::create([
             'account_class_id' => $incomeClassId,
             'name' => LENDING_ACTIVITY,
@@ -54,7 +54,7 @@ class AccountTypeSeeder extends Seeder
             'description' => LENDING_ACTIVITY
         ]);
 
-        // Expenditure account types
+        // Expenditure Account types
         AccountType::create([
             'account_class_id' => $expenditureClassId,
             'name' => EXPENSE,
@@ -62,13 +62,20 @@ class AccountTypeSeeder extends Seeder
             'description' => EXPENSE
         ]);
 
-        // Liability account types
+        // Liability Account types
         AccountType::create([
                 'account_class_id' => $liabilitiesClassId,
                 'name' => CAPITAL,
                 'code' => CAPITAL_CODE,
                 'description' => CAPITAL
             ]);
+
+        AccountType::create([
+            'account_class_id' => $liabilitiesClassId,
+            'name' => MEMBER_DEPOSIT,
+            'code' => MEMBER_DEPOSIT_CODE,
+            'description' => MEMBER_DEPOSIT
+        ]);
     }
 
 }

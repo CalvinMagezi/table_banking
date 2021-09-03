@@ -33,8 +33,6 @@ class CreateAccountsTable extends Migration
 
             $table->softDeletes();
             $table->timestamps();
-
-           // $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

@@ -32,8 +32,11 @@ class FiscalPeriod extends Model
      * @var array
      */
     protected $fillable = [
+        'name', // e.g 2020
         'start_on',
         'end_on',
+        'remarks',
+        'active', // whether its the active fiscal period or not
         'closed_on'
     ];
 

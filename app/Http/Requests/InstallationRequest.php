@@ -37,7 +37,6 @@ class InstallationRequest extends BaseRequest
                         'password'  => '',
                         'database'  => 'required'
                     ];
-
                     break;
                 }
             case 'PUT':
@@ -54,20 +53,6 @@ class InstallationRequest extends BaseRequest
             default:
                 break;
         }
-
         return $rules;
-
-    }
-
-    /**
-     * Get the error messages for the defined validation rules.
-     *
-     * @return array
-     */
-    public function messages()
-    {
-        return [
-          //  'member_id.unique' => 'This member is already a guarantor.',
-        ];
     }
 }

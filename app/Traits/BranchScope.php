@@ -12,13 +12,16 @@ namespace App\Traits;
 
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Adds value to branch_id field is not provided.
+ *
+ * Trait BranchScope
+ * @package App\Traits
+ */
 trait BranchScope
 {
-
     static function bootBranchScope()
     {
-       // static::addGlobalScope(new TenantScope());
-
         static::creating(function ($model) {
             if($model->branch_id == '' && Auth::user() != null){
                 $model->branch_id = Auth::user()->branch_id;
@@ -26,7 +29,7 @@ trait BranchScope
             }
         });
         static::updating(function ($model) {
-            if($model->branch_id == ''){
+            if($model->branch_id == '' && Auth::user() != null){
                 $model->branch_id = Auth::user()->branch_id;
             }
             $model->updated_by = Auth::user()->id;

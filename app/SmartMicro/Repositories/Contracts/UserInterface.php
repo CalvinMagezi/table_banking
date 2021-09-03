@@ -10,6 +10,4 @@ namespace App\SmartMicro\Repositories\Contracts;
 
 
 interface UserInterface extends BaseInterface {
-
-
 }

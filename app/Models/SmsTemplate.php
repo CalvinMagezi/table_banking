@@ -15,7 +15,7 @@ use Nicolaslopezj\Searchable\SearchableTrait;
 
 class SmsTemplate extends BaseModel
 {
-    use SearchableTrait, BranchScope, BranchFilterScope;
+    use SearchableTrait;
 
     /**
      * The database table used by the model.
@@ -36,8 +36,8 @@ class SmsTemplate extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'body',
-        'tags'
+        'name',
+        'body'
     ];
 
     /**

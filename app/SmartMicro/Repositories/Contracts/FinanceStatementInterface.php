@@ -11,13 +11,25 @@ namespace App\SmartMicro\Repositories\Contracts;
 
 interface FinanceStatementInterface extends BaseInterface
 {
+    /**
+     * @param $branchId
+     * @param $startDate
+     * @param $endDate
+     * @return mixed
+     */
     function trialBalance($branchId, $startDate, $endDate);
 
+    /**
+     * @param $branchId
+     * @return mixed
+     */
     function incomeStatement($branchId);
 
+    /**
+     * @param $branchId
+     * @param $startDate
+     * @param $endDate
+     * @return mixed
+     */
     function balanceSheet($branchId, $startDate, $endDate);
-
-    function trialBalancex();
-
-    function profitAndLossxx();
 }

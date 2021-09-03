@@ -58,8 +58,6 @@ class WaiverRequest extends BaseRequest
             default:
                 break;
         }
-
         return $rules;
-
     }
 }

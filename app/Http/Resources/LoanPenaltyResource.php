@@ -28,7 +28,7 @@ class LoanPenaltyResource extends JsonResource
             'loan_id'       => $this->loan_id,
             'loan'          => $this->loan,
             'period_count'  => $this->period_count,
-            'due_date'      => $this->due_date,
+            'due_date'      => formatDate($this->due_date),
             'amount'        => $this->amount,
             'paid_on'       => $this->paid_on,
             'paid_amount'   => $this->paid_amount,

@@ -59,9 +59,7 @@ class NewMemberWelcomeEmail extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject($subject)
-           // ->greeting('') // example: Dear Sir, Hello Madam, etc ...
             ->line($body);
-          //  ->salutation('Thank you.');  // example: best regards, thanks, etc ...
     }
 
     /**

@@ -33,7 +33,6 @@ class LoanTypeResource extends JsonResource
             'repayment_period'      => $this->repayment_period,
             'service_fee'           => (float) $this->service_fee,
 
-           // 'penalty_type_id'       => $this->penalty_type_id ? $this->penalty_type_id : null,
             'penalty_type_id'       => $this->penalty_type_id ?? '',
 
             'penalty_value'         => (float) $this->penalty_value,

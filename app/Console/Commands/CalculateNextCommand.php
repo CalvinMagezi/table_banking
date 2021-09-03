@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Events\Loan\LoanNextPeriodChecked;
 use Illuminate\Console\Command;
 
-class CalculateDueCommand extends Command
+class CalculateNextCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -19,7 +19,7 @@ class CalculateDueCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Calculate interest, principal or penalty due for a loan on a given date. (To be checked daily)';
+    protected $description = 'Calculate interest, principal or penalty for the next loan repayment period. (To be checked daily)';
 
     /**
      * Create a new command instance.

@@ -14,6 +14,7 @@ use App\Http\Resources\CapitalResource;
 use App\SmartMicro\Repositories\Contracts\CapitalInterface;
 
 use App\SmartMicro\Repositories\Contracts\JournalInterface;
+use App\SmartMicro\Repositories\Contracts\PaymentMethodInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -22,18 +23,21 @@ class CapitalController extends ApiController
     /**
      * @var CapitalInterface
      */
-    protected $capitalRepository, $load, $journalRepository;
+    protected $capitalRepository, $load, $journalRepository, $paymentMethodRepository;
 
     /**
      * CapitalController constructor.
      * @param CapitalInterface $capitalInterface
      * @param JournalInterface $journalInterface
+     * @param PaymentMethodInterface $paymentMethodRepository
      */
-    public function __construct(CapitalInterface $capitalInterface, JournalInterface $journalInterface)
+    public function __construct(CapitalInterface $capitalInterface, JournalInterface $journalInterface,
+                                PaymentMethodInterface $paymentMethodRepository)
     {
         $this->capitalRepository = $capitalInterface;
-        $this->load = ['branch'];
+        $this->load = ['branch', 'paymentMethod'];
         $this->journalRepository   = $journalInterface;
+        $this->paymentMethodRepository   = $paymentMethodRepository;
     }
 
     /**
@@ -58,17 +62,35 @@ class CapitalController extends ApiController
      */
     public function store(CapitalRequest $request)
     {
-
-      //  return $this->capitalRepository->create($request->all());
         DB::beginTransaction();
         try
         {
             $data = $request->all();
+            $paymentMethodName = '';
+
+            $methodId = $data['method_id'];
+            $paymentMethod = $this->paymentMethodRepository->getById($methodId);
+            if(isset($paymentMethod)){
+                $paymentMethodName = $paymentMethod->name;
+            }
+
             // capital record
             $newCapital = $this->capitalRepository->create($data);
 
-            // journal entry
-            $this->journalRepository->capitalReceivedEntry($newCapital);
+            // cash/bank/mpesa account journal entries
+            switch ($paymentMethodName){
+                case  'CASH':
+                    $this->journalRepository->capitalToCashEntry($newCapital);
+                    break;
+                case  'BANK':
+                    $this->journalRepository->capitalToBankEntry($newCapital);
+                    break;
+                case  'MPESA':
+                    $this->journalRepository->capitalToMpesaEntry($newCapital);
+                    break;
+                default :
+                    break;
+            }
 
             DB::commit();
             return $this->respondWithSuccess('Success !! Capital Registered.');

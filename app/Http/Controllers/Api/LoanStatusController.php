@@ -57,9 +57,7 @@ class LoanStatusController  extends ApiController
             return $this->respondNotSaved($save['message']);
         }else{
             return $this->respondWithSuccess('Success !! LoanStatus has been created.');
-
         }
-
     }
 
     /**

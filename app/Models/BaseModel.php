@@ -10,8 +10,6 @@ class BaseModel extends Model{
 
     public $incrementing = false;
 
-    // protected $hidden = ['password'];
-
     public static function boot() {
         parent::boot();
 
@@ -41,7 +39,6 @@ class BaseModel extends Model{
      */
     public function generateNewId()
     {
-       // return Uuid::generate(4);
         return Uuid::uuid4();
     }
 

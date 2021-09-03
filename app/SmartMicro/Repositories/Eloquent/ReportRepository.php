@@ -25,17 +25,9 @@ class ReportRepository extends BaseRepository implements ReportInterface
         $this->model = $model;
     }
 
-    public function loansDue($branchId, $startDate, $endDate){
+    public function loansDue($branchId, $startDate, $endDate){}
 
-    }
+    public function loanArrears($branchId, $startDate, $endDate){}
 
-    public function loanArrears($branchId, $startDate, $endDate){
-
-    }
-
-    public function loanRepayment($loanId){
-
-    }
-
-
+    public function loanRepayment($loanId){}
 }

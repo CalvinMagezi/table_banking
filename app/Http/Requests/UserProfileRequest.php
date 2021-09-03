@@ -50,7 +50,6 @@ class UserProfileRequest extends BaseRequest
                         'phone'                 => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
 
                         'role_id' => 'required|exists:roles,id',
-                        //  'employee_id'           => 'exists:employees,id|unique:users,employee_id,NULL,id,deleted_at,NULL',
                         'email' => 'email|required|unique:users,email,NULL,id,deleted_at,NULL',
                         'password' => 'required|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
@@ -78,11 +77,6 @@ class UserProfileRequest extends BaseRequest
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
-
-                        /*  'employee_id'                 => ['exists:employees,id', Rule::unique('users')->ignore($this->user, 'id')
-                              ->where(function ($query) {
-                                  $query->where('deleted_at', NULL);
-                              })],*/
                          'current_password' => ['nullable', 'required_with:password', function ($attribute, $value, $fail) {
                                 if (!Hash::check($value, Auth::user()->password)) {
                                     return $fail(__('The current password is incorrect.'));

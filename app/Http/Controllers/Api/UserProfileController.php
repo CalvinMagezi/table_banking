@@ -31,7 +31,6 @@ class UserProfileController extends ApiController
      */
     public function __construct(UserInterface $userInterface)
     {
-        // $this->middleware('scope:user-profile');
         $this->userRepository = $userInterface;
     }
 
@@ -117,7 +116,6 @@ class UserProfileController extends ApiController
      * @param Request $request
      */
     public function uploadPhoto(Request $request) {
-        //return $uuid;
         $data = $request->all();
         // Upload logo
         if($request->hasFile('photo')) {
@@ -129,10 +127,9 @@ class UserProfileController extends ApiController
             // Filename to store
             $fileNameToStore = $filename.'_'.time().'.'.$extension;
             $path = $request->file('photo')->storeAs('profile_photos', $fileNameToStore);
-            // $data['logo'] = $fileNameToStore;
             $data['photo'] = $fileNameToStore;
         }
-        // TODO also, delete previous image file from server
+        // also, delete previous image file from server
         $this->userRepository->update(array_filter($data), $data['id']);
     }
 

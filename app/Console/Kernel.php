@@ -22,7 +22,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('calculate:repayments')->daily();
+        $schedule->command('calculate:next')->daily();
+        $schedule->command('pay:pending')->daily();
 
         $schedule->command('queue:restart')->hourly();
         $schedule->command('queue:work --sleep=3 --timeout=900 --tries=254 --delay=600 --queue=high,default,low')->runInBackground()->withoutOverlapping()->everyMinute();

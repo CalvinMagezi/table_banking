@@ -8,7 +8,4 @@
 
 namespace App\SmartMicro\Repositories\Contracts;
 
-interface BranchInterface extends BaseInterface {
-
-
-}
+interface BranchInterface extends BaseInterface {}

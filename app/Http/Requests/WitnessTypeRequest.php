@@ -38,7 +38,6 @@ class WitnessTypeRequest extends BaseRequest
                         'display_name'  => 'required|unique:witness_types,display_name,NULL,id,deleted_at,NULL',
                         'description'   => '',
                     ];
-
                     break;
                 }
             case 'PUT':
@@ -62,8 +61,6 @@ class WitnessTypeRequest extends BaseRequest
             default:
                 break;
         }
-
         return $rules;
-
     }
 }

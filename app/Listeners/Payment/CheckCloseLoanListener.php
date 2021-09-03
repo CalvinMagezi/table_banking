@@ -8,6 +8,12 @@ use App\SmartMicro\Repositories\Contracts\LoanInterface;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+/**
+ * Check and mark a loan as closed. - When Next_repayment_date is null and all pending amount has been paid.
+ *
+ * Class CheckCloseLoanListener
+ * @package App\Listeners\Payment
+ */
 class CheckCloseLoanListener
 {
     /**
@@ -43,8 +49,7 @@ class CheckCloseLoanListener
 
         $calculatedPendingAmount = $this->loanRepository->totalPendingAmount($loanId);
 
-         // The period calculations are over also,
-        // All calculated amount have been cleared
+         // The period calculations are over also, and all calculated amount have been paid
         if(is_null($next_repayment_date) && $calculatedPendingAmount == 0){
             Loan::where('id', $loanId)->update([
                 'closed_on' => $today

@@ -12,13 +12,13 @@ use App\Traits\BranchScope;
 use App\Traits\BranchFilterScope;
 use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 use Nicolaslopezj\Searchable\SearchableTrait;
+use Exception;
 
 class Member extends BaseModel
 {
     use Notifiable, SearchableTrait, BranchScope;
-    // We show members system wide. We don't filter per branch
-    // BranchFilterScope
 
     /**
      * The database table used by the model.
@@ -154,16 +154,22 @@ class Member extends BaseModel
         parent::boot();
 
         static::created(function ($model) {
-            $data = [
-                'account_name' => $model->id,
-                'account_code' => MEMBER_ACCOUNT_CODE,
-                'account_type_id' => AccountType::where('name', LOAN_RECEIVABLE)->select('id')->first()['id']
-            ];
-            $newAccount = Account::create($data);
-            if ($newAccount) {
-                $model->account_code = $newAccount->account_code;
-                $model->account_id = $newAccount->id;
+            try{
+                $data = [
+                    'account_name'      => $model->id,
+                    'account_code'      => MEMBER_DEPOSIT_CODE,
+                    'account_type_id'   => AccountType::where('name', MEMBER_DEPOSIT)->select('id')->first()['id']
+                ];
+                $newAccount = Account::create($data);
+                if ($newAccount) {
+                    $model->account_code = $newAccount->account_code;
+                    $model->account_id = $newAccount->id;
+                }
+            }catch (Exception $exception){
+                // account creation failed
+                Log::info($exception->getMessage());
             }
+
         });
     }
 

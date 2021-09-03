@@ -18,10 +18,10 @@ interface LoanPrincipalRepaymentInterface extends BaseInterface
     function paidAmount($principalRepaymentId);
 
     /**
-     * @param $paymentId
      * @param $amount
-     * @param $loanId
+     * @param $loan
+     * @param $date
      * @return mixed
      */
-    function payDuePrincipal($paymentId, $amount, $loanId);
+    function payDuePrincipal($amount, $loan, $date);
 }

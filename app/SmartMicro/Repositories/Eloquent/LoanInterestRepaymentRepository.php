@@ -10,26 +10,27 @@
 namespace App\SmartMicro\Repositories\Eloquent;
 
 use App\Events\Payment\PaidLoan;
-use App\Models\Loan;
 use App\Models\LoanInterestRepayment;
-use App\Models\Transaction;
+use App\SmartMicro\Repositories\Contracts\JournalInterface;
 use App\SmartMicro\Repositories\Contracts\LoanInterestRepaymentInterface;
 use App\SmartMicro\Repositories\Contracts\TransactionInterface;
 use Illuminate\Support\Facades\DB;
 
 class LoanInterestRepaymentRepository extends BaseRepository implements LoanInterestRepaymentInterface
 {
-    protected $model, $transactionRepository, $loanInterestRepaymentRepository;
+    protected $model, $transactionRepository, $loanInterestRepaymentRepository, $journalRepository;
 
     /**
      * LoanInterestRepaymentRepository constructor.
      * @param LoanInterestRepayment $model
      * @param TransactionInterface $transactionRepository
+     * @param JournalInterface $journalRepository
      */
-    function __construct(LoanInterestRepayment $model, TransactionInterface $transactionRepository)
+    function __construct(LoanInterestRepayment $model, TransactionInterface $transactionRepository, JournalInterface $journalRepository)
     {
         $this->model = $model;
         $this->transactionRepository = $transactionRepository;
+        $this->journalRepository = $journalRepository;
     }
 
     /**
@@ -47,33 +48,37 @@ class LoanInterestRepaymentRepository extends BaseRepository implements LoanInte
     }
 
     /**
-     * Take a loan, pay any due interest
-     * @param $paymentId
-     * @param $amount isn't necessarily total amount for this paymentId.
-     *         Some amount from the payment could have been used before this method is called
-     * @param $loanId
-     * @return float|int total amount assigned for interest payment
+     * * For a given loan, pay its pending interest.
+     *
+     * Amount = available balance by the time of calling this function
+     *
+     * @param $amount
+     * @param $loan
+     * @param $date
+     * @return int|mixed Amount assigned for interest payment
      */
-    public function payDueInterest($paymentId, $amount, $loanId) {
+    public function payDueInterest($amount, $loan, $date) {
 
         $paidInterestAmount = 0;
+        $loanId = $loan['id'];
 
-        $loanInterestRepaymentDueRecords = $this->model
+        $loanInterestRepaymentPendingRecords = $this->model
             ->where('loan_id', $loanId)
             ->where('paid_on', null)
+            ->where('due_date', '<=', $date)
             ->orderBy('created_at', 'asc')
             ->get()->toArray();
 
-        if (!is_null($loanInterestRepaymentDueRecords) && count($loanInterestRepaymentDueRecords) > 0) {
+        if (!is_null($loanInterestRepaymentPendingRecords) && count($loanInterestRepaymentPendingRecords) > 0) {
 
-            foreach ($loanInterestRepaymentDueRecords as $dueRecord){
+            foreach ($loanInterestRepaymentPendingRecords as $pendingRecord){
 
-                 $interestDue = $dueRecord['amount'];
+                 $interestDue = $pendingRecord['amount'];
 
                 // Past partial payments
                 $paidInterest = DB::table('transactions')
                     ->select(DB::raw('SUM(amount) as paid'))
-                    ->where('loan_interest_repayments_id', $dueRecord['id'])->get()->toArray();
+                    ->where('loan_interest_repayments_id', $pendingRecord['id'])->get()->toArray();
 
                 // Actual interest amount due
                 foreach ($paidInterest as $paidAmount) {
@@ -82,10 +87,16 @@ class LoanInterestRepaymentRepository extends BaseRepository implements LoanInte
                     }
                 }
                 // Now pay
-                if($amount > 0)
-                    $paidInterestAmount = $paidInterestAmount + $this->transactPayment($loanId, $interestDue, $amount, $paymentId, $dueRecord['id']);
+                if($amount > 0) {
+                    $interestPaid = $this->transactPayment($loanId, $interestDue, $amount, $pendingRecord['id']);
+                    $paidInterestAmount = $paidInterestAmount + $interestPaid;
+                }
                 $amount = $amount - $paidInterestAmount;
             }
+        }
+        // Journal entry for loan repayment
+        if ($paidInterestAmount > 0) {
+            $this->journalRepository->repayLoanInterest($loan, $paidInterestAmount);
         }
         event(new PaidLoan($loanId));
         return $paidInterestAmount;
@@ -96,11 +107,10 @@ class LoanInterestRepaymentRepository extends BaseRepository implements LoanInte
      * @param $loanId
      * @param $interestDue
      * @param $walletAmount
-     * @param $paymentId
-     * @param $loanInterestRepaymentDueId
+     * @param $loanInterestRepaymentPendingId
      * @return int
      */
-    private function transactPayment($loanId, $interestDue, $walletAmount, $paymentId, $loanInterestRepaymentDueId) {
+    private function transactPayment($loanId, $interestDue, $walletAmount, $loanInterestRepaymentPendingId) {
 
         $interestPaid = 0;
 
@@ -112,7 +122,7 @@ class LoanInterestRepaymentRepository extends BaseRepository implements LoanInte
                         $interestPaid = $interestDue;
                         $this->update(
                             ['paid_on' => now()],
-                            $loanInterestRepaymentDueId
+                            $loanInterestRepaymentPendingId
                         );
                     }
                     break;
@@ -126,7 +136,7 @@ class LoanInterestRepaymentRepository extends BaseRepository implements LoanInte
                     $interestPaid = 0;
                 }
             }
-            $this->transactionRepository->interestPaymentEntry($interestPaid, $loanInterestRepaymentDueId, $paymentId, $loanId);
+            $this->transactionRepository->interestPaymentEntry($interestPaid, $loanInterestRepaymentPendingId, $loanId);
         }
         return $interestPaid;
     }

@@ -27,6 +27,7 @@ use App\Notifications\Sms\NewUserWelcomeSms;
 use App\Notifications\Sms\PasswordResetSms;
 use App\Notifications\Sms\PaymentReceivedSms;
 use App\Notifications\Sms\SystemSummarySms;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 trait CommunicationMessage
@@ -61,7 +62,7 @@ trait CommunicationMessage
                 $setting = CommunicationSetting::where('name', 'reset_password')->first();
 
                 if(!is_null($setting) && $setting->email_template){
-                    Notification::send($notifiable, new PasswordResetEmail());
+                    Notification::send($notifiable, new PasswordResetEmail($data));
                 }
                 if(!is_null($setting) && $setting->sms_template){
                     Notification::send($notifiable, new PasswordResetSms());
@@ -127,6 +128,8 @@ trait CommunicationMessage
             }
         }
         }
-        catch (\Exception $exception){}
+        catch (\Exception $exception){
+            Log::info($exception->getMessage());
+        }
     }
 }

@@ -35,7 +35,10 @@ class LoanApplicationController  extends ApiController
     {
         $this->loanApplicationRepository   = $loanApplicationInterface;
         $this->memberRepository   = $memberRepository;
-        $this->load = ['member', 'guarantors', 'assets', 'guarantors', 'loanType', 'interestType', 'loan', 'paymentFrequency', 'loanOfficer'];
+        $this->load = [
+            'member', 'guarantors', 'assets', 'guarantors', 'loanType',
+            'interestType', 'loan', 'paymentFrequency', 'loanOfficer', 'disburseMethod', 'witnessType'
+        ];
     }
 
     /**
@@ -45,12 +48,6 @@ class LoanApplicationController  extends ApiController
      */
     public function index(Request $request)
     {
-       /* $request['whereField'] = 'member_id';
-        $request['whereValue'] = '44144c89-f28f-4c8a-96ac-7d54c6681de5';*/
-
-       // $request['whereField'] = 'reviewed_on';
-     //   $request['whereValue'] = null;
-
         if ($select = request()->query('list')) {
             return $this->loanApplicationRepository->listAll($this->formatFields($select));
         } else
@@ -83,7 +80,6 @@ class LoanApplicationController  extends ApiController
             $fileNameToStore = $filename.'_'.time().'.'.$extension;
 
             // Upload Image
-            // $path = $request->file('attach_application_form')->storeAs('public/cover_images', $fileNameToStore);
             $path = $request->file('attach_application_form')->storeAs('loan_application_forms', $fileNameToStore);
 
             $data['attach_application_form'] = $fileNameToStore;
@@ -194,10 +190,9 @@ class LoanApplicationController  extends ApiController
             // Filename to store
             $fileNameToStore = $filename.'_'.time().'.'.$extension;
             $path = $request->file('attach_application_form')->storeAs('loan_application_forms', $fileNameToStore);
-            // $data['logo'] = $fileNameToStore;
             $data['attach_application_form'] = $fileNameToStore;
         }
-        // TODO also, delete previous image file from server
+        // also, delete previous image file from server
         $this->loanApplicationRepository->update(array_filter($data), $data['id']);
     }
 }

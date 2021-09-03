@@ -58,9 +58,7 @@ class SmsTemplateController extends ApiController
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! SmsTemplate has been created.');
-
         }
-
     }
 
     /**
@@ -75,7 +73,6 @@ class SmsTemplateController extends ApiController
             return $this->respondNotFound('SmsTemplate not found.');
         }
         return $this->respondWithData(new SmsTemplateResource($smsTemplate));
-
     }
 
     /**
@@ -90,9 +87,7 @@ class SmsTemplateController extends ApiController
         if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
-
             return $this->respondWithSuccess('Success !! SmsTemplate has been updated.');
-
     }
 
     /**

@@ -64,7 +64,11 @@ class SmartMicroServiceProvider extends ServiceProvider {
         'PenaltyFrequency',
         'PenaltyType',
         'SmsSend',
-        'CommunicationSetting'
+        'CommunicationSetting',
+        'MpesaBulkPayment',
+        'MpesaCustomSend',
+        'Withdrawal',
+        'MpesaScheduledDisbursement'
     ];
 
     /**

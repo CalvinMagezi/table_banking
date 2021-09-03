@@ -24,31 +24,4 @@ class RoleRepository extends BaseRepository implements RoleInterface {
     {
         $this->model = $model;
     }
-
-
-  /*  public function update(array $data, $id)
-    {
-        try{
-            $record = $this->model->find($id);
-
-            if(is_null($record))
-                throw new ModelNotFoundException('Record not found');
-
-            if(isset($record)){
-                return $record->update($data);
-            }
-
-            if(array_key_exists('permissions', $data)){
-                $permissions = $data['permissions'];
-                if (!is_null($permissions)){
-                    $record->permissions()->sync($permissions);
-                }
-            }
-
-        }catch (\Exception $exception){
-            report($exception);
-        }
-        return null;
-    }*/
-
 }

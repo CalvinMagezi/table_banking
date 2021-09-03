@@ -11,9 +11,13 @@ namespace App\Http\Controllers\Api\OAuth;
 
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\ResetPasswordRequest;
+use App\Models\User;
+use App\Traits\CommunicationMessage;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\DB;
 
 
 class ForgotPasswordController extends ApiController
@@ -34,28 +38,60 @@ class ForgotPasswordController extends ApiController
      */
     public function __invoke(Request $request)
     {
-        $this->validateEmail($request);
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $response = $this->broker()->sendResetLink(
-            $request->only('email')
-        );
-      /*  return $response == Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201)
-            : response()->json(['message' => 'Unable to send reset link', 'status' => false], 401);*/
-
-        return $response == Password::RESET_LINK_SENT
-            ? $this->respondWithSuccess('Success !! Reset link sent to your email..')
-            : $this->respondNotFound('Unable to send reset link.');
+      //
     }
 
     /**
      * @param ForgotPasswordRequest $request
+     * @return string
      */
     public function forgotPassword(ForgotPasswordRequest $request)
     {
-        // TODO
-        // Check if email is for valid user. Send password reset code to the email.
+        $user = User::where('email', $request->email)->first();
+
+        // We have a user
+        if(isset($user)){
+            // Create reset token
+            DB::table('password_resets')->insert([
+                'email' => $request->email,
+                'token' => str_random(20),
+                'created_at' => Carbon::now()
+            ]);
+
+            //Get the token just created above
+            $tokenData = DB::table('password_resets')
+                ->where('email', $request->email)->first();
+
+            // Send sms and email notification
+            if(!is_null($tokenData) && !is_null($user))
+                CommunicationMessage::send('reset_password', $user, $tokenData);
+        }
+    }
+
+
+    /**
+     * @param ResetPasswordRequest $request
+     * @return array
+     */
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        $password = $request->password;
+
+        $tokenData = DB::table('password_resets')
+            ->where('token', $request->token)->first();
+
+        if (isset($tokenData)){
+            $user = User::where('email', $tokenData->email)->first();
+
+            if (isset($user)){
+                $user->password = $password;
+                $user->update();
+
+                //Delete the token
+                DB::table('password_resets')->where('email', $user->email)->delete();
+                return $this->respondWithSuccess('Password Changed successfully');
+            }
+        }
+            return $this->respondWithError('Password Changed successfully');
     }
 }

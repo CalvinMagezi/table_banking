@@ -12,23 +12,26 @@ namespace App\SmartMicro\Repositories\Eloquent;
 use App\Events\Payment\PaidLoan;
 use App\Models\Loan;
 use App\Models\LoanPrincipalRepayment;
+use App\SmartMicro\Repositories\Contracts\JournalInterface;
 use App\SmartMicro\Repositories\Contracts\LoanPrincipalRepaymentInterface;
 use App\SmartMicro\Repositories\Contracts\TransactionInterface;
 use Illuminate\Support\Facades\DB;
 
 class LoanPrincipalRepaymentRepository extends BaseRepository implements LoanPrincipalRepaymentInterface
 {
-    protected $model, $transactionRepository;
+    protected $model, $transactionRepository, $journalRepository;
 
     /**
      * LoanPrincipalRepaymentRepository constructor.
      * @param LoanPrincipalRepayment $model
      * @param TransactionInterface $transactionRepository
+     * @param JournalInterface $journalRepository
      */
-    function __construct(LoanPrincipalRepayment $model, TransactionInterface $transactionRepository)
+    function __construct(LoanPrincipalRepayment $model, TransactionInterface $transactionRepository, JournalInterface $journalRepository)
     {
         $this->model = $model;
         $this->transactionRepository = $transactionRepository;
+        $this->journalRepository = $journalRepository;
     }
 
     /**
@@ -46,19 +49,21 @@ class LoanPrincipalRepaymentRepository extends BaseRepository implements LoanPri
     }
 
     /**
-     * Take a loan, pay any due Principal
-     * @param $paymentId
-     * @param $amount isn't necessarily total amount for this paymentId.
-     *         Some amount from the payment could have been used before this method is called
-     * @param $loanId
-     * @return float|int total amount assigned for Principal payment
+     * For a given loan, pay any pending Principal amount
+     *
+     * @param $amount
+     * @param $loan
+     * @param $date
+     * @return int|mixed
      */
-    public function payDuePrincipal($paymentId, $amount, $loanId) {
+    public function payDuePrincipal($amount, $loan, $date) {
         $paidPrincipalAmount = 0;
+        $loanId = $loan['id'];
 
         $loanPrincipalRepaymentDueRecords = $this->model
             ->where('loan_id', $loanId)
             ->where('paid_on', null)
+            ->where('due_date', '<=', $date)
             ->orderBy('created_at', 'asc')
             ->get()->toArray();
 
@@ -80,10 +85,16 @@ class LoanPrincipalRepaymentRepository extends BaseRepository implements LoanPri
                     }
                 }
                 // Now pay
-                if($amount > 0)
-                    $paidPrincipalAmount = $paidPrincipalAmount + $this->transactPayment($loanId, $principalDue, $amount, $paymentId, $dueRecord['id']);
+                if($amount > 0) {
+                    $principalPaid = $this->transactPayment($loanId, $principalDue, $amount, $dueRecord['id']);
+                    $paidPrincipalAmount = $paidPrincipalAmount + $principalPaid;
+                }
                 $amount = $amount - $paidPrincipalAmount;
             }
+        }
+        // Journal entry for loan repayment
+        if ($paidPrincipalAmount > 0) {
+            $this->journalRepository->repayLoanPrincipal($loan, $paidPrincipalAmount);
         }
         event(new PaidLoan($loanId));
         return $paidPrincipalAmount;
@@ -94,11 +105,10 @@ class LoanPrincipalRepaymentRepository extends BaseRepository implements LoanPri
      * @param $loanId
      * @param $principalDue
      * @param $walletAmount
-     * @param $paymentId
      * @param $loanPrincipalRepaymentDueId
      * @return int
      */
-    private function transactPayment($loanId, $principalDue, $walletAmount, $paymentId, $loanPrincipalRepaymentDueId) {
+    private function transactPayment($loanId, $principalDue, $walletAmount, $loanPrincipalRepaymentDueId) {
 
         $principalPaid = 0;
 
@@ -124,7 +134,7 @@ class LoanPrincipalRepaymentRepository extends BaseRepository implements LoanPri
                     $principalPaid = 0;
                 }
             }
-            $this->transactionRepository->principalPaymentEntry($principalPaid, $loanPrincipalRepaymentDueId, $paymentId, $loanId);
+            $this->transactionRepository->principalPaymentEntry($principalPaid, $loanPrincipalRepaymentDueId, $loanId);
         }
         return $principalPaid;
     }

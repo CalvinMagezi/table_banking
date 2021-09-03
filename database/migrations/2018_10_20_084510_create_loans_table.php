@@ -32,6 +32,7 @@ class CreateLoansTable extends Migration
             $table->string('approved_by_user_id')->nullable();
 
             $table->string('amount_approved');
+            $table->string('disburse_amount');
             $table->double('service_fee')->default(0);
 
             $table->string('penalty_type_id', 36)->nullable()->default('');
@@ -46,6 +47,18 @@ class CreateLoansTable extends Migration
             $table->boolean('reduce_principal_early')->default(false);
 
             $table->date('next_repayment_date')->nullable();
+
+            $table->string('disburse_method_id')->nullable();
+
+            $table->string('mpesa_number')->nullable();
+            $table->string('mpesa_first_name')->nullable();
+            $table->string('mpesa_middle_name')->nullable();
+            $table->string('mpesa_last_name')->nullable();
+
+            $table->string('bank_name')->nullable();
+            $table->string('bank_branch')->nullable();
+            $table->string('bank_account')->nullable();
+            $table->string('other_banking_details')->nullable();
 
             $table->timestamp('closed_on')->nullable();
 

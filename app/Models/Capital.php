@@ -16,7 +16,6 @@ use Nicolaslopezj\Searchable\SearchableTrait;
 class Capital extends BaseModel
 {
     use SearchableTrait, BranchScope;
-    // BranchFilterScope
 
     /**
      * The database table used by the model.
@@ -39,6 +38,8 @@ class Capital extends BaseModel
     protected $fillable = [
         'branch_id',
         'fiscal_year_id',
+        'method_id',
+        'capital_date',
         'amount',
         'description',
         'created_by'
@@ -68,10 +69,26 @@ class Capital extends BaseModel
     ];
 
     /**
+     * @param $capital_date
+     */
+    public function setCapitalDateAttribute($capital_date)
+    {
+        $this->attributes['capital_date'] = date('Y-m-d H:i:s', strtotime($capital_date));
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class, 'method_id');
     }
 }

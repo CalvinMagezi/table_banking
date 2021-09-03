@@ -31,20 +31,8 @@ class BranchController  extends ApiController
      */
     public function __construct(BranchInterface $branchInterface)
     {
-        /**
-         * System permissions example
-         */
-        /* $this->middleware('scope:create-branch')->only('index');
-         $this->middleware('scope:view-customer')->only('show');
-         $this->middleware('scope:view-customer')->only('search');
-
-         $this->middleware('scope:create-customer')->only('store');
-         $this->middleware('scope:edit-customer')->only('update');
-         $this->middleware('scope:delete-customer')->only('destroy');*/
-
         $this->branchRepository   = $branchInterface;
         $this->load = ['assets', 'employees', 'loans', 'loanApplications', 'members', 'users'];
-
     }
 
     /**

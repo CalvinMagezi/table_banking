@@ -12,23 +12,26 @@ namespace App\SmartMicro\Repositories\Eloquent;
 use App\Events\Payment\PaidLoan;
 use App\Models\Loan;
 use App\Models\LoanPenalty;
+use App\SmartMicro\Repositories\Contracts\JournalInterface;
 use App\SmartMicro\Repositories\Contracts\LoanPenaltyInterface;
 use App\SmartMicro\Repositories\Contracts\TransactionInterface;
 use Illuminate\Support\Facades\DB;
 
 class LoanPenaltyRepository extends BaseRepository implements LoanPenaltyInterface
 {
-    protected $model, $transactionRepository, $loanPenaltyRepository;
+    protected $model, $transactionRepository, $loanPenaltyRepository, $journalRepository;
 
     /**
      * LoanPenaltyRepository constructor.
      * @param LoanPenalty $model
      * @param TransactionInterface $transactionRepository
+     * @param JournalInterface $journalRepository
      */
-    function __construct(LoanPenalty $model, TransactionInterface $transactionRepository)
+    function __construct(LoanPenalty $model, TransactionInterface $transactionRepository, JournalInterface $journalRepository)
     {
         $this->model = $model;
         $this->transactionRepository = $transactionRepository;
+        $this->journalRepository = $journalRepository;
     }
 
     /**
@@ -56,49 +59,59 @@ class LoanPenaltyRepository extends BaseRepository implements LoanPenaltyInterfa
     }
 
     /**
-     * Take a loan, pay any due penalty
-     * @param $paymentId
-     * @param $amount isn't necessarily total amount for this paymentId.
-     *         Some amount from the payment could have been used before this method is called
-     * @param $loanId
-     * @return float|int total amount assigned for penalty payment
+     * Take a loan, pay any pending penalty
+     *
+     * @param $amount
+     * @param $loan
+     * @param $date
+     * @return int|mixed Value assigned for penalty payment
      */
-    public function payDuePenalty($paymentId, $amount, $loanId) {
+    public function payDuePenalty($amount, $loan, $date) {
 
         $paidPenaltyAmount = 0;
+        $loanId = $loan['id'];
 
         $loanPenaltyPaymentDueRecords = $this->model
             ->where('loan_id', $loanId)
             ->where('paid_on', null)
+            ->where('due_date', '<=', $date)
             ->orderBy('created_at', 'asc')
-            ->get();
+            ->get()->toArray();
 
-        if(!is_null($loanPenaltyPaymentDueRecords)){
-            $loanPenaltyPaymentDueRecords = $loanPenaltyPaymentDueRecords->toArray();
+        /*$overDuePrincipal = DB::table('loan_principal_repayments')
+            ->select(DB::raw('SUM(amount) as total'))
+            ->where('loan_id', $loanId)
+            ->whereDate ('due_date', '<', $date)
+            ->first()->total;*/
 
-            if (!is_null($loanPenaltyPaymentDueRecords) && count($loanPenaltyPaymentDueRecords) > 0) {
+        if (!is_null($loanPenaltyPaymentDueRecords) && count($loanPenaltyPaymentDueRecords) > 0) {
 
                 foreach ($loanPenaltyPaymentDueRecords as $dueRecord){
 
                     $penaltyDue = $dueRecord['amount'];
 
                     // Past partial payments
-                    $paidInterest = DB::table('transactions')
+                    $paidPenalty = DB::table('transactions')
                         ->select(DB::raw('SUM(amount) as paid'))
                         ->where('loan_penalties_id', $dueRecord['id'])->get()->toArray();
 
                     // Actual penalty amount due
-                    foreach ($paidInterest as $paidAmount) {
+                    foreach ($paidPenalty as $paidAmount) {
                         if (null !== $paidAmount) {
                             $penaltyDue = $penaltyDue - ($paidAmount->paid);
                         }
                     }
                     // Now pay
-                    if($amount > 0)
-                        $paidPenaltyAmount = $paidPenaltyAmount + $this->transactPayment($loanId, $penaltyDue, $amount, $paymentId, $dueRecord['id']);
+                    if($amount > 0) {
+                        $penaltyPaid = $this->transactPayment($loanId, $penaltyDue, $amount, $dueRecord['id']);
+                        $paidPenaltyAmount = $paidPenaltyAmount + $penaltyPaid;
+                    }
                     $amount = $amount - $paidPenaltyAmount;
                 }
             }
+        // Journal entry for loan repayment
+        if ($paidPenaltyAmount > 0) {
+            $this->journalRepository->repayLoanPenalty($loan, $paidPenaltyAmount);
         }
        event(new PaidLoan($loanId));
        return $paidPenaltyAmount;
@@ -109,11 +122,10 @@ class LoanPenaltyRepository extends BaseRepository implements LoanPenaltyInterfa
      * @param $loanId
      * @param $penaltyDue
      * @param $walletAmount
-     * @param $paymentId
      * @param $loanPenaltyPaymentDueId
      * @return int
      */
-    private function transactPayment($loanId, $penaltyDue, $walletAmount, $paymentId, $loanPenaltyPaymentDueId) {
+    private function transactPayment($loanId, $penaltyDue, $walletAmount, $loanPenaltyPaymentDueId) {
 
         $penaltyPaid = 0;
 
@@ -139,7 +151,7 @@ class LoanPenaltyRepository extends BaseRepository implements LoanPenaltyInterfa
                     $penaltyPaid = 0;
                 }
             }
-            $this->transactionRepository->penaltyPaymentEntry($penaltyPaid, $loanPenaltyPaymentDueId, $paymentId, $loanId);
+            $this->transactionRepository->penaltyPaymentEntry($penaltyPaid, $loanPenaltyPaymentDueId, $loanId);
         }
         return $penaltyPaid;
     }

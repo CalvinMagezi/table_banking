@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\GeneralSetting;
 use App\Models\Permission;
 
 class ApiController extends Controller
@@ -131,18 +132,7 @@ class ApiController extends Controller
      */
     public function formatFields($string)
     {
-        //return explode(",", preg_replace('/\s+/', '', rtrim(trim($string),',')));
-
         return explode(",", preg_replace('/\s*,\s*/', ',', rtrim(trim($string), ',')));
-    }
-
-
-    /**
-     * @param $amount
-     * @return string
-     */
-    function formatMoney($amount) {
-        return number_format($amount, 2, '.', ',');
     }
 
     /**
@@ -169,5 +159,66 @@ class ApiController extends Controller
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param $amount
+     * @return string
+     */
+    public function formatMoney($amount) {
+        return number_format($amount, $this->amountDecimal(), $this->amountDecimalSeparator(), $this->amountThousandSeparator());
+    }
+
+    /**
+     * @param $date
+     * @return false|string
+     */
+    public function formatDate($date){
+        return $new_date_format = date($this->dateFormat(), strtotime($date));
+    }
+
+
+    /**
+     * @return string
+     */
+    private function dateFormat(){
+        $format = GeneralSetting::select('date_format')->first()->date_format;
+
+        if(isset($format))
+            return $format;
+        return 'd-m-Y';
+    }
+
+    /**
+     * @return string
+     */
+    private function amountThousandSeparator() {
+        $separator = GeneralSetting::select('amount_thousand_separator')->first()->amount_thousand_separator;
+
+        if(isset($separator))
+            return $separator;
+        return ',';
+    }
+
+    /**
+     * @return string
+     */
+    private function amountDecimalSeparator() {
+        $separator = GeneralSetting::select('amount_decimal_separator')->first()->amount_decimal_separator;
+
+        if(isset($separator))
+            return $separator;
+        return '.';
+    }
+
+    /**
+     * @return int
+     */
+    private function amountDecimal() {
+        $separator = GeneralSetting::select('amount_decimal')->first()->amount_decimal;
+
+        if(isset($separator))
+            return (int)$separator;
+        return 2;
     }
 }

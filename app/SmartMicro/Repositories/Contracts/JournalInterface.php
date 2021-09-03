@@ -15,25 +15,43 @@ interface JournalInterface extends BaseInterface
      * @param $capitalData
      * @return mixed
      */
-    function capitalReceivedEntry($capitalData);
+    public function capitalToCashEntry($capitalData);
+
+    /**
+     * @param $capitalData
+     * @return mixed
+     */
+    public function capitalToBankEntry($capitalData);
+
+    /**
+     * @param $capitalData
+     * @return mixed
+     */
+    public function capitalToMpesaEntry($capitalData);
 
     /**
      * @param $loan
      * @return mixed
      */
-    function loanDisburse($loan);
+    function loanDisburseBank($loan);
+
+    /**
+     * @param $loan
+     * @return mixed
+     */
+    function loanDisburseCash($loan);
+
+    /**
+     * @param $loan
+     * @return mixed
+     */
+    function loanDisburseMpesa($loan);
 
     /**
      * @param $loan
      * @return mixed
      */
     function serviceFeeDemand($loan);
-
-    /**
-     * @param $loan
-     * @return mixed
-     */
-    function serviceFeeReceived($loan);
 
     /**
      * @param $loan
@@ -55,7 +73,40 @@ interface JournalInterface extends BaseInterface
      * @param $paymentData
      * @return mixed
      */
-    function paymentReceivedEntry($paymentData);
+    function paymentReceivedEntryMpesa($paymentData);
+
+    /**
+     * @param $paymentData
+     * @return mixed
+     */
+    function paymentReceivedEntryCash($paymentData);
+
+    /**
+     * @param $paymentData
+     * @return mixed
+     */
+    function paymentReceivedEntryBank($paymentData);
+
+    /**
+     * @param $loan
+     * @param $amount
+     * @return mixed
+     */
+    function repayLoanPenalty($loan, $amount);
+
+    /**
+     * @param $loan
+     * @param $amount
+     * @return mixed
+     */
+    function repayLoanInterest($loan, $amount);
+
+    /**
+     * @param $loan
+     * @param $amount
+     * @return mixed
+     */
+    function repayLoanPrincipal($loan, $amount);
 
     /**
      * @param $loan
@@ -82,4 +133,22 @@ interface JournalInterface extends BaseInterface
      * @return mixed
      */
     function expenseDelete($original);
+
+    /**
+     * @param $withdrawalData
+     * @return mixed
+     */
+    function withdrawalEntryBank($withdrawalData);
+
+    /**
+     * @param $withdrawalData
+     * @return mixed
+     */
+    function withdrawalEntryCash($withdrawalData);
+
+    /**
+     * @param $withdrawalData
+     * @return mixed
+     */
+    function withdrawalEntryMpesa($withdrawalData);
 }

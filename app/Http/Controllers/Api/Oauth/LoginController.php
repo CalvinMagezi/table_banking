@@ -27,9 +27,7 @@ class LoginController extends ApiController
     {
         $email = $request->get('email');
         $password = $request->get('password');
-
         return $this->loginProxy->attemptLogin($email, $password);
-       // return $this->respondWithData($this->loginProxy->attemptLogin($email, $password));
     }
 
     /**
@@ -39,7 +37,6 @@ class LoginController extends ApiController
     public function refresh(Request $request)
     {
         return $this->loginProxy->attemptRefresh();
-       // return $this->respondWithData($this->loginProxy->attemptRefresh());
     }
 
     /**
@@ -48,7 +45,6 @@ class LoginController extends ApiController
     public function logout()
     {
         $this->loginProxy->logout();
-
         return $this->setStatusCode(204)->respondWithSuccess("Logged out ...");
     }
 

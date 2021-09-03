@@ -14,6 +14,7 @@ use App\Http\Resources\GeneralSettingResource;
 use App\SmartMicro\Repositories\Contracts\GeneralSettingInterface;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class GeneralSettingController  extends ApiController
 {
@@ -42,9 +43,69 @@ class GeneralSettingController  extends ApiController
 
         if(!$generalSetting)
         {
-          // return $this->respondNotFound('General Setting not set.');
             return null;
         }
+
+        $datesData = [];
+        $dateFormats = [
+            'd/m/Y'     => date('d/m/Y'),
+            'm/d/Y'     => date('m/d/Y'),
+            'Y/m/d'     => date('Y/m/d'),
+            'F j, Y'    => date('F j, Y'),
+            'm.d.y'     => date('m.d.y'),
+            'd-m-Y'     => date('d-m-Y'),
+            'D M j Y'   => date('D M j Y')
+            ];
+        foreach ($dateFormats as $key => $value){
+            $x = new \stdClass();
+            $x->name = $key;
+            $x->display_name = $value;
+            $datesData[] = $x;
+        }
+
+        $amountThousandSeparatorData = [];
+        $amountThousandSeparator = [
+            ',' => '1,000 - Comma Separator',
+            '.' => '1.000 - Dot Separator'
+            ];
+        foreach ($amountThousandSeparator as $key => $value){
+            $x = new \stdClass();
+            $x->name = $key;
+            $x->display_name = $value;
+            $amountThousandSeparatorData[] = $x;
+        }
+
+        $amountDecimalsData = [];
+        $amountDecimals = [
+            '1' => '1',
+            '2' => '2',
+            '3' => '3',
+            '4' => '4'
+            ];
+        foreach ($amountDecimals as $key => $value){
+            $x = new \stdClass();
+            $x->name = $key;
+            $x->display_name = $value;
+            $amountDecimalsData[] = $x;
+        }
+
+        $amountDecimalSeparatorData = [];
+        $amountDecimalSeparator = [
+            '.' => '1000.00 - Dot',
+            ',' => '1000,00 - Comma'
+            ];
+        foreach ($amountDecimalSeparator as $key => $value){
+            $x = new \stdClass();
+            $x->name = $key;
+            $x->display_name = $value;
+            $amountDecimalSeparatorData[] = $x;
+        }
+
+        $generalSetting['date_formats'] = $datesData;
+        $generalSetting['amount_thousand_separators'] = $amountThousandSeparatorData;
+        $generalSetting['amount_decimals'] = $amountDecimalsData;
+        $generalSetting['amount_decimal_separators'] = $amountDecimalSeparatorData;
+
         return $this->respondWithData(new GeneralSettingResource($generalSetting));
     }
 
@@ -130,8 +191,11 @@ class GeneralSettingController  extends ApiController
      * @param Request $request
      */
     public function uploadLogo(Request $request) {
-        //return $uuid;
+        $setting = $this->generalSettingRepository->getFirst();
+        $oldLogo = $setting->logo;
+
         $data = $request->all();
+
         // Upload logo
         if($request->hasFile('logo')) {
             $filenameWithExt = $request->file('logo')->getClientOriginalName();
@@ -142,10 +206,14 @@ class GeneralSettingController  extends ApiController
             // Filename to store
             $fileNameToStore = $filename.'_'.time().'.'.$extension;
             $path = $request->file('logo')->storeAs('logos', $fileNameToStore);
-           // $data['logo'] = $fileNameToStore;
             $data['logo'] = $fileNameToStore;
+
+            $this->generalSettingRepository->update($data, $data['id']);
+
+            if($oldLogo != '')
+                    Storage::delete('logos/'.$oldLogo);
+
         }
-        $this->generalSettingRepository->update($data, $data['id']);
     }
 
     /**

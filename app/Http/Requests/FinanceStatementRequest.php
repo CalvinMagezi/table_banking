@@ -33,7 +33,6 @@ class FinanceStatementRequest extends BaseRequest
                 {
                     $rules = [
                         'branch_id' => 'required|exists:branches,id',
-                        // 'start_date'      => 'required|date_format:"DD-MM-YYYY"',
                         'start_date' => 'required',
                         'end_date' => 'required',
                         'statement_type_id' => '',
@@ -46,7 +45,6 @@ class FinanceStatementRequest extends BaseRequest
                 {
                     $rules = [
                         'branch_id' => 'required|exists:branches,id',
-                        // 'start_date'      => 'required|date_format:"DD-MM-YYYY"',
                         'start_date' => 'required',
                         'end_date' => 'required',
                         'statement_type_id' => '',

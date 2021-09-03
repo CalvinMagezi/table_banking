@@ -42,7 +42,6 @@ class UserRequest extends BaseRequest
                         'city'                  => '',
                         'country'               => '',
                         'role_id'               => 'required|exists:roles,id',
-                      //  'employee_id'           => 'exists:employees,id|unique:users,employee_id,NULL,id,deleted_at,NULL',
                         'email'                 => 'email|required|unique:users,email,NULL,id,deleted_at,NULL',
                         'password'              => 'required|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
@@ -70,22 +69,13 @@ class UserRequest extends BaseRequest
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
-
-                      /*  'employee_id'                 => ['exists:employees,id', Rule::unique('users')->ignore($this->user, 'id')
-                            ->where(function ($query) {
-                                $query->where('deleted_at', NULL);
-                            })],*/
-
                         'password'              => 'nullable|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
-
                     ];
                     break;
                 }
             default:break;
         }
-
         return $rules;
-
     }
 }

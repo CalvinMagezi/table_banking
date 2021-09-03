@@ -8,4 +8,7 @@
 
 namespace App\SmartMicro\Repositories\Contracts;
 
-interface PaymentInterface extends BaseInterface {}
+interface PaymentInterface extends BaseInterface {
+
+    public function totalMpesaDeposits();
+}

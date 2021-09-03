@@ -38,14 +38,18 @@ class GeneralSetting extends BaseModel
         'email',
         'currency',
         'phone',
-        'country',
-        'county',
-        'town',
+        //'country',
+        //'county',
+        //'town',
         'physical_address',
         'postal_address',
         'postal_code',
         'logo',
-      //  'favicon',
+        'favicon',
+        'date_format',
+        'amount_thousand_separator',
+        'amount_decimal_separator',
+        'amount_decimal'
     ];
 
     /**

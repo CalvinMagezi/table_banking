@@ -8,12 +8,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\Loan\LoanDueChecked;
-use App\Events\Payment\PaidLoan;
+use App\Events\Loan\LoanNextPeriodChecked;
+use App\Http\Requests\LoanCalculationRequest;
 use App\Http\Requests\LoanRequest;
 use App\Http\Resources\LoanResource;
-use App\Notifications\PaymentReceivedNotification;
-use App\Notifications\PaymentReceivedSms;
+use App\Jobs\ProcessMpesaBulkPayment;
+use App\Models\GeneralSetting;
 use App\SmartMicro\Repositories\Contracts\FinanceStatementInterface;
 use App\SmartMicro\Repositories\Contracts\InterestTypeInterface;
 use App\SmartMicro\Repositories\Contracts\JournalInterface;
@@ -22,13 +22,17 @@ use App\SmartMicro\Repositories\Contracts\LoanInterestRepaymentInterface;
 use App\SmartMicro\Repositories\Contracts\LoanInterface;
 
 use App\SmartMicro\Repositories\Contracts\LoanPrincipalRepaymentInterface;
+use App\SmartMicro\Repositories\Contracts\LoanTypeInterface;
 use App\SmartMicro\Repositories\Contracts\MemberInterface;
+use App\SmartMicro\Repositories\Contracts\MpesaScheduledDisbursementInterface;
+use App\SmartMicro\Repositories\Contracts\PaymentMethodInterface;
 use App\SmartMicro\Repositories\Contracts\SmsSendInterface;
 use App\Traits\CommunicationMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
+
+use Barryvdh\DomPDF\Facade as PDF;
 
 class LoanController  extends ApiController
 {
@@ -36,7 +40,8 @@ class LoanController  extends ApiController
      * @var LoanInterface
      */
     protected $loanRepository, $loanApplicationRepository, $interestTypeRepository, $memberRepository,
-        $journalRepository, $load, $loanInterestRepayment, $loanPrincipalRepayment, $financeStatement, $smsSend;
+        $journalRepository, $load, $loanInterestRepayment, $loanPrincipalRepayment, $financeStatement,
+        $smsSend, $paymentMethodRepository, $mpesaScheduledDisbursementRepo, $loanTypeRepository;
 
     /**
      * LoanController constructor.
@@ -49,11 +54,16 @@ class LoanController  extends ApiController
      * @param FinanceStatementInterface $financeStatement
      * @param SmsSendInterface $smsSend
      * @param MemberInterface $memberRepository
+     * @param PaymentMethodInterface $paymentMethodRepository
+     * @param MpesaScheduledDisbursementInterface $mpesaScheduledDisbursementRepo
+     * @param LoanTypeInterface $loanTypeRepository
      */
     public function __construct(LoanInterface $loanInterface, LoanApplicationInterface $loanApplicationInterface,
-                                JournalInterface $journalInterface, LoanInterestRepaymentInterface $loanInterestRepayment,
+    JournalInterface $journalInterface, LoanInterestRepaymentInterface $loanInterestRepayment,
     LoanPrincipalRepaymentInterface $loanPrincipalRepayment, InterestTypeInterface $interestTypeRepository,
-                                FinanceStatementInterface $financeStatement, SmsSendInterface $smsSend, MemberInterface $memberRepository
+    FinanceStatementInterface $financeStatement, SmsSendInterface $smsSend,
+    MemberInterface $memberRepository, PaymentMethodInterface $paymentMethodRepository,
+    MpesaScheduledDisbursementInterface $mpesaScheduledDisbursementRepo, LoanTypeInterface $loanTypeRepository
     )
     {
         $this->loanRepository   = $loanInterface;
@@ -66,6 +76,9 @@ class LoanController  extends ApiController
         $this->financeStatement   = $financeStatement;
         $this->smsSend   = $smsSend;
         $this->memberRepository   = $memberRepository;
+        $this->paymentMethodRepository   = $paymentMethodRepository;
+        $this->mpesaScheduledDisbursementRepo   = $mpesaScheduledDisbursementRepo;
+        $this->loanTypeRepository   = $loanTypeRepository;
 
         $this->load = ['loanType', 'member', 'interestType', 'paymentFrequency', 'loanOfficer'];
     }
@@ -77,30 +90,6 @@ class LoanController  extends ApiController
      */
     public function index(Request $request)
     {
-      //  $user = auth()->user();
-
-       // $user->notify(new PaymentReceivedNotification());
-
-      //  $user->email = 'gikure.mungai@gmail.com';
-
-       // return $this->smsSend->send('+254724475357', 'hallo there');
-
-      //  Notification::send($user, new PaymentReceivedSms($user));
-      // Notification::send($user, new PaymentReceivedNotification($user));
-
-        // event(new PaidLoan('2a0822f4-d44f-4598-a389-e5721d0c6e78'));
-
-
-        // $loan = $this->loanRepository->getActiveLoan('d814720e-1377-4459-bec8-ea2fe2fae8d6', 'paymentFrequency');
-
-        //return $loan;
-
-       // return $this->loanRepository->memberLoans('3cc71001-ebb8-49d3-b407-e7e993081678');
-       // return $this->loanRepository->pendingPenalty('52177b38-2dbf-4118-ad94-4dedfb61a079');
-      //  return $this->loanRepository->overDue();
-      //  return $this->loanRepository->dueOnDate();
-      //  return $this->loanRepository->dueLoans();
-     //   return $this->loanRepository->dueLoans();
         if ($select = request()->query('list')) {
             return $this->loanRepository->listAll($this->formatFields($select));
         }
@@ -122,15 +111,33 @@ class LoanController  extends ApiController
      */
     public function store(LoanRequest $request)
     {
-        $user = auth('api')->user();
-        $data = $request->all();
-
-        // Transaction start
         DB::beginTransaction();
         try
         {
+            $user = auth('api')->user();
+            $data = $request->all();
+
+            $serviceFee = 0;
+            if (isset($data['service_fee']))
+                $serviceFee = $data['service_fee'];
+
+            if (isset($data['amount_approved'])){
+                $data['disburse_amount'] = ($data['amount_approved']) - $serviceFee;
+            }
+
+            if(array_key_exists('mpesa_fields', $data)){
+                $data['mpesa_number'] = mpesaNumber($data['mpesa_fields']['mpesa_number']);
+                $data['mpesa_first_name'] = $data['mpesa_fields']['mpesa_first_name'];
+            }
+
+            $disburseMethodName = '';
+            $disburseMethod = $this->paymentMethodRepository->getWhere('id', $data['disburse_method_id']);
+            if(isset($disburseMethod)) {
+                $disburseMethodName = $disburseMethod['name'];
+            }
+
             // Create new Loan
-            $newLoan = $this->loanRepository->create($request->all());
+            $newLoan = $this->loanRepository->create($data);
 
             // Update loan application as already reviewed
             if($user && $newLoan) {
@@ -143,20 +150,46 @@ class LoanController  extends ApiController
                 $this->loanApplicationRepository->update($updateData, $data['loan_application_id']);
             }
 
-            // 1. Journal entry for the loan issue
-            $this->journalRepository->loanDisburse($newLoan);
+            // 1. Journal entry for loan issue
+            switch ($disburseMethodName){
+                case 'BANK':
+                    $this->journalRepository->loanDisburseBank($newLoan);
+                    break;
+                case 'CASH':
+                    $this->journalRepository->loanDisburseCash($newLoan);
+                    break;
+                case 'MPESA':
+                    $this->journalRepository->loanDisburseMpesa($newLoan);
+                    break;
+                default:
+                    break;
+            }
 
-            if ( array_key_exists('service_fee', $data) && $data['service_fee'] > 0) {
-                // 2.  Entry for Demand of service fee
+            // 2.  Journal entry for deduction of service fee
+            if (array_key_exists('service_fee', $data) && $data['service_fee'] > 0) {
                 $this->journalRepository->serviceFeeDemand($newLoan);
-
-                // 3. Entry for receiving of service fee
-                $this->journalRepository->serviceFeeReceived($newLoan);
             }
 
             DB::commit();
             // Calculate loan dues immediately after loan is issued
-            event(new LoanDueChecked());
+            event(new LoanNextPeriodChecked());
+
+            // Loan amount is now deposited into the member deposit account.
+            // Initiate an automated withdrawal from the deposit account to the member mpesa account
+            $disburseMethod = $this->paymentMethodRepository->getWhere('id', $newLoan['disburse_method_id']);
+            if(isset($disburseMethod) && $disburseMethod['name'] == 'MPESA'){
+
+                // Record for scheduled mpesa disbursement
+                $mpesaDisburse = $this->mpesaScheduledDisbursementRepo->create([
+                    'mpesa_number'  => $newLoan['mpesa_number'],
+                    'amount'        => $newLoan['disburse_amount'],
+                    'member_id'     => $newLoan['member_id']
+                ]);
+
+                // Schedule mpesa disbursement
+                if (isset($mpesaDisburse))
+                    ProcessMpesaBulkPayment::dispatch($mpesaDisburse);
+            }
 
             // New loan email / sms
             $member = $this->memberRepository->getWhere('id', $newLoan['member_id']);
@@ -168,7 +201,6 @@ class LoanController  extends ApiController
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
-           // return $this->respondNotSaved($e);
         }
 
     }
@@ -230,15 +262,179 @@ class LoanController  extends ApiController
     }
 
     /**
+     * Remove an item
      * @param $uuid
      * @return mixed
      */
     public function destroy($uuid)
     {
         return $this->respondNotFound('Loan can not be deleted');
-     /*   if($this->loanRepository->delete($uuid)){
-            return $this->respondWithSuccess('Success !! Loan has been deleted');
+    }
+
+
+    /**
+     * Loan Calculator
+     * @param LoanCalculationRequest $request
+     * @return mixed
+     */
+    public function calculatorReport(LoanCalculationRequest $request) {
+        $data = $request->all();
+        $load = ['paymentFrequency', 'interestType'];
+
+        $amount = $data['amount'];
+        $startDate = $data['start_date'];
+
+        $loanType = $this->loanTypeRepository->getById($data['loan_type_id'], $load);
+
+        if (isset($loanType)){
+            $totalPeriods = $loanType->repayment_period;
+            $rate = $loanType->interest_rate;
+            $frequency = $loanType->paymentFrequency->name;
+            $interest_type = $loanType->interestType->name;
+
+            $data['loan_type'] = $loanType->name;
+            $data['period'] = $totalPeriods;
+            $data['service_fee'] = $loanType->service_fee;
+            $data['rate'] = $rate;
+            $data['frequency_display'] = $loanType->paymentFrequency->display_name;
+            $data['interest_type_display'] = $loanType->interestType->display_name;
+
+            switch ($interest_type) {
+                case 'reducing_balance':
+                    {
+                        $amortization = $this->loanRepository
+                            ->printReducingBalance($amount, $totalPeriods, $rate, $startDate, $frequency);
+                    }
+                    break;
+                case 'fixed':
+                    {
+                        $amortization = $this->loanRepository
+                            ->printFixedInterest($amount, $totalPeriods, $rate, $startDate, $frequency);
+                    }
+                    break;
+                default:
+                    {
+                        $amortization = [];
+                    }
+            }
+
+            // Download Calculator result as pdf
+            if($data['pdf'] == true){
+
+                $setting = GeneralSetting::first();
+                $file_path = $setting->logo;
+                $local_path = '';
+                if($file_path != '')
+                    $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'logos'.DIRECTORY_SEPARATOR. $file_path;
+                $setting->logo_url = $local_path;
+
+                // Generate PDF
+                $pdf = PDF::loadView('reports.calculator', compact('amortization', 'data', 'setting'));
+                return $pdf->download('amortization.pdf');
+
+            }else{
+                return $amortization;
+            }
         }
-        return $this->respondNotFound('Loan not deleted');*/
+        return $this->respondNotFound('Loan Type not found.');
+    }
+
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function amortizationReport(Request $request){
+        $data = $request->all();
+
+        // If 'pdf', means we download the report
+        if(isset($data['pdf']) && $data['pdf'] == true){
+            return $this->downloadAmortizationReport($request);
+        }
+
+        $loan = $this->loanRepository->getById($data['id'], $this->load);
+
+        if(!$loan) {
+            return $this->respondNotFound('Loan not found.');
+        }
+
+        $loanAmount = $loan->amount_approved;
+        $totalPeriods = $loan->repayment_period;
+        $rate = $loan->interest_rate;
+        $startDate = $loan->start_date;
+        $frequency = $loan->paymentFrequency->name;
+
+        switch ($loan->interestType->name) {
+            case 'reducing_balance':
+                {
+                    $amortization = $this->loanRepository
+                        ->printReducingBalance($loanAmount, $totalPeriods, $rate, $startDate, $frequency);
+                }
+                break;
+            case 'fixed':
+                {
+                    $amortization = $this->loanRepository
+                        ->printFixedInterest($loanAmount, $totalPeriods, $rate, $startDate, $frequency);
+                }
+                break;
+            default:
+                {
+                    $amortization = [];
+                }
+        }
+
+        $loan['amortization'] = $amortization;
+        return $this->respondWithData(new LoanResource($loan));
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    private function downloadAmortizationReport(Request $request){
+        $data = $request->all();
+
+        // Loan Data
+        $loan = $this->loanRepository->getById($data['id'], $this->load);
+        if(!$loan) {
+            return $this->respondNotFound('Loan not found.');
+        }
+        $loanAmount = $loan->amount_approved;
+        $totalPeriods = $loan->repayment_period;
+        $rate = $loan->interest_rate;
+        $startDate = $loan->start_date;
+        $frequency = $loan->paymentFrequency->name;
+        switch ($loan->interestType->name) {
+            case 'reducing_balance':
+                {
+                    $amortization = $this->loanRepository
+                        ->printReducingBalance($loanAmount, $totalPeriods, $rate, $startDate, $frequency);
+                }
+                break;
+            case 'fixed':
+                {
+                    $amortization = $this->loanRepository
+                        ->printFixedInterest($loanAmount, $totalPeriods, $rate, $startDate, $frequency);
+                }
+                break;
+            default:
+                {
+                    $amortization = [];
+                }
+        }
+        $loan['amortization'] = $amortization;
+
+        // Settings
+        $setting = GeneralSetting::first();
+        $file_path = $setting->logo;
+        $local_path = '';
+        if($file_path != '')
+            $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'logos'.DIRECTORY_SEPARATOR. $file_path;
+        $setting->logo_url = $local_path;
+
+        // Generate PDF
+        $pdf = PDF::loadView('reports.amortization', compact('loan', 'setting'));
+
+        return $pdf->download('amortization.pdf');
     }
 }

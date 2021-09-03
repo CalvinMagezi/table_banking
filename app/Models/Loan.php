@@ -10,14 +10,12 @@ namespace App\Models;
 
 use App\Traits\BranchFilterScope;
 use App\Traits\BranchScope;
-use App\Traits\NextDueDate;
-use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Loan extends BaseModel
 {
-    use Notifiable, SearchableTrait, BranchScope, NextDueDate, BranchFilterScope;
+    use Notifiable, SearchableTrait, BranchScope, BranchFilterScope;
 
     /**
      * The database table used by the model.
@@ -55,6 +53,7 @@ class Loan extends BaseModel
 
         'amount_approved',
         'service_fee',
+        'disburse_amount',
         'penalty_type_id',
         'penalty_value',
         'penalty_frequency_id',
@@ -70,6 +69,17 @@ class Loan extends BaseModel
         'payment_frequency_id',
 
         'closed_on',
+
+        'disburse_method_id',
+        'mpesa_number',
+        'mpesa_first_name',
+        'mpesa_middle_name',
+        'mpesa_last_name',
+
+        'bank_name',
+        'bank_branch',
+        'bank_account',
+        'other_banking_details',
 
         'created_by',
         'updated_by',
@@ -133,26 +143,36 @@ class Loan extends BaseModel
     {
         parent::boot();
 
+        // Generate Loan Numbers
         static::creating(function ($model) {
 
             $latest = $model->latest()->first();
-
-            $now = Carbon::now();
-
-           // $loanCode = 'LN'.$now->year.$now->format('M').$now->weekOfYear.'-';
 
             if ($latest) {
                 $string = preg_replace("/[^0-9\.]/", '', $latest->loan_reference_number);
                 $model->loan_reference_number =  'LN' . sprintf('%04d', $string+1);
             }else{
-              //  $model->loan_reference_number = 'LN-'.$now->year.'-0001';
                 $model->loan_reference_number = 'LN0001';
             }
 
-            // set next repayment date
-           //$model->next_repayment_date = NextDueDate::dueDate($model->start_date, $model->payment_frequency_id);
-            // Set the next_repayment_date to be equal to loan start date. This enables us to calculate loan dues immediately after loan issue.
+           // Set the next_repayment_date to be equal to loan start date.
+            // This enables us to calculate loan dues immediately after loan issue.
            $model->next_repayment_date = $model->start_date;
+        });
+
+        // Set up an account for this loan
+        static::created(function ($model) {
+                $data = [
+                    'account_name'      => $model->id,
+                    'account_number'    => $model->loan_reference_number,
+                    'account_code'      => LOAN_RECEIVABLE_CODE,
+                    'account_type_id'   => AccountType::where('name', LOAN_RECEIVABLE)->select('id')->first()['id']
+                ];
+                $newAccount = Account::create($data);
+                if ($newAccount) {
+                    $model->account_code = $newAccount->account_code;
+                    $model->account_id = $newAccount->id;
+                }
         });
     }
 

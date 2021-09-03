@@ -30,14 +30,6 @@ interface BaseInterface {
     function getAllPaginate($load = array());
 
     /**
-     * @param $field
-     * @param $value
-     * @param array $load
-     * @return mixed
-     */
-/*    function getWherePaginate($field, $value, $load = array());*/
-
-    /**
      * @param $select
      * @param array $load
      * @return mixed
@@ -143,4 +135,6 @@ interface BaseInterface {
     function getSum($field);
 
     function formatMoney($amount);
+
+    function formatDate($date);
 }

@@ -10,6 +10,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\FailedLogin;
+use App\Models\GeneralSetting;
 use App\Models\Loan;
 use App\Models\LoanPrincipalRepayment;
 use App\Models\LoginEvent;
@@ -19,6 +20,7 @@ use App\SmartMicro\Repositories\Contracts\LoanInterface;
 use App\SmartMicro\Repositories\Contracts\LoanPrincipalRepaymentInterface;
 use App\SmartMicro\Repositories\Contracts\PaymentInterface;
 use App\SmartMicro\Repositories\Contracts\UserInterface;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 
 class SummaryController extends ApiController
@@ -48,7 +50,6 @@ class SummaryController extends ApiController
         $this->loanPrincipalRepaymentInterface = $loanPrincipalRepaymentInterface;
 
         $this->load = ['assets', 'employees', 'loans', 'loanApplications', 'members', 'payments', 'users'];
-
     }
 
     /**
@@ -57,9 +58,6 @@ class SummaryController extends ApiController
      */
     public function index(Request $request)
     {
-        //TODO branches scope when viewing members
-
-
         // branches summary
         $branches = $this->branchRepository->getAll();
         $users = $this->userRepository->getAll();
@@ -73,7 +71,6 @@ class SummaryController extends ApiController
                 $x = [];
 
                 $currentBranch = $this->branchRepository->getById($branchId, $this->load);
-           //     $currentBranch = $this->branchRepository->getById('d50dcd86-7930-4dc9-8c82-55f08b6b3b1c', $this->load);
 
                 // Admin only
                 $x['count_branches'] = count($branches);
@@ -99,61 +96,94 @@ class SummaryController extends ApiController
                 $x['count_loans'] = count($allActiveLoans);
                 $x['loans_sum'] = $this->formatMoney($allActiveLoans->sum('amount_approved'));
 
-
-
-
-
-        // todo total amount of loans paid
-                // todo total loans balance
-
                 $today = date('Y-m-d');
 
                 // Loans due today
                 $loanDueToday = $this->loanRepository->dueOnDate($today);
-                $x['loans_due_today'] = $loanDueToday;
+                $x['loans_due_today'] = array_slice($loanDueToday, 0, 2);
                 $x['count_loans_due_today'] = count($loanDueToday);
 
                 // Overdue Loans
                 $loansOverDue = $this->loanRepository->overDue();
-                $x['loans_over_due'] = $loansOverDue;
+                $x['loans_over_due'] = array_slice($loansOverDue, 0, 2);
                 $x['count_loans_over_due'] = count($loansOverDue);
 
                 // Total loan amount overdue
                 $total = 0;
                 foreach ($loansOverDue as $loan){
-                    $total = $total + $loan->totalDue;
+                    $total = $total + (float) $loan->totalDue;
                 }
                 $x['total_amount_over_due'] = $this->formatMoney($total);
 
                 // loan Applications
                 $pendingApplications = $this->loanApplicationRepository->getAllPending(['member', 'loanType']);
-                $x['pending_applications'] = $pendingApplications;
                 $x['count_pending_applications'] = count($pendingApplications);
-              //  $x['applications_sum'] = $this->formatMoney($this->loanApplicationRepository->getSum('amount_applied'));
                 $x['applications_sum'] = $this->formatMoney($pendingApplications->sum('amount_applied'));
 
-                // maybe all records for the last 24 hrs ?
-                // latest 5 payments
-                $x['latest_payments'] = $this->paymentsRepo->getLatest(5, ['member', 'paymentMethod']);
-
-                // todo latest 5 logins - out
                 $latestLogins = LoginEvent::latest()->limit(5)->get();
-                // todo latest 5 failed login attempts
                 $latestFailedLogins = FailedLogin::latest()->limit(5)->get();
-
-                // Finance
-                // Todo -  balance -  // bank account ?? accounts
-
-                // todo scheduler - Loan calculations - loan number, interest due, principal due, as calculated this week/today?
-                // fetch latest records from loan_principal_repayments table
-
-                // todo communication - sms sent, email sent
-
-               // $data[] = $x;
-
-              //  dd($data);
-               // $members = $this->branchRepository->members();
-
           return $x;
+    }
+
+
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function downloadLoansDueTodayReport(Request $request){
+        $today = date('Y-m-d');
+        $loans['data'] = $this->dueToday();
+
+        // Settings
+        $setting = GeneralSetting::first();
+        $file_path = $setting->logo;
+        $local_path = '';
+        if($file_path != '')
+            $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'logos'.DIRECTORY_SEPARATOR. $file_path;
+        $setting->logo_url = $local_path;
+
+        // Generate PDF
+        $pdf = PDF::loadView('reports.due-today', compact('loans', 'setting', 'today'));
+
+        return $pdf->download('statement.pdf');
+    }
+
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function downloadLoansOverdueReport(Request $request){
+        $today = date('d-m-Y');
+        $loans['data'] = $this->overDueToday();
+
+        // Settings
+        $setting = GeneralSetting::first();
+        $file_path = $setting->logo;
+        $local_path = '';
+        if($file_path != '')
+            $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'logos'.DIRECTORY_SEPARATOR. $file_path;
+        $setting->logo_url = $local_path;
+
+        // Generate PDF
+        $pdf = PDF::loadView('reports.over-due', compact('loans', 'setting', 'today'));
+
+        return $pdf->download('statement.pdf');
+    }
+
+    /**
+     * @return mixed
+     */
+    private function dueToday(){
+        $today = date('Y-m-d');
+        return $this->loanRepository->dueOnDate($today);
+    }
+
+    /**
+     * @return mixed
+     */
+    private function overDueToday(){
+        return $this->loanRepository->overDue();
     }
 }

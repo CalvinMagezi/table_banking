@@ -60,7 +60,6 @@ class UserController  extends ApiController
         $data = $request->all();
 
         if($request->hasFile('passport_photo')) {
-            // return $this->respondWithData($data);
             // Get filename with extension
             $filenameWithExt = $request->file('user_photo')->getClientOriginalName();
 
@@ -74,12 +73,10 @@ class UserController  extends ApiController
             $fileNameToStore = $filename.'_'.time().'.'.$extension;
 
             // Upload Image
-            // $path = $request->file('attach_application_form')->storeAs('public/cover_images', $fileNameToStore);
             $path = $request->file('user_photo')->storeAs('user_photos', $fileNameToStore);
 
             $data['user_photo'] = $fileNameToStore;
         }
-
         $save = $this->userRepository->create($data);
 
         if(!is_null($save) && $save['error']){
@@ -88,9 +85,7 @@ class UserController  extends ApiController
             // New user email / sms
             CommunicationMessage::send('new_user_welcome', $save, $save);
             return $this->respondWithSuccess('Success !! User has been created.');
-
         }
-
     }
 
     /**
@@ -116,13 +111,11 @@ class UserController  extends ApiController
      */
     public function update(UserRequest $request, $uuid)
     {
-
         $save = $this->userRepository->update(array_filter($request->all()), $uuid);
 
         if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         }else
-
             return $this->respondWithSuccess('Success !! User has been updated.');
     }
 

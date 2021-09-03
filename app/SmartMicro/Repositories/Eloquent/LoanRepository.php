@@ -93,11 +93,11 @@ class LoanRepository extends BaseRepository implements LoanInterface {
 
             $x = new \stdClass();
             $x->count = $count;
-            $x->due_date = $this->calculateDueDate($startDate, $frequency, $count);
-            $x->payment = $payment;
-            $x->interest = $interest;
-            $x->principal = $principal;
-            $x->balance = $balance;
+            $x->due_date = $this->formatDate($this->calculateDueDate($startDate, $frequency, $count));
+            $x->payment = formatMoney($payment);
+            $x->interest = formatMoney($interest);
+            $x->principal = formatMoney($principal);
+            $x->balance = formatMoney($balance);
 
             $data[] = $x;
 
@@ -114,14 +114,15 @@ class LoanRepository extends BaseRepository implements LoanInterface {
 
         $x = new \stdClass();
         $x->count = 'Total: ';
-        $x->payment = $totPayment;
-        $x->interest = $totInterest;
-        $x->principal = $totPrincipal;
+        $x->due_date = '';
+        $x->payment = formatMoney($totPayment);
+        $x->interest = formatMoney($totInterest);
+        $x->principal = formatMoney($totPrincipal);
+        $x->balance = '';
 
         $data[] = $x;
 
         return $data;
-       // return response()->json($data);
     }
 
     /**
@@ -168,11 +169,11 @@ class LoanRepository extends BaseRepository implements LoanInterface {
 
             $x = new \stdClass();
             $x->count = $count;
-            $x->due_date = $this->calculateDueDate($startDate, $frequency, $count);
-            $x->payment = $payment;
-            $x->interest = $interestAmount;
-            $x->principal = $principal;
-            $x->balance = $balance;
+            $x->due_date = $this->formatDate($this->calculateDueDate($startDate, $frequency, $count));
+            $x->payment = formatMoney($payment);
+            $x->interest = formatMoney($interestAmount);
+            $x->principal = formatMoney($principal);
+            $x->balance = formatMoney($balance);
 
             $data[] = $x;
 
@@ -188,14 +189,15 @@ class LoanRepository extends BaseRepository implements LoanInterface {
 
         $x = new \stdClass();
         $x->count = 'Total: ';
-        $x->payment = $totPayment;
-        $x->interest = $totInterest;
-        $x->principal = $totPrincipal;
+        $x->due_date = '';
+        $x->payment = formatMoney($totPayment);
+        $x->interest = formatMoney($totInterest);
+        $x->principal = formatMoney($totPrincipal);
+        $x->balance = '';
 
         $data[] = $x;
 
         return $data;
-        //return response()->json($data);
     }
 
     /**
@@ -282,7 +284,6 @@ class LoanRepository extends BaseRepository implements LoanInterface {
     public function formatAmount ($number) {
         return (float) number_format($number, 2, '.', '');
     }
-
 
     /**
      * @param $balance
@@ -377,7 +378,6 @@ class LoanRepository extends BaseRepository implements LoanInterface {
                     'count' => $count
                 ];
             }
-
         } while ($balance > 0);
         return null;
     }
@@ -423,13 +423,12 @@ class LoanRepository extends BaseRepository implements LoanInterface {
     }
 
     /**
-     * Takes a date, calculates due interest and principal for any loans due on the given date
+     * Takes a date, calculates due interest and principal for loans whose next_repayment_date matches the given date
      * @param $date
      * @return mixed|void
      * @throws \Exception
      */
     public function calculateLoanRepaymentDue($date) {
-
         // Active loans due on the given date
         $loans =  $this->model
                     ->with(['paymentFrequency'])
@@ -437,192 +436,184 @@ class LoanRepository extends BaseRepository implements LoanInterface {
                     ->where('end_date', null)
                     ->get();
 
-        foreach ($loans as $loan) {
-            DB::beginTransaction();
-            try
-            {
-                if(null !== $loan){
-                    // Its the first period of repayment so get details from the loan itself
-                    $loanAmount = $loan['amount_approved'];
-                    $dueDate = $loan['next_repayment_date'];
-                    $totalPeriods = $loan['repayment_period'];
-                    $rate = $loan['interest_rate'];
+        if (isset($loans)){
+            foreach ($loans as $loan) {
+                DB::beginTransaction();
+                try
+                {
+                    if(null !== $loan){
+                        // Its the first period of repayment so get details from the loan itself
+                        $loanAmount = $loan['amount_approved'];
+                        $totalPeriods = $loan['repayment_period'];
+                        $rate = $loan['interest_rate'];
 
-                    $periodCounter = 0;
+                        $periodCounter = 0;
 
-                    $totalPrincipal = DB::table('loan_principal_repayments')
-                        ->select(DB::raw('SUM(amount) as totalPrincipal, COUNT(period_count) as counter'))
-                        ->where('loan_id', $loan['id'])->get();
+                        $totalPrincipal = DB::table('loan_principal_repayments')
+                            ->select(DB::raw('SUM(amount) as totalPrincipal, COUNT(period_count) as counter'))
+                            ->where('loan_id', $loan['id'])->get();
 
-                    foreach ($totalPrincipal->toArray() as $principal) {
-                        if (null !== $principal) {
-                            $periodCounter = $principal->counter;
+                        if (isset($totalPrincipal)){
+                            foreach ($totalPrincipal->toArray() as $principal) {
+                                if (null !== $principal) {
+                                    $periodCounter = $principal->counter;
+                                }
+                            }
                         }
-                    }
 
-                    // Check if Loan Principal balance has been reduced by direct transactions
-                    $totalPrincipalReduction = DB::table('transactions')
-                        ->select(DB::raw('SUM(amount) as totalPrincipalReduction'))
-                        ->where('transaction_type', 'balance_reduction')
-                        ->where('loan_id', $loan['id'])
-                        ->get();
-                    foreach ($totalPrincipalReduction->toArray() as $totalReduction) {
-                        if (null !== $totalReduction) {
-                            $loanAmount = $loanAmount - $totalReduction->totalPrincipalReduction;
-                        }
-                    }
+                        // Check if Loan Principal balance has been reduced by direct transactions
+                        $totalPrincipalReduction = DB::table('transactions')
+                            ->select(DB::raw('SUM(amount) as totalPrincipalReduction'))
+                            ->where('transaction_type', 'balance_reduction')
+                            ->where('loan_id', $loan['id'])
+                            ->get();
 
-                    $loanInterestType = $this->interestTypeRepository->getWhere('id', $loan->interest_type_id)->name;
-                    switch ($loanInterestType){
-                        case 'reducing_balance':{
-                            $payment = $this->calculatePeriodicalReducingBalancePayment($loanAmount, $totalPeriods, $rate, $periodCounter+1)['payment'];
-                            $interest = $this->calculatePeriodicalReducingBalancePayment($loanAmount, $totalPeriods, $rate, $periodCounter+1)['interest'];
-                            $principal = $this->calculatePeriodicalReducingBalancePayment($loanAmount, $totalPeriods, $rate, $periodCounter+1)['principal'];
-                            $count = $this->calculatePeriodicalReducingBalancePayment($loanAmount, $totalPeriods, $rate, $periodCounter+1)['count'];
+                        if (isset($totalPrincipalReduction)){
+                            foreach ($totalPrincipalReduction->toArray() as $totalReduction) {
+                                if (null !== $totalReduction) {
+                                    $loanAmount = $loanAmount - $totalReduction->totalPrincipalReduction;
+                                }
+                            }
                         }
-                            break;
-                        case 'fixed': {
-                            $payment = $this->calculatePeriodicalFixedInterest($loanAmount, $totalPeriods, $rate, $periodCounter+1)['payment'];
-                            $interest = $this->calculatePeriodicalFixedInterest($loanAmount, $totalPeriods, $rate, $periodCounter+1)['interest'];
-                            $principal = $this->calculatePeriodicalFixedInterest($loanAmount, $totalPeriods, $rate, $periodCounter+1)['principal'];
-                            $count = $this->calculatePeriodicalFixedInterest($loanAmount, $totalPeriods, $rate, $periodCounter+1)['count'];
-                        }
-                            break;
-                        default: {
-                            $payment = 0;
-                            $interest = 0;
-                            $principal = 0;
-                            $count = 0;
-                        }
-                    }
 
-                    // Check for the first time calculations and push the due date forward by one period
-                    // As we calculate loan repayments immediately a loan is awarded...
-                    //These calculations aren't due till end of first period...
-                    // Otherwise we risk applying undue penalties
+                        $loanInterestType = $this->interestTypeRepository->getWhere('id', $loan->interest_type_id)->name;
+                        switch ($loanInterestType){
+                            case 'reducing_balance':{
+                                $payment = $this->calculatePeriodicalReducingBalancePayment($loanAmount, $totalPeriods, $rate, $periodCounter+1)['payment'];
+                                $interest = $this->calculatePeriodicalReducingBalancePayment($loanAmount, $totalPeriods, $rate, $periodCounter+1)['interest'];
+                                $principal = $this->calculatePeriodicalReducingBalancePayment($loanAmount, $totalPeriods, $rate, $periodCounter+1)['principal'];
+                                $count = $this->calculatePeriodicalReducingBalancePayment($loanAmount, $totalPeriods, $rate, $periodCounter+1)['count'];
+                            }
+                                break;
+                            case 'fixed': {
+                                $payment = $this->calculatePeriodicalFixedInterest($loanAmount, $totalPeriods, $rate, $periodCounter+1)['payment'];
+                                $interest = $this->calculatePeriodicalFixedInterest($loanAmount, $totalPeriods, $rate, $periodCounter+1)['interest'];
+                                $principal = $this->calculatePeriodicalFixedInterest($loanAmount, $totalPeriods, $rate, $periodCounter+1)['principal'];
+                                $count = $this->calculatePeriodicalFixedInterest($loanAmount, $totalPeriods, $rate, $periodCounter+1)['count'];
+                            }
+                                break;
+                            default: {
+                                $payment = 0;
+                                $interest = 0;
+                                $principal = 0;
+                                $count = 0;
+                            }
+                        }
 
-                  /*  if($count == 1){
-                        $dueDate = $this->calculateDueDate(
-                            $loan['next_repayment_date'],
+                        $dueDate = $this->calculateDueDate($loan['start_date'],
                             $loan->paymentFrequency->name,
-                            1
+                            $count
                         );
-                    }*/
 
-                    $dueDate = $this->calculateDueDate($loan['start_date'],
-                        $loan->paymentFrequency->name,
-                        $count
-                    );
-
-                    // Due interest repayment entry
-                    $interestDue = $this->loanInterestRepayment->create([
-                        'branch_id'     => $loan['branch_id'],
-                        'loan_id'       => $loan['id'],
-                        'period_count'  => $count,
-                        'due_date'      => $dueDate,
-                        'amount'        => $interest,
-                        'paid_on'       => null
-                    ]);
-
-                    // Journal entry for the interest due
-                    $this->journalRepository->interestDue($loan, $interest, $interestDue->id);
-
-                    // Due principal repayment entry
-                    $this->loanPrincipalRepayment->create([
-                        'branch_id'     => $loan['branch_id'],
-                        'loan_id'       => $loan['id'],
-                        'period_count'  => $count,
-                        'due_date'      => $dueDate,
-                        'amount'        => $principal,
-                        'paid_on'       => null
-                    ]);
-
-                    // Update loan for future due date
-                    $next_repayment_date = $this->calculateDueDate($loan['next_repayment_date'], $loan->paymentFrequency->name, 1);
-                    Loan::where('id', $loan['id'])->update([
-                        'next_repayment_date' => $next_repayment_date
-                    ]);
-
-                    // We have come to the end of periodic payments
-                    if($periodCounter+1 == $totalPeriods){
-                        Loan::where('id', $loan['id'])->update([
-                            'end_date' => $next_repayment_date,
-                            'next_repayment_date' => null
+                        // Due interest repayment entry
+                        $interestDue = $this->loanInterestRepayment->create([
+                            'branch_id'     => $loan['branch_id'],
+                            'loan_id'       => $loan['id'],
+                            'period_count'  => $count,
+                            'due_date'      => $dueDate,
+                            'amount'        => $interest,
+                            'paid_on'       => null
                         ]);
+
+                        // Journal entry for the interest due
+                        $this->journalRepository->interestDue($loan, $interest, $interestDue->id);
+
+                        // Due principal repayment entry
+                        $this->loanPrincipalRepayment->create([
+                            'branch_id'     => $loan['branch_id'],
+                            'loan_id'       => $loan['id'],
+                            'period_count'  => $count,
+                            'due_date'      => $dueDate,
+                            'amount'        => $principal,
+                            'paid_on'       => null
+                        ]);
+
+                        // Update loan for future due date
+                        $next_repayment_date = $this->calculateDueDate($loan['next_repayment_date'], $loan->paymentFrequency->name, 1);
+                        Loan::where('id', $loan['id'])->update([
+                            'next_repayment_date' => $next_repayment_date
+                        ]);
+
+                        // We have come to the end of periodic payments
+                        if($periodCounter+1 == $totalPeriods){
+                            Loan::where('id', $loan['id'])->update([
+                                'end_date' => $next_repayment_date,
+                                'next_repayment_date' => null
+                            ]);
+                        }
                     }
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    throw $e;
                 }
-                DB::commit();
-            } catch (\Exception $e) {
-                DB::rollback();
-                throw $e;
             }
         }
-
     }
 
     /**
+     * Calculate and charge penalty for any loan overdue for a given date
      * @param $date
      * @throws \Exception
      */
     public function calculatePenalties($date) {
-        // I know interest is paid first. So fetching those loans with pending principal amounts is enough
+        // I know interest is paid first. So fetching those loans with pending principal amounts serves this
         $loans = $this->model
             ->with(['penaltyFrequency'])
-            ->where('loans.end_date', null)
             ->join('loan_principal_repayments', 'loans.id', '=', 'loan_principal_repayments.loan_id')
             ->select('loans.id', 'loans.penalty_type_id', 'loans.penalty_value',
                 'loans.penalty_frequency_id', 'loans.member_id', 'loans.branch_id', 'loans.loan_reference_number')
             ->where('loan_principal_repayments.paid_on', null)
             ->get();
 
-        foreach ($loans as $loan) {
-            $branchId = $loan->branch_id;
-            $loanId = $loan->id;
-            DB::beginTransaction();
-            try
-            {
-                if(null !== $loan){
-                    // fetch overdue Principal
-                    $overDuePrincipal = DB::table('loan_principal_repayments')
-                        ->select(DB::raw('SUM(amount) as total'))
-                        ->where('loan_id', $loanId)
-                        ->whereDate ('due_date', '<', $date)
-                        ->first()->total;
+        if (isset($loans)){
+            foreach ($loans as $loan) {
+                $branchId = $loan->branch_id;
+                $loanId = $loan->id;
+                DB::beginTransaction();
+                try
+                {
+                    if(null !== $loan){
+                        // fetch overdue Principal
+                        $overDuePrincipal = DB::table('loan_principal_repayments')
+                            ->select(DB::raw('SUM(amount) as total'))
+                            ->where('loan_id', $loanId)
+                            ->whereDate ('due_date', '<', $date)
+                            ->first()->total;
 
-                    // fetch overdue Interest
-                    $overDueInterest = DB::table('loan_interest_repayments')
-                        ->select(DB::raw('SUM(amount) as total'))
-                        ->where('loan_id', $loanId)
-                        ->whereDate ('due_date', '<', $date)
-                        ->first()->total;
+                        // fetch overdue Interest
+                        $overDueInterest = DB::table('loan_interest_repayments')
+                            ->select(DB::raw('SUM(amount) as total'))
+                            ->where('loan_id', $loanId)
+                            ->whereDate ('due_date', '<', $date)
+                            ->first()->total;
 
-                    // Calculate penalties
-                    if (isset($overDuePrincipal) && $overDuePrincipal > 0 || (isset($overDueInterest) && $overDueInterest > 0)) {
+                        // Calculate penalties
+                        if (isset($overDuePrincipal) && $overDuePrincipal > 0 || (isset($overDueInterest) && $overDueInterest > 0)) {
 
-                        $penaltyAmount = $this->penaltyAmount($date, $loan, $overDuePrincipal, $overDueInterest);
-                        if ($penaltyAmount > 0) {
-                            // Due penalty entry (loan_penalties)
-                            $penaltyDue = $this->penaltyRepository->create([
-                                'branch_id'     => $branchId,
-                                'loan_id'       => $loanId,
-                                'period_count'  => 0,
-                                'due_date'      => $date,
-                                'amount'        => $penaltyAmount,
-                                'paid_on'       => null
-                            ]);
-                            // Journal entry for Due penalty
-                            $this->journalRepository->penaltyDue($loan, $penaltyAmount, $penaltyDue->id);
+                            $penaltyAmount = $this->penaltyAmount($date, $loan, $overDuePrincipal, $overDueInterest);
+                            if ($penaltyAmount > 0) {
+                                // Due penalty entry (loan_penalties)
+                                $penaltyDue = $this->penaltyRepository->create([
+                                    'branch_id'     => $branchId,
+                                    'loan_id'       => $loanId,
+                                    'period_count'  => 0,
+                                    'due_date'      => $date,
+                                    'amount'        => $penaltyAmount,
+                                    'paid_on'       => null
+                                ]);
+                                // Journal entry for Due penalty
+                                $this->journalRepository->penaltyDue($loan, $penaltyAmount, $penaltyDue->id);
+                            }
                         }
-
                     }
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    throw $e;
                 }
-                DB::commit();
-            } catch (\Exception $e) {
-                DB::rollback();
-                throw $e;
             }
         }
-
     }
 
     /**
@@ -637,9 +628,11 @@ class LoanRepository extends BaseRepository implements LoanInterface {
         $loanPenaltyTypeId = $loan->penalty_type_id;
         $loanPenaltyValue = $loan->penalty_value;
 
+        $loanPenaltyFrequencyName = null;
         if(isset($loan) && isset($loan->penaltyFrequency))
             $loanPenaltyFrequencyName = $loan->penaltyFrequency->name;
 
+        // Determine the date of the last penalty for this loan
         $latestPenalty = $this->penaltyRepository->getLatestWhere(1, 'loan_id', $loanId);
         if (!is_null($latestPenalty)){
             $latestDueDate = $latestPenalty->due_date;
@@ -728,7 +721,6 @@ class LoanRepository extends BaseRepository implements LoanInterface {
     public function dueOnDate($date = ''){
         if(is_null($date) || $date == '')
             $date = date('Y-m-d');
-      // $date = '2019-11-18';
 
         $penalties = DB::table(DB::raw("(SELECT
                       loan_penalties.id,
@@ -844,40 +836,40 @@ class LoanRepository extends BaseRepository implements LoanInterface {
                 $x->loan_officer_id = $loan['loan_officer_id'];
                 $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
 
-                $x->paidPenalty = 0;
-                $x->pendingPenalty = 0;
-                $x->totalPenalty = 0;
+                $x->paidPenalty = '0.00';
+                $x->pendingPenalty = '0.00';
+                $x->totalPenalty = '0.00';
 
-                $x->paidInterest = 0;
-                $x->pendingInterest = 0;
-                $x->totalInterest = 0;
+                $x->paidInterest = '0.00';
+                $x->pendingInterest = '0.00';
+                $x->totalInterest = '0.00';
 
-                $x->paidPrincipal = 0;
-                $x->pendingPrincipal = 0;
-                $x->totalPrincipal = 0;
+                $x->paidPrincipal = '0.00';
+                $x->pendingPrincipal = '0.00';
+                $x->totalPrincipal = '0.00';
 
                 $totalDue = 0;
 
                 foreach ($value as $due){
                     if(property_exists($due, 'paidPenalty')){
-                        $x->paidPenalty = $due->paidPenalty;
-                        $x->pendingPenalty = $due->pendingPenalty;
-                        $x->totalPenalty = $due->totalPenalty;
+                        $x->paidPenalty = formatMoney($due->paidPenalty);
+                        $x->pendingPenalty = formatMoney($due->pendingPenalty);
+                        $x->totalPenalty = formatMoney($due->totalPenalty);
                         $totalDue = $totalDue + $due->pendingPenalty;
                     }
                     if(property_exists($due, 'paidInterest')){
-                        $x->paidInterest = $due->paidInterest;
-                        $x->pendingInterest = $due->pendingInterest;
-                        $x->totalInterest = $due->totalInterest;
+                        $x->paidInterest = formatMoney($due->paidInterest);
+                        $x->pendingInterest = formatMoney($due->pendingInterest);
+                        $x->totalInterest = formatMoney($due->totalInterest);
                         $totalDue = $totalDue + $due->pendingInterest;
                     }
                     if(property_exists($due, 'paidPrincipal')){
-                        $x->paidPrincipal = $due->paidPrincipal;
-                        $x->pendingPrincipal = $due->pendingPrincipal;
-                        $x->totalPrincipal = $due->totalPrincipal;
+                        $x->paidPrincipal = formatMoney($due->paidPrincipal);
+                        $x->pendingPrincipal = formatMoney($due->pendingPrincipal);
+                        $x->totalPrincipal = formatMoney($due->totalPrincipal);
                         $totalDue = $totalDue + $due->pendingPrincipal;
                     }
-                    $x->totalDue = $totalDue;
+                    $x->totalDue = formatMoney($totalDue);
                 }
                 $data[] = $x;
             }
@@ -891,15 +883,6 @@ class LoanRepository extends BaseRepository implements LoanInterface {
      */
     public function overDue() {
         $date = date('Y-m-d');
-       // $date = '2019-11-16';
-
-        $branchId = auth('api')->user()->branch_id;
-        //if current user is admin, show data for all branches
-        //otherwise show data for only current branch
-
-        // ??? branchId is provided by the caller... if none is provided, we show data for current user.
-        // for admin user, we show all branches data
-
         $penalties = DB::table(DB::raw("(SELECT
                       loan_penalties.id,
                       loan_penalties.loan_id,
@@ -1018,45 +1001,45 @@ class LoanRepository extends BaseRepository implements LoanInterface {
                 $x->loan_officer_first_name = $loan['loan_officer']['first_name'];
 
                 $x->penaltyDueDate = '';
-                $x->paidPenalty = 0;
-                $x->pendingPenalty = 0;
-                $x->totalPenalty = 0;
+                $x->paidPenalty = '0.00';
+                $x->pendingPenalty = '0.00';
+                $x->totalPenalty = '0.00';
 
                 $x->interestDueDate = '';
-                $x->paidInterest = 0;
-                $x->pendingInterest = 0;
-                $x->totalInterest = 0;
+                $x->paidInterest = '0.00';
+                $x->pendingInterest = '0.00';
+                $x->totalInterest = '0.00';
 
                 $x->principalDueDate = '';
-                $x->paidPrincipal = 0;
-                $x->pendingPrincipal = 0;
-                $x->totalPrincipal = 0;
+                $x->paidPrincipal = '0.00';
+                $x->pendingPrincipal = '0.00';
+                $x->totalPrincipal = '0.00';
 
                 $totalDue = 0;
 
                 foreach ($value as $due){
                     if(property_exists($due, 'paidPenalty')){
-                        $x->penaltyDueDate = $due->penaltyDueDate;
-                        $x->paidPenalty = $due->paidPenalty;
-                        $x->pendingPenalty = $due->pendingPenalty;
-                        $x->totalPenalty = $due->totalPenalty;
+                        $x->penaltyDueDate = $this->formatDate($due->penaltyDueDate);
+                        $x->paidPenalty = formatMoney($due->paidPenalty);
+                        $x->pendingPenalty = formatMoney($due->pendingPenalty);
+                        $x->totalPenalty = formatMoney($due->totalPenalty);
                         $totalDue = $totalDue + $due->pendingPenalty;
                     }
                     if(property_exists($due, 'paidInterest')){
-                        $x->interestDueDate = $due->interestDueDate;
-                        $x->paidInterest = $due->paidInterest;
-                        $x->pendingInterest = $due->pendingInterest;
-                        $x->totalInterest = $due->totalInterest;
+                        $x->interestDueDate = $this->formatDate($due->interestDueDate);
+                        $x->paidInterest = formatMoney($due->paidInterest);
+                        $x->pendingInterest = formatMoney($due->pendingInterest);
+                        $x->totalInterest = formatMoney($due->totalInterest);
                         $totalDue = $totalDue + $due->pendingInterest;
                     }
                     if(property_exists($due, 'paidPrincipal')){
-                        $x->principalDueDate = $due->principalDueDate;
-                        $x->paidPrincipal = $due->paidPrincipal;
-                        $x->pendingPrincipal = $due->pendingPrincipal;
-                        $x->totalPrincipal = $due->totalPrincipal;
+                        $x->principalDueDate = $this->formatDate($due->principalDueDate);
+                        $x->paidPrincipal = formatMoney($due->paidPrincipal);
+                        $x->pendingPrincipal = formatMoney($due->pendingPrincipal);
+                        $x->totalPrincipal = formatMoney($due->totalPrincipal);
                         $totalDue = $totalDue + $due->pendingPrincipal;
                     }
-                    $x->totalDue = $totalDue;
+                    $x->totalDue = formatMoney($totalDue);
                 }
                 $data[] = $x;
             }
@@ -1180,6 +1163,32 @@ class LoanRepository extends BaseRepository implements LoanInterface {
      */
     public function memberLoans($memberId, $load = array()) {
         return $this->model->with($load)->where('member_id', $memberId)->get();
+    }
+
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function loansWithPendingPrincipal() {
+        return $this->model
+            ->with(['penaltyFrequency'])
+            ->join('loan_principal_repayments', 'loans.id', '=', 'loan_principal_repayments.loan_id')
+            ->select('loans.id', 'loans.penalty_type_id', 'loans.penalty_value',
+                'loans.penalty_frequency_id', 'loans.member_id', 'loans.branch_id', 'loans.loan_reference_number')
+            ->where('loan_principal_repayments.paid_on', null)
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function loansWithPendingInterest() {
+        return $this->model
+            ->join('loan_interest_repayments', 'loans.id', '=', 'loan_interest_repayments.loan_id')
+            ->select('loans.id', 'loans.penalty_type_id', 'loans.penalty_value',
+                'loans.penalty_frequency_id', 'loans.member_id', 'loans.branch_id', 'loans.loan_reference_number')
+            ->where('loan_interest_repayments.paid_on', null)
+            ->get();
     }
 
 }

@@ -8,7 +8,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
+use App\Rules\MpesaNumberRule;
 
 class LoanApplicationRequest extends BaseRequest
 {
@@ -42,10 +42,6 @@ class LoanApplicationRequest extends BaseRequest
                         'interest_type_id'              => 'exists:interest_types,id',
                         'service_fee'                   => 'nullable|numeric',
 
-                       /* 'penalty_type_id'       => 'nullable|exists:penalty_types,id',
-                        'penalty_value'         => 'nullable|numeric',
-                        'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id',*/
-
                         'penalty_type_id'       => 'nullable',
                         'penalty_value'         => 'nullable|numeric',
                         'penalty_frequency_id'  => 'nullable',
@@ -60,12 +56,21 @@ class LoanApplicationRequest extends BaseRequest
                         'periodic_payment_amount'       => 'nullable|numeric',
 
                         'application_date'              => 'required|date',
-                        'disburse_method_id'            => '',
-                        'mpesa_number'                  => '',
-                        'bank_name'                     => '',
-                        'bank_branch'                   => '',
-                        'bank_account'                  => '',
-                        'other_banking_details'         => '',
+                        'disburse_method_id'            => 'required|exists:payment_methods,id',
+                        'disburse_note'         => '',
+
+                        'mpesa_number'                => [new MpesaNumberRule(request()->disburse_method_id)],
+
+                        'mpesa_first_name'  => '',
+                        'mpesa_middle_name'  => '',
+                        'mpesa_last_name'   => '',
+
+                        // bank fields
+                        'cheque_number'     => '',
+                        'bank_name'         => '',
+                        'bank_branch'       => '',
+                        'cheque_date'       => '',
+
                         'witness_type_id'               => '',
                         'witness_first_name'            => '',
                         'witness_last_name'             => '',
@@ -101,10 +106,6 @@ class LoanApplicationRequest extends BaseRequest
                         'interest_type_id'              => 'required|exists:interest_types,id',
                         'service_fee'                   => '',
 
-          /*              'penalty_type_id'       => 'nullable|exists:penalty_types,id',
-                        'penalty_value'         => 'nullable|numeric',
-                        'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id',*/
-
                         'penalty_type_id'       => 'nullable',
                         'penalty_value'         => 'nullable|numeric',
                         'penalty_frequency_id'  => 'nullable',
@@ -116,12 +117,21 @@ class LoanApplicationRequest extends BaseRequest
                         'periodic_payment_amount'       => '',
 
                         'application_date'              => 'required',
-                        'disburse_method_id'            => '',
-                        'mpesa_number'                  => '',
-                        'bank_name'                     => '',
-                        'bank_branch'                   => '',
-                        'bank_account'                  => '',
-                        'other_banking_details'         => '',
+                        'disburse_method_id'            => 'required|exists:payment_methods,id',
+                        'disburse_note'         => '',
+
+                        //mpesa field
+                        'mpesa_number'      => '',
+                        'mpesa_first_name'  => '',
+                        'mpesa_middle_name'  => '',
+                        'mpesa_last_name'   => '',
+
+                        // bank fields
+                        'cheque_number'=> '',
+                        'bank_name'=> '',
+                        'bank_branch'=> '',
+                        'cheque_date'=> '',
+
                         'witness_type_id'               => '',
                         'witness_first_name'            => '',
                         'witness_last_name'             => '',
@@ -146,8 +156,6 @@ class LoanApplicationRequest extends BaseRequest
                 }
             default:break;
         }
-
         return $rules;
-
     }
 }

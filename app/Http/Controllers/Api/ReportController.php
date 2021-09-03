@@ -94,7 +94,6 @@ class ReportController extends ApiController
                 return false;
             }
         }
-
     }
 
     /**
@@ -103,20 +102,11 @@ class ReportController extends ApiController
      */
     public function show($uuid)
     {
-        return $this->financeStatementRepository->trialBalancex();
-
-        $data = ReportTypeResource::collection($this->financeStatementRepository->trialBalancex());
-
-        return $this->respondWithData($data);
-
         $report = $this->reportTypeRepository->getById($uuid);
-
         $params = request()->query('params');
-
         if (!$report) {
             return $this->respondNotFound('Report not found.');
         }
-
         return $report;
     }
 

@@ -40,7 +40,6 @@ class LoanTypeController  extends ApiController
     public function index(Request $request)
     {
         if ($select = request()->query('list')) {
-           // return $this->loanTypeRepository->listAll($this->formatFields($select));
             return $this->loanTypeRepository->listAll($this->formatFields($select), $this->load);
         } else
             $data = LoanTypeResource::collection($this->loanTypeRepository->getAllPaginate($this->load));
@@ -55,15 +54,6 @@ class LoanTypeController  extends ApiController
     public function store(LoanTypeRequest $request)
     {
         LoanType::create($request->all());
-        /*$save = $this->loanTypeRepository->create($request->all());
-
-        if($save['error']){
-            return $this->respondNotSaved($save['message']);
-        }else{
-            return $this->respondWithSuccess('Success !! LoanType has been created.');
-
-        }*/
-
     }
 
     /**

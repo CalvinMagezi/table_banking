@@ -27,13 +27,12 @@ class UsersTableSeeder extends Seeder
         DB::table('users')->delete();
 
         User::create([
-            'role_id' => Role::inRandomOrder()->select('id')->first()['id'],
-            'employee_id' => Employee::inRandomOrder()->select('id')->first()['id'],
-            'branch_id' => Branch::inRandomOrder()->select('id')->first()['id'],
-            'email' => 'devtest@devtest.com',
-            'first_name' => 'Devtest',
-            'last_name' => 'Devtest',
-            'password' => 'devtest',
+            'role_id' => Role::where('id', '!=', null)->select('id')->first()['id'],
+            'branch_id' => Branch::where('id', '!=', null)->select('id')->first()['id'],
+            'email' => 'admin@admin.com',
+            'first_name' => 'Admin',
+            'last_name' => 'Admin',
+            'password' => 'admin123',
         ]);
 
     }

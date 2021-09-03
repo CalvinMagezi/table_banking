@@ -21,10 +21,7 @@ class PaymentMethodSeeder extends Seeder
 
         $paymentMethods = [
             'CASH',
-            'BANK',
-           /* 'MPESA',
-            'SKRILL',
-            'PAYPAL'*/
+            'BANK'
         ];
 
         DB::table('payment_methods')->delete();

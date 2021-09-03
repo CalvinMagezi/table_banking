@@ -23,21 +23,19 @@ interface TransactionInterface extends BaseInterface
      * Transaction for penalty amount payment
      * @param $amount
      * @param $loanPenaltyRepaymentId
-     * @param $paymentId
      * @param $loanId
      * @return mixed
      */
-    function penaltyPaymentEntry($amount, $loanPenaltyRepaymentId, $paymentId, $loanId);
+    function penaltyPaymentEntry($amount, $loanPenaltyRepaymentId, $loanId);
 
     /**
      * Transaction for interest amount payment
      * @param $amount
      * @param $loanInterestRepaymentId
-     * @param $paymentId
      * @param $loanId
      * @return mixed
      */
-    function interestPaymentEntry($amount, $loanInterestRepaymentId, $paymentId, $loanId);
+    function interestPaymentEntry($amount, $loanInterestRepaymentId, $loanId);
 
     /**
      * Transaction for waive accrued interest amount
@@ -52,11 +50,10 @@ interface TransactionInterface extends BaseInterface
      * Transaction for principal amount payment
      * @param $amount
      * @param $loanPrincipalRepaymentId
-     * @param $paymentId
      * @param $loanId
      * @return mixed
      */
-    function principalPaymentEntry($amount, $loanPrincipalRepaymentId, $paymentId, $loanId);
+    function principalPaymentEntry($amount, $loanPrincipalRepaymentId, $loanId);
 
     /**
      *  Transaction to  reduce Principal balance

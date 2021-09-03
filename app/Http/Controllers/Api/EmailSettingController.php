@@ -83,12 +83,12 @@ class EmailSettingController extends ApiController
      */
     public function show($uuid)
     {
-        /*$emailSetting = $this->emailSettingRepository->getById($uuid);
+        $emailSetting = $this->emailSettingRepository->getById($uuid);
 
         if (!$emailSetting) {
             return $this->respondNotFound('EmailSetting not found.');
         }
-        return $this->respondWithData(new EmailSettingResource($emailSetting));*/
+        return $this->respondWithData(new EmailSettingResource($emailSetting));
 
     }
 
@@ -99,13 +99,13 @@ class EmailSettingController extends ApiController
      */
     public function update(EmailSettingRequest $request, $uuid)
     {
-   /*     $save = $this->emailSettingRepository->update($request->all(), $uuid);
+       $save = $this->emailSettingRepository->update($request->all(), $uuid);
 
         if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
 
-            return $this->respondWithSuccess('Success !! EmailSetting has been updated.');*/
+            return $this->respondWithSuccess('Success !! EmailSetting has been updated.');
 
     }
 
@@ -115,10 +115,10 @@ class EmailSettingController extends ApiController
      */
     public function destroy($uuid)
     {
-       /* if ($this->emailSettingRepository->delete($uuid)) {
+        if ($this->emailSettingRepository->delete($uuid)) {
             return $this->respondWithSuccess('Success !! EmailSetting has been deleted');
         }
-        return $this->respondNotFound('EmailSetting not deleted');*/
+        return $this->respondNotFound('EmailSetting not deleted');
     }
 
 

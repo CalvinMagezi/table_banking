@@ -10,31 +10,34 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\MemberRequest;
 use App\Http\Requests\MembershipFormRequest;
+use App\Http\Resources\AccountResource;
 use App\Http\Resources\MemberResource;
-use App\Models\Member;
+use App\Models\Account;
+use App\Models\GeneralSetting;
 use App\SmartMicro\Repositories\Contracts\AccountInterface;
 use App\SmartMicro\Repositories\Contracts\MemberInterface;
 
 use App\Traits\CommunicationMessage;
+use Barryvdh\DomPDF\Facade as PDF;
+use Dompdf\Dompdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class MemberController  extends ApiController
 {
     /**
      * @var MemberInterface
      */
-    protected $memberRepository, $accountRepository, $load;
+    protected $memberRepository, $load, $accountRepository;
 
     /**
      * MemberController constructor.
      * @param MemberInterface $memberInterface
-     * @param AccountInterface $accountInterface
+     * @param AccountInterface $accountRepository
      */
-    public function __construct(MemberInterface $memberInterface, AccountInterface $accountInterface)
+    public function __construct(MemberInterface $memberInterface, AccountInterface $accountRepository)
     {
         $this->memberRepository   = $memberInterface;
-        $this->accountRepository   = $accountInterface;
+        $this->accountRepository   = $accountRepository;
         $this->load = ['branch', 'assets', 'account', 'guaranteedLoans'];
     }
 
@@ -45,12 +48,8 @@ class MemberController  extends ApiController
      */
     public function index(Request $request)
     {
-       // return Member::withoutGlobalScopes()->get();
-
         if ($select = request()->query('list')) {
-           // return $this->memberRepository->listAll($this->formatFields($select));
             return $this->memberRepository->listAll($this->formatFields($select), ['account']);
-
         } else
             $data = MemberResource::collection($this->memberRepository->getAllPaginate($this->load));
 
@@ -68,7 +67,6 @@ class MemberController  extends ApiController
         // Upload passport photo
         $data['passport_photo'] = null;
         if($request->hasFile('passport_photo')) {
-          // return $this->respondWithData($data);
             // Get filename with extension
             $filenameWithExt = $request->file('passport_photo')->getClientOriginalName();
 
@@ -82,7 +80,6 @@ class MemberController  extends ApiController
             $fileNameToStore = $filename.'_'.time().'.'.$extension;
 
             // Upload Image
-            // $path = $request->file('attach_application_form')->storeAs('public/cover_images', $fileNameToStore);
             $path = $request->file('passport_photo')->storeAs('members', $fileNameToStore);
 
             $data['passport_photo'] = $fileNameToStore;
@@ -91,7 +88,6 @@ class MemberController  extends ApiController
         // Upload membership form
         $data['membership_form'] = null;
         if($request->hasFile('membership_form')) {
-            // return $this->respondWithData($data);
             // Get filename with extension
             $filenameWithExt = $request->file('membership_form')->getClientOriginalName();
 
@@ -178,10 +174,6 @@ class MemberController  extends ApiController
         if( array_key_exists('file_path', $data) ) {
             $file_path = $data['file_path'];
 
-         /*   if (!Storage::disk('local')->exists($file_path)) {
-                return $this->respondNotFound('Image not found');
-            }*/
-
             $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'members'.DIRECTORY_SEPARATOR. $file_path;
 
             return response()->file($local_path);
@@ -221,7 +213,6 @@ class MemberController  extends ApiController
             // Filename to store
             $fileNameToStore = $filename.'_'.time().'.'.$extension;
             $path = $request->file('membership_form')->storeAs('membership_forms', $fileNameToStore);
-            // $data['logo'] = $fileNameToStore;
             $data['membership_form'] = $fileNameToStore;
         }
         // TODO also, delete previous image file from server
@@ -259,10 +250,42 @@ class MemberController  extends ApiController
             // Filename to store
             $fileNameToStore = $filename.'_'.time().'.'.$extension;
             $path = $request->file('passport_photo')->storeAs('members', $fileNameToStore);
-            // $data['logo'] = $fileNameToStore;
             $data['passport_photo'] = $fileNameToStore;
         }
-        // TODO also, delete previous image file from server
+        // also, delete previous image file from server
         $this->memberRepository->update(array_filter($data), $data['id']);
+    }
+
+    public function downloadMemberAccountStatement(Request $request) {
+
+        $setting = GeneralSetting::first();
+
+        $file_path = $setting->logo;
+
+        $local_path = '';
+        if($file_path != '')
+         $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'logos'.DIRECTORY_SEPARATOR. $file_path;
+
+        $setting->logo_url = $local_path;
+
+       // $data = $request->all();
+        $memberId = '8dda7e41-2b25-4c55-96ef-26af80e69108';
+        $account = Account::where('account_name', $memberId)
+            ->where('account_code', MEMBER_DEPOSIT_CODE)
+            ->first();
+
+        if (isset($account)){
+            $rawStatement = $this->accountRepository->fetchAccountStatement($account->id);
+
+            $account['statement'] =  $rawStatement;
+
+            $pageData = AccountResource::make($account)->toArray($request);
+
+            $pdf = PDF::loadView('reports.account-statement', compact('pageData', 'setting'));
+
+            return $pdf->download('invoice.pdf');
+        }
+
+        return null;
     }
 }

@@ -41,7 +41,6 @@ class SmsSettingController extends ApiController
         $smsSetting = $this->smsSettingRepository->first();
 
         if (!$smsSetting) {
-            // return $this->respondNotFound('General Setting not set.');
             return null;
 
         }
@@ -63,7 +62,6 @@ class SmsSettingController extends ApiController
             return $this->respondWithSuccess('Success !! SmsSetting has been created.');
 
         }
-
     }
 
     /**
@@ -93,9 +91,7 @@ class SmsSettingController extends ApiController
         if(!is_null($save) && $save['error']){
             return $this->respondNotSaved($save['message']);
         } else
-
             return $this->respondWithSuccess('Success !! SmsSetting has been updated.');
-
     }
 
     /**

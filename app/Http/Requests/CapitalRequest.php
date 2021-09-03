@@ -33,7 +33,9 @@ class CapitalRequest extends BaseRequest
                 {
                     $rules = [
                         'branch_id'         => 'required|exists:branches,id',
+                        'method_id'         => 'required|exists:payment_methods,id',
                         'amount'            => 'required',
+                        'capital_date'      => 'required',
                         'fiscal_period_id'  => '',
                         'description'       => ''
                     ];
@@ -44,7 +46,9 @@ class CapitalRequest extends BaseRequest
                 {
                     $rules = [
                         'branch_id'         => 'required|exists:branches,id',
+                        'method_id'         => 'required|exists:payment_methods,id',
                         'amount'            => 'required',
+                        'capital_date'      => 'required',
                         'fiscal_period_id'  => '',
                         'description'       => ''
                     ];

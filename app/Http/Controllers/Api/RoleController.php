@@ -13,10 +13,9 @@ use Illuminate\Support\Facades\Auth;
 class RoleController  extends ApiController
 {
     /**
-     * @var \App\SignalCrm\Repositories\Contracts\RoleInterface
+     * @var RoleInterface
      */
-    protected $roleRepository;
-    protected $load;
+    protected $roleRepository, $load;
 
     /**
      * RoleController constructor.
@@ -49,11 +48,8 @@ class RoleController  extends ApiController
      */
     public function store(RoleRequest $request)
     {
-
-
         $data = $request->json()->all();
 
-        // $save = $this->roleRepository->create($request->all());
         $role = $this->roleRepository->create($data);
 
         if($role && array_key_exists('permission', $data)){
@@ -63,17 +59,8 @@ class RoleController  extends ApiController
                 if (!is_null($permissions)){
                     $role->permissions()->attach($permissions);
                 }
-
             return $this->respondWithSuccess('Success !! Role has been created.');
-
         }
-
-
-
-        // dispatch(new CreateRole($request->all()));
-       /* $role = $this->roleRepository->create($request->all());
-
-        return $this->respondWithSuccess('Success !! Role has been created.');*/
     }
 
     /**
@@ -107,13 +94,11 @@ class RoleController  extends ApiController
             if (!is_null($permissions)){
                 $this->roleRepository->getById($uuid)->permissions()->sync($permissions);
             }
-
         }
 
         $this->roleRepository->update($request->all(), $uuid);
 
         return $this->respondWithSuccess('Success !! Role has been updated.');
-
     }
 
     /**
@@ -122,7 +107,6 @@ class RoleController  extends ApiController
      */
     public function destroy($uuid)
     {
-
         $this->roleRepository->getById($uuid)->permissions()->detach();
 
         $this->roleRepository->delete($uuid);

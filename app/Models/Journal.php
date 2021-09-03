@@ -20,8 +20,6 @@ class Journal extends Model
 {
     use SoftDeletes, SearchableTrait, BranchScope;
 
-    // BranchFilterScope
-
     public $incrementing = true;
 
     /**
@@ -55,16 +53,6 @@ class Journal extends Model
         'updated_by',
         'deleted_by'
     ];
-
-  /*  public static function boot() {
-        parent::boot();
-
-        static::creating(function ($model) {
-            if(auth()->check()){
-                $model->prepared_by = Auth::user()->id;
-            }
-        });
-    }*/
 
     /**
      * Searchable rules.

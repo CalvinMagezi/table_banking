@@ -46,10 +46,27 @@ class Payment extends BaseModel
         'attachment',
         'notes',
 
+        // Bank fields
         'cheque_number',
         'bank_name',
         'bank_branch',
         'cheque_date',
+
+        // Mpesa fields
+        'is_mpesa',
+        'transaction_type',
+        'trans_id',
+        'trans_time',
+       // 'trans_amount', //we already have amount field
+        'business_short_code',
+        'bill_ref_number',
+        'invoice_number',  //loan_id or account number
+        'mpesa_number',
+        'mpesa_first_name',
+        'mpesa_middle_name',
+        'mpesa_last_name',
+        'org_account_balance',
+        'third_party_trans_id',
 
         'created_by',
         'updated_by',

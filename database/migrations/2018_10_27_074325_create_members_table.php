@@ -28,7 +28,7 @@ class CreateMembersTable extends Migration
             $table->string('city')->nullable();
             $table->string('id_number')->unique();
             $table->string('passport_number')->unique()->nullable();
-            $table->string('phone');
+            $table->string('phone')->nullable()->unique();
             $table->string('email')->nullable();
             $table->string('postal_address');
             $table->string('residential_address');

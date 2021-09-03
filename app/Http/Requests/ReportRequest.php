@@ -33,7 +33,6 @@ class ReportRequest extends BaseRequest
                 {
                     $rules = [
                         'branch_id'     => 'exists:branches,id',
-                        // 'start_date'      => 'required|date_format:"DD-MM-YYYY"',
                         'start_date'    => 'required',
                         'end_date'      => 'required',
                         'report_type'     => '',
@@ -46,7 +45,6 @@ class ReportRequest extends BaseRequest
                 {
                     $rules = [
                         'branch_id'     => 'exists:branches,id',
-                        // 'start_date'      => 'required|date_format:"DD-MM-YYYY"',
                         'start_date'    => 'required',
                         'end_date'      => 'required',
                         'report_type'     => '',

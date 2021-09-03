@@ -18,24 +18,28 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        'App\Events\Loan\LoanNextPeriodChecked' => [
+            'App\Listeners\Loan\CalculateLoanAmountDue',
+            'App\Listeners\Loan\CalculateLoanPenaltyDue'
+        ],
+        'App\Events\Loan\LoanPendingAmountChecked' => [
+            'App\Listeners\Loan\PayLoanPendingAmount'
+        ],
         'App\Events\Payment\PaymentReceived' => [
-            'App\Listeners\RepayLoan'
-        ],
-        'App\Events\Loan\LoanDueChecked' => [
-            'App\Listeners\CalculateLoanPaymentDue'
-        ],
-        'App\Events\Oauth\LoginSuccess' => [
-            'App\Listeners\LoginSuccessfulListener',
-        ],
-        'App\Events\Oauth\LoginFailed' => [
-            'App\Listeners\LoginFailureListener',
-        ],
-        'App\Events\Oauth\Logout' => [
-            'App\Listeners\LogoutSuccessfulListener',
+            'App\Listeners\Loan\PayLoanPendingAmount'
         ],
         'App\Events\Payment\PaidLoan' => [
             'App\Listeners\Payment\CheckCloseLoanListener'
         ],
+        'App\Events\Oauth\LoginSuccess' => [
+            'App\Listeners\LoginSuccessfulListener'
+        ],
+        'App\Events\Oauth\LoginFailed' => [
+            'App\Listeners\LoginFailureListener'
+        ],
+        'App\Events\Oauth\Logout' => [
+            'App\Listeners\LogoutSuccessfulListener'
+        ]
     ];
 
     /**

@@ -18,12 +18,12 @@ interface LoanPenaltyInterface extends BaseInterface
     function paidAmount($penaltyRepaymentId);
 
     /**
-     * @param $paymentId
      * @param $amount
-     * @param $loanId
+     * @param $loan
+     * @param $date
      * @return mixed
      */
-    function payDuePenalty($paymentId, $amount, $loanId);
+    function payDuePenalty($amount, $loan, $date);
 
     /**
      * @param $loanPenaltyRepaymentId

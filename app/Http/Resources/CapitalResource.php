@@ -24,7 +24,10 @@ class CapitalResource extends JsonResource
         return [
             'id'                => $this->id,
             'branch_id'         => $this->branch_id,
+            'method_id'         => $this->method_id,
+            'capital_date'      => $this->capital_date,
             'branch'         => $this->branch,
+            'paymentMethod'         => $this->paymentMethod,
 
             'amount'            => $this->amount,
             'description'       => $this->description,

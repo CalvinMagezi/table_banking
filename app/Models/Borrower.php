@@ -38,13 +38,8 @@ class Borrower extends BaseModel
         'branch_id',
         'member_id',
         'loan_id',
-       // 'credit_score',
         'borrower_status_id',
-
-        // take witness to loan application as referee
-
         'notes',
-
         'created_by',
         'updated_by',
         'deleted_by'

@@ -7,11 +7,6 @@ class DatabaseSeeder extends Seeder
 {
 
     protected $tables = [
-        // 'oauth_clients',
-        // 'oauth_scopes',
-        //'users'
-
-        //  'database\seeds\UsersTableSeeder',
 
     ];
 
@@ -35,7 +30,8 @@ class DatabaseSeeder extends Seeder
         'database\seeds\EmailTemplateSeeder',
         'database\seeds\SmsTemplateSeeder',
         'database\seeds\WitnessTypeSeeder',
-        'database\seeds\CommunicationSettingSeeder'
+        'database\seeds\CommunicationSettingSeeder',
+        'database\seeds\UsersTableSeeder'
     ];
 
     /**
@@ -45,8 +41,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        //   Eloquent::unguard();
-
         $this->cleanDatabase();
 
         foreach ($this->seeders as $seedClass) {
@@ -62,7 +56,6 @@ class DatabaseSeeder extends Seeder
         foreach ($this->tables as $table) {
             DB::statement('TRUNCATE TABLE ' . $table . ' CASCADE;');
         }
-
     }
 
 }

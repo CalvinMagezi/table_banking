@@ -11,9 +11,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\FinanceStatementRequest;
 use App\Http\Resources\FinanceStatementResource;
+use App\Models\Branch;
+use App\Models\GeneralSetting;
 use App\SmartMicro\Repositories\Contracts\ReportInterface;
 
 use App\SmartMicro\Repositories\Contracts\FinanceStatementInterface;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 
 class FinanceStatementController extends ApiController
@@ -62,8 +65,6 @@ class FinanceStatementController extends ApiController
         $reportType = null;
         $data = $request->all();
 
-       // $branchId = 'd8def383-31bb-4f10-aa42-eb596c06653a';
-
         if ( array_key_exists('branch_id', $data)) {
             $branchId = $data['branch_id'];
         }
@@ -95,5 +96,67 @@ class FinanceStatementController extends ApiController
             }
         }
 
+    }
+
+    /**
+     * @param Request $request
+     * @return |null
+     */
+    public function downloadReport(Request $request) {
+        $data = $request->all();
+        $branchId = $data['branch_id'];
+        $branchName = Branch::select('name')->where('id', $branchId)->first()->name;
+
+        $startDate = null;
+        $endDate = null;
+        $reportType = null;
+        $data = $request->all();
+
+        if ( array_key_exists('branch_id', $data)) {
+            $branchId = $data['branch_id'];
+        }
+        if ( array_key_exists('start_date', $data)) {
+            $startDate = $data['start_date'];
+        }
+        if ( array_key_exists('end_date', $data)) {
+            $endDate = $data['end_date'];
+        }
+        if ( array_key_exists('statement_type_id', $data)) {
+            $reportType = $this->financeStatementRepository->getById($data['statement_type_id'])->name;
+        }
+
+        // Settings
+        $setting = GeneralSetting::first();
+        $file_path = $setting->logo;
+        $local_path = '';
+        if($file_path != '')
+            $local_path = config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR .'logos'.DIRECTORY_SEPARATOR. $file_path;
+        $setting->logo_url = $local_path;
+
+        $today = date('d-m-Y');
+
+        switch ($reportType){
+                    case 'balance_sheet': {
+                        return null;
+                    }
+                        break;
+                    case 'trial_balance': {
+                        $pageData = $this->financeStatementRepository->trialBalance($branchId, $startDate, $endDate);
+                        // Generate PDF
+                         $pdf = PDF::loadView('reports.trial-balance', compact('pageData', 'setting', 'today', 'branchName'));
+                        return $pdf->download('statement.pdf');
+                        break;
+                    }
+                    case 'income_statement': {
+                        $pageData = $this->financeStatementRepository->incomeStatement($branchId);
+                        // Generate PDF
+                        $pdf = PDF::loadView('reports.income-statement', compact('pageData', 'setting', 'today', 'branchName'));
+                        return $pdf->download('statement.pdf');
+                        break;
+                    }
+                    default:{
+                        return null;
+                    }
+                }
     }
 }

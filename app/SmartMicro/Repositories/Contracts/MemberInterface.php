@@ -9,6 +9,4 @@
 namespace App\SmartMicro\Repositories\Contracts;
 
 interface MemberInterface extends BaseInterface {
-
-
 }

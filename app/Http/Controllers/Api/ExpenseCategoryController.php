@@ -44,10 +44,7 @@ class ExpenseCategoryController extends ApiController
     {
         if ($select = request()->query('list')) {
             return $this->accountRepository->listAccounts(EXPENSE_CATEGORY_CODE, $this->formatFields($select));
-            // return $this->expenseCategoryRepository->listAll($this->formatFields($select));
         } else
-           // $data = ExpenseCategoryResource::collection($this->expenseCategoryRepository->getAllPaginate());
-
         $data = ExpenseCategoryResource::collection($this->accountRepository->filterAccounts(EXPENSE_CATEGORY_CODE));
 
         return $this->respondWithData($data);
@@ -97,8 +94,6 @@ class ExpenseCategoryController extends ApiController
      */
     public function update(ExpenseCategoryRequest $request, $uuid)
     {
-        /*$data = $request->all();
-        $data['account_name'] =  ucwords($request->name);*/
         $save = $this->accountRepository->update($request->all(), $uuid);
 
         if(!is_null($save) && $save['error']){

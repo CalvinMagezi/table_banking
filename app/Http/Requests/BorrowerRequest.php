@@ -8,8 +8,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
-
 class BorrowerRequest extends BaseRequest
 {
 
@@ -72,14 +70,11 @@ class BorrowerRequest extends BaseRequest
                         'witness_postal_address'        => 'required',
                         'witness_residential_address'   => 'required',
                         'notes'                         => '',
-
                     ];
                     break;
                 }
             default:break;
         }
-
         return $rules;
-
     }
 }

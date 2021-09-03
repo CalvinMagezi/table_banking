@@ -27,12 +27,6 @@ class FinanceStatementSeeder extends Seeder
         ]);
 
         FinanceStatement::create([
-            'name' => 'loans_due',
-            'display_name' => 'Loans Due',
-            'description' => "Loans Due"
-        ]);
-
-        FinanceStatement::create([
             'name' => 'income_statement',
             'display_name' => 'Income Statement',
             'description' => "Income Statement"

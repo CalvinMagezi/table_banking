@@ -11,6 +11,14 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
+/**
+ * When a loan repayment has been made - interest, principal or penalty
+ *
+ * - attach listeners to check if we should mark the loan as closed
+ *
+ * Class PaidLoan
+ * @package App\Events\Payment
+ */
 class PaidLoan
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;

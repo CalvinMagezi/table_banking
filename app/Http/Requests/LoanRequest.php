@@ -52,10 +52,7 @@ class LoanRequest extends BaseRequest
                         'approved_by_user_id'   => '',
                         'amount_approved'       => 'required',
                         'service_fee'           => 'nullable|numeric',
-
-                     /*   'penalty_type_id'       => 'nullable|exists:penalty_types,id',
-                        'penalty_value'         => 'nullable|numeric',
-                        'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id',*/
+                        'disburse_amount'       => '',
 
                         'penalty_type_id'       => 'nullable',
                         'penalty_value'         => 'nullable|numeric',
@@ -67,6 +64,17 @@ class LoanRequest extends BaseRequest
                         'start_date'            => 'required|date',
                         'end_date'              => 'nullable|date|after_or_equal:start_date',
                         'next_repayment_date'   => '',
+
+                        'disburse_method_id'    => '',
+                        'mpesa_number'          => '',
+                        'mpesa_first_name'      => '',
+                        'mpesa_middle_name'      => '',
+                        'mpesa_last_name'      => '',
+
+                        'bank_name'             => '',
+                        'bank_branch'           => '',
+                        'bank_account'          => '',
+                        'other_banking_details' => '',
 
                         'payment_frequency_id'  => 'nullable|exists:payment_frequencies,id'
                     ];
@@ -98,10 +106,6 @@ class LoanRequest extends BaseRequest
                         'approved_by_user_id'   => '',
                         'amount_approved'       => '',
                         'service_fee'           => '',
-
-                      /*  'penalty_type_id'       => 'nullable|exists:penalty_types,id',
-                        'penalty_value'         => 'nullable|numeric',
-                        'penalty_frequency_id'  => 'nullable|exists:penalty_frequencies,id',*/
 
                         'penalty_type_id'       => 'nullable',
                         'penalty_value'         => 'nullable|numeric',

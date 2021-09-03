@@ -25,7 +25,6 @@ class CreateSmsTemplatesTable extends Migration
             $table->string('tags')->nullable();
             $table->string('created_by', 36)->nullable();
 
-
             $table->softDeletes();
             $table->timestamps();
         });

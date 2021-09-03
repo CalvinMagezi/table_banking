@@ -20,9 +20,6 @@ class CreateAssetLoanApplications extends Migration
 
             $table->uuid('asset_id', 36);
             $table->uuid('loan_application_id', 36);
-
-            //  $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade')->onUpdate('cascade');
-            //   $table->foreign('loan_application_id')->references('id')->on('loan_applications')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

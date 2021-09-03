@@ -58,9 +58,7 @@ class WitnessTypeController extends ApiController
             return $this->respondNotSaved($save['message']);
         } else {
             return $this->respondWithSuccess('Success !! WitnessType has been created.');
-
         }
-
     }
 
     /**
@@ -75,7 +73,6 @@ class WitnessTypeController extends ApiController
             return $this->respondNotFound('WitnessType not found.');
         }
         return $this->respondWithData(new WitnessTypeResource($witnessType));
-
     }
 
     /**

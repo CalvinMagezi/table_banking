@@ -40,7 +40,7 @@ class Account extends BaseModel
         'branch_id',
         'account_number',
         'account_code',
-        'account_name', // Will be like member_id in some
+        'account_name', // Will be member_id (For deposit accounts) // loan_id (For loan accounts)
         'account_type_id',
         'account_status_id',
         'other_details',
@@ -71,20 +71,21 @@ class Account extends BaseModel
             'accounts.account_number' => 2,
             'accounts.account_code' => 2,
             'accounts.account_name' => 2,
-            'accounts.other_details' => 1,
+            'accounts.other_details' => 1
         ]
     ];
 
     /**
      * Generate account numbers
+     * Branch code, year, month, day and three random numbers
      */
     static function boot()
     {
         parent::boot();
         static::creating(function ($model) {
-            if($model->account_number == '') {
+            if(empty($model->account_number)) {
                 $branchCode = Branch::find($model->branch_id)->branch_code;
-                $random = substr(uniqid('', true),-5);
+                $random = substr(uniqid('', true),-3);
                 $model->account_number = $branchCode.now()->year.now()->month.now()->day.$random;
             }
         });
@@ -120,6 +121,14 @@ class Account extends BaseModel
     public function member()
     {
         return $this->belongsTo(Member::class, 'account_name');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loan()
+    {
+        return $this->belongsTo(Loan::class, 'account_name');
     }
 
     /**

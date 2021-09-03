@@ -23,20 +23,6 @@ class BaseRequest extends FormRequest
         return true;
     }
 
-
-    /**
-     * Get data to be validated from the request.
-     *
-     * @return array
-     */
-    /* protected function validationData()
-     {
-         if(empty($this->json()->all()))
-             throw new JsonEncodingException('Invalid JSON received');
-
-         return  $this->all();
-     }*/
-
     /**
      * Overrides response from the FormRequest
      * to not redirect for our API development
@@ -49,7 +35,6 @@ class BaseRequest extends FormRequest
             'message' => "There were validation errors",
             'errors' => $errors
         );
-
         return new JsonResponse($message, 400);
     }
 

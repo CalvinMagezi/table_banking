@@ -10,6 +10,7 @@ namespace App\SmartMicro\Repositories\Eloquent;
 
 use App\Models\Payment;
 use App\SmartMicro\Repositories\Contracts\PaymentInterface;
+use Illuminate\Support\Facades\DB;
 
 class PaymentRepository extends BaseRepository implements PaymentInterface {
 
@@ -22,6 +23,16 @@ class PaymentRepository extends BaseRepository implements PaymentInterface {
     function __construct(Payment $model)
     {
         $this->model = $model;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function totalMpesaDeposits() {
+        return DB::table('payments')
+            ->select(DB::raw('COALESCE(sum(payments.amount), 0.0) as totalMpesa'))
+            ->where('payments.is_mpesa','=', true)
+            ->first()->totalMpesa;
     }
 
 }

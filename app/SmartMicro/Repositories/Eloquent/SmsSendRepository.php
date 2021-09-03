@@ -11,6 +11,7 @@ namespace App\SmartMicro\Repositories\Eloquent;
 
 use App\SmartMicro\Repositories\Contracts\SmsSendInterface;
 use AfricasTalking\SDK\AfricasTalking;
+use Illuminate\Support\Facades\Log;
 
 
 class SmsSendRepository extends BaseRepository implements SmsSendInterface
@@ -35,17 +36,13 @@ class SmsSendRepository extends BaseRepository implements SmsSendInterface
     public function send($recipients, $message) {
         $AT = new AfricasTalking($this->username, $this->apiKey);
         $sms = $AT->sms();
-
         try {
-            $result = $sms->send([
+            $sms->send([
                 'to'      => $recipients,
                 'message' => $message,
-               // 'from'    => $this->from
             ]);
         } catch (\Exception $e) {
-           // throw $e;
-            //Ignoring errors with sms api (They shouldn't stop payment process)
-            //consider logging these errors for future tech support
+            Log::info($e->getMessage());
         }
     }
 }

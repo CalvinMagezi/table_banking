@@ -37,11 +37,11 @@ class GeneralSettingRequest extends BaseRequest
                     $rules = [
                         'business_name'         => 'required',
                         'business_type'         => '',
-                        'email'                 => '',
                         'contact_first_name'    => '',
                         'contact_last_name'     => '',
                         'currency'              => '',
-                        'phone'                 => '',
+                        'phone'                 => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|digits_between:9,12',
+                        'email'                 => 'nullable|email',
                         'country'               => '',
                         'county'                => '',
                         'town'                  => '',

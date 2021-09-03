@@ -18,10 +18,10 @@ interface LoanInterestRepaymentInterface extends BaseInterface
     function paidAmount($interestRepaymentId);
 
     /**
-     * @param $paymentId
      * @param $amount
-     * @param $loanId
-     * @return float|int
+     * @param $loan
+     * @param $date
+     * @return mixed
      */
-    function payDueInterest($paymentId, $amount, $loanId);
+    function payDueInterest($amount, $loan, $date);
 }

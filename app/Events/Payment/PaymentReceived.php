@@ -2,7 +2,7 @@
 
 namespace App\Events\Payment;
 
-use App\Models\Payment;
+use App\Events\Event;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -11,20 +11,27 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class PaymentReceived
+/**
+ * When a new payment into member deposit account has been made.
+ *
+ * - attach listener to repay any pending loan amount
+ *
+ * Class PaymentReceived
+ * @package App\Events\Payment
+ */
+class PaymentReceived extends Event
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $payment;
+    public $memberId;
 
     /**
-     * Create a new event instance.
-     * PaymentReceived constructor.
-     * @param Payment $payment
+     * PayLoan constructor.
+     * @param $memberId
      */
-    public function __construct(Payment $payment)
+    public function __construct($memberId)
     {
-        $this->payment = $payment;
+        $this->memberId = $memberId;
     }
 
     /**

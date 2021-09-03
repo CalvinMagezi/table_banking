@@ -58,11 +58,19 @@ class LoanApplication extends BaseModel
         'application_date',
 
         'disburse_method_id',
+        'disburse_note',
+
+        //mpesa field
         'mpesa_number',
+        'mpesa_first_name',
+        'mpesa_middle_name',
+        'mpesa_last_name',
+
+        // bank fields
+        'cheque_number',
         'bank_name',
         'bank_branch',
-        'bank_account',
-        'other_banking_details',
+        'cheque_date',
 
         'witness_type_id',
         'witness_first_name',
@@ -97,6 +105,14 @@ class LoanApplication extends BaseModel
     public function setApplicationDateAttribute($application_date)
     {
         $this->attributes['application_date'] = date('Y-m-d H:i:s', strtotime($application_date));
+    }
+
+    /**
+     * @param $cheque_date
+     */
+    public function setChequeDateAttribute($cheque_date)
+    {
+        $this->attributes['cheque_date'] = date('Y-m-d H:i:s', strtotime($cheque_date));
     }
 
     /**
@@ -167,6 +183,13 @@ class LoanApplication extends BaseModel
     public function interestType()
     {
         return $this->belongsTo(InterestType::class, 'interest_type_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function disburseMethod() {
+        return $this->belongsTo(PaymentMethod::class, 'disburse_method_id');
     }
 
     /**

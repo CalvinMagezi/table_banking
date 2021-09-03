@@ -22,7 +22,6 @@ class CreateSmsSettingsTable extends Migration
             $table->string('password')->nullable();
             $table->string('created_by', 36)->nullable();
 
-
             $table->softDeletes();
             $table->timestamps();
         });

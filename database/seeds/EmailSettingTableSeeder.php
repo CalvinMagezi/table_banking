@@ -18,7 +18,6 @@ class EmailSettingTableSeeder extends Seeder
 
     public function run()
     {
-
         DB::table('email_settings')->delete();
 
         EmailSetting::create([

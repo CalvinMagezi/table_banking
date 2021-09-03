@@ -31,14 +31,13 @@ class TransactionRepository extends BaseRepository implements TransactionInterfa
     /**
      * @param $amount
      * @param $loanPenaltyRepaymentId
-     * @param $paymentId
      * @param $loanId
      * @return mixed|void
      */
-    public function penaltyPaymentEntry($amount, $loanPenaltyRepaymentId, $paymentId, $loanId) {
+    public function penaltyPaymentEntry($amount, $loanPenaltyRepaymentId, $loanId) {
         $data = [
             'loan_penalties_id' => $loanPenaltyRepaymentId,
-            'payment_id' => $paymentId,
+            'payment_id' => null,
             'transaction_type' => 'penalty_payment',
             'transaction_date' =>  $this->today,
             'loan_id' => $loanId,
@@ -67,14 +66,13 @@ class TransactionRepository extends BaseRepository implements TransactionInterfa
     /**
      * @param $amount
      * @param $loanInterestRepaymentId
-     * @param $paymentId
      * @param $loanId
      * @return mixed|void
      */
-    public function interestPaymentEntry($amount, $loanInterestRepaymentId, $paymentId, $loanId) {
+    public function interestPaymentEntry($amount, $loanInterestRepaymentId, $loanId) {
         $data = [
             'loan_interest_repayments_id' => $loanInterestRepaymentId,
-            'payment_id' => $paymentId,
+            'payment_id' => null,
             'transaction_type' => 'interest_payment',
             'transaction_date' =>  $this->today,
             'loan_id' => $loanId,
@@ -104,14 +102,13 @@ class TransactionRepository extends BaseRepository implements TransactionInterfa
     /**
      * @param $amount
      * @param $loanPrincipalRepaymentId
-     * @param $paymentId
      * @param $loanId
      * @return mixed|void
      */
-    public function principalPaymentEntry($amount, $loanPrincipalRepaymentId, $paymentId, $loanId) {
+    public function principalPaymentEntry($amount, $loanPrincipalRepaymentId, $loanId) {
         $data = [
             'loan_principal_repayments_id' => $loanPrincipalRepaymentId,
-            'payment_id' => $paymentId,
+            'payment_id' => null,
             'transaction_type' => 'principal_payment',
             'transaction_date' => $this->today,
             'loan_id' => $loanId,
@@ -162,7 +159,6 @@ class TransactionRepository extends BaseRepository implements TransactionInterfa
         $loanAmount = $loan['amount_approved'];
         $paidAmount = $this->model
             ->whereIn('transaction_type', ['balance_reduction', 'principal_payment'])
-           // ->orWhere('transaction_type', '')
             ->where('loan_id', $loan['id'])
             ->sum('amount');
         return $loanAmount - $paidAmount;

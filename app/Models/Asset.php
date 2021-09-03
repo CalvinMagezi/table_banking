@@ -108,7 +108,7 @@ class Asset extends BaseModel
     {
         parent::boot();
         static::creating(function ($model) {
-            $random = substr(uniqid('', true),-5);
+            $random = substr(uniqid('', true),-2);
             $model->asset_number = now()->year.now()->month.now()->day.$random;
         });
     }

@@ -39,11 +39,7 @@ class InstallationUserRequest extends BaseRequest
                         'password'              => 'required|min:3|confirmed',
                         'password_confirmation' => 'required_with:password'
                     ];
-
                     break;
-
-                    //  'email'                 => 'email|required|unique:users,email,NULL,id,deleted_at,NULL',
-
                 }
             case 'PUT':
             case 'PATCH':
@@ -61,8 +57,6 @@ class InstallationUserRequest extends BaseRequest
             default:
                 break;
         }
-
         return $rules;
-
     }
 }

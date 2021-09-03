@@ -156,12 +156,6 @@ class InstallationController extends ApiController
 
         $settings = compact('connection', 'host', 'port', 'database', 'username', 'password');
 
-       /* try{
-            $this->updateEnvironmentFile($settings);
-        }catch(Exception $e){
-            return $this->respondNotSaved($e->getMessage());
-        }*/
-
         $this->updateEnvironmentFile($settings);
 
         if($this->testDbConnection()){
@@ -256,7 +250,6 @@ class InstallationController extends ApiController
             Artisan::call('view:clear');
             Artisan::call('cache:clear');
             Artisan::call('config:clear');
-          //  Artisan::call('migrate', ['--path' => 'vendor/laravel/passport/database/migrations']);
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
             Artisan::call('passport:install', ['--force' => true]);

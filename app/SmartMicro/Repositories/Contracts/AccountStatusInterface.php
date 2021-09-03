@@ -10,7 +10,4 @@
 namespace App\SmartMicro\Repositories\Contracts;
 
 interface AccountStatusInterface extends BaseInterface
-{
-
-
-}
+{}

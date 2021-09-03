@@ -53,11 +53,21 @@ class CreateLoanApplicationsTable extends Migration
             $table->string('witness_residential_address')->nullable();
 
             $table->string('disburse_method_id')->nullable();
+
+            //mpesa fields
             $table->string('mpesa_number')->nullable();
+            $table->string('mpesa_first_name')->nullable();
+            $table->string('mpesa_middle_name')->nullable();
+            $table->string('mpesa_last_name')->nullable();
+
+            //bank fields
+            $table->string('cheque_number')->nullable();
             $table->string('bank_name')->nullable();
             $table->string('bank_branch')->nullable();
-            $table->string('bank_account')->nullable();
-            $table->string('other_banking_details')->nullable();
+            $table->date('cheque_date')->nullable();
+
+            $table->string('disburse_note')->nullable();
+
             $table->string('status_id', 36)->nullable();
             $table->string('witnessed_by_user_id', 36)->nullable();
             $table->string('reviewed_by_user_id', 36)->nullable();

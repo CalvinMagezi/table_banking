@@ -65,14 +65,9 @@ class PaymentReceivedEmail extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject($subject) // it will use this class name if you don't specify
-          //  ->greeting('Hello '. $this->payment->first_name. ',') // example: Dear Sir, Hello Madam, etc ...
             ->greeting('') // example: Dear Sir, Hello Madam, etc ...
             ->level('info')// It is kind of email. Available options: info, success, error. Default: info
             ->line($body);
-           // ->line('The introduction to the notification.')
-           // ->action('Notification Action', url('/'))
-          //  ->line('Please note that payment has been received for following services:')
-          //  ->salutation('Thank you.');  // example: best regards, thanks, etc ...
     }
 
     /**

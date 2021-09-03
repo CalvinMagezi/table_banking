@@ -15,14 +15,9 @@ class CreatePermissionRoleTable extends Migration
     {
         Schema::create('permission_role', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-
             $table->increments('id')->unique();
-
             $table->uuid('permission_id', 36);
             $table->uuid('role_id', 36);
-
-         //  $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade')->onUpdate('cascade');
-        //   $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

@@ -66,15 +66,6 @@ class LoanPenaltyController extends ApiController
     public function store(LoanPenaltyRequest $request)
     {
         LoanPenalty::create($request->all());
-        /*$save = $this->loanPenaltyRepository->create($request->all());
-
-        if($save['error']){
-            return $this->respondNotSaved($save['message']);
-        }else{
-            return $this->respondWithSuccess('Success !! LoanPenalty has been created.');
-
-        }*/
-
     }
 
     /**

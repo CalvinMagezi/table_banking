@@ -26,9 +26,7 @@ class CommunicationSettingResource extends JsonResource
             'name'              => $this->name,
             'display_name'      => $this->display_name,
             'email_template'    => $this->email_template ? true: false,
-           // 'email_template'    => $this->email_template,
             'sms_template'      => $this->sms_template ? true: false,
-          //  'sms_template'      => $this->sms_template,
             'created_at'        => $this->created_at,
             'updated_at'        => $this->updated_at,
         ];

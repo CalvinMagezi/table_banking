@@ -46,7 +46,7 @@ class MemberRequest extends BaseRequest
                         'extra_images'      => '',
                         'id_number'             => 'required|unique:members,id_number,NULL,id,deleted_at,NULL',
                         'passport_number'       => '',
-                        'phone'                 => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+                        'phone'                 => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|digits_between:9,12|unique:members,phone,NULL,id,deleted_at,NULL',
                         'email'                 => 'nullable|email',
                         'postal_address'        => 'required',
                         'residential_address'   => 'required',
@@ -76,8 +76,11 @@ class MemberRequest extends BaseRequest
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
+                        'phone'                 => ['required','regex:/^([0-9\s\-\+\(\)]*)$/', 'digits_between:9,12', Rule::unique('members')->ignore($this->member, 'id')
+                            ->where(function ($query) {
+                                $query->where('deleted_at', NULL);
+                            })],
                         'passport_number'       => '',
-                        'phone'                 => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
                         'email'                 => 'nullable|email',
                         'postal_address'        => 'required',
                         'residential_address'   => 'required',

@@ -61,15 +61,6 @@ class LoanInterestRepaymentController extends ApiController
     public function store(LoanInterestRepaymentRequest $request)
     {
         LoanInterestRepayment::create($request->all());
-        /*$save = $this->loanInterestRepaymentRepository->create($request->all());
-
-        if($save['error']){
-            return $this->respondNotSaved($save['message']);
-        }else{
-            return $this->respondWithSuccess('Success !! LoanInterestRepayment has been created.');
-
-        }*/
-
     }
 
     /**

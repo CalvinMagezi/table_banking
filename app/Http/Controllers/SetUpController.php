@@ -155,12 +155,6 @@ class SetUpController extends ApiController
 
         $settings = compact('connection', 'host', 'port', 'database', 'username', 'password');
 
-        /* try{
-             $this->updateEnvironmentFile($settings);
-         }catch(Exception $e){
-             return $this->respondNotSaved($e->getMessage());
-         }*/
-
         $this->updateEnvironmentFile($settings);
 
         if ($this->testDbConnection()) {

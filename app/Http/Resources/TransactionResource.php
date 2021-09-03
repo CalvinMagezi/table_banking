@@ -32,7 +32,7 @@ class TransactionResource extends JsonResource
             'payment_id'                    => $this->payment_id,
             'payment'                       => PaymentResource::make($this->payment),
             'amount'                        => $this->amount,
-            'transaction_date'              => $this->transaction_date,
+            'transaction_date'              => formatDate($this->transaction_date),
 
             'loan_interest_repayments_id'   => $this->loan_interest_repayments_id,
             'loan_principal_repayments_id'  => $this->loan_principal_repayments_id,

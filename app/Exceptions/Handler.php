@@ -4,12 +4,10 @@ namespace App\Exceptions;
 
 use App\Http\Controllers\Api\Oauth\InvalidCredentialsException;
 use Exception;
-use function GuzzleHttp\Psr7\get_message_body_summary;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\JsonEncodingException;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Laravel\Passport\Exceptions\MissingScopeException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -47,10 +45,10 @@ class Handler extends ExceptionHandler
 
     /**
      * Render an exception into an HTTP response.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
-     * @return \Illuminate\Http\Response
+     * @param \Illuminate\Http\Request $request
+     * @param Exception $exception
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws Exception
      */
     public function render($request, Exception $exception)
     {
@@ -135,25 +133,6 @@ class Handler extends ExceptionHandler
                     'status_code'   => 401
                 ], 401);
         }
-
-  /*      if ($exception instanceof \PDOException) {
-
-            return response()->json(
-                [
-                    'error'         => true,
-                    'message'       => 'Database Offline Error.',
-                    'status_code'   => 500
-                ], 500);
-        }
-        if ($exception instanceof QueryException) {
-
-            return response()->json(
-                [
-                    'error'         => true,
-                    'message'       => 'Connection to database was refused. Check connection',
-                    'status_code'   => 500
-                ], 500);
-        }*/
 
         return parent::render($request, $exception);
     }

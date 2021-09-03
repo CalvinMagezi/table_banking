@@ -18,13 +18,8 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 class LoginProxy
 {
     const REFRESH_TOKEN = 'refreshToken';
-
-    private $apiConsumer;
-
     protected $app;
-
     private $auth, $cookie, $db, $request, $userRepository, $roleRepository, $generalSettingRepository;
-
 
     /**
      * LoginProxy constructor.
@@ -35,15 +30,10 @@ class LoginProxy
      */
     public function __construct(Application  $app, UserInterface $userRepository,
                                 RoleInterface $roleRepository, GeneralSettingInterface $generalSettingRepository) {
-
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
         $this->generalSettingRepository = $generalSettingRepository;
-
         $this->app = $app;
-
-       // $this->apiConsumer = $app->make('apiconsumer');
-
         $this->auth = $app->make('auth');
         $this->cookie = $app->make('cookie');
         $this->db = $app->make('db');
@@ -83,18 +73,13 @@ class LoginProxy
     {
         try{
             $refreshToken = $this->request->cookie(self::REFRESH_TOKEN);
-
             return $this->proxy('refresh_token', [
                 'refresh_token' => decrypt($refreshToken)
             ]);
-
         }catch (DecryptException $e){
-
             throw new DecryptException($e);
-
         }
     }
-
 
     /**
      * @param $grantType
@@ -109,9 +94,6 @@ class LoginProxy
         $clientId = !is_null($clients) ? $clients->id : null;
         $clientSecret = !is_null($clients) ? $clients->secret : null;
 
-       /* 'client_id'     => env('PASSWORD_CLIENT_ID'),
-            'client_secret' => env('PASSWORD_CLIENT_SECRET'),*/
-
         $data = array_merge($credentials, [
             'client_id'     => $clientId,
             'client_secret' => $clientSecret,
@@ -119,8 +101,6 @@ class LoginProxy
         ]);
 
         // Make internal POST request
-      //  $response = $this->apiConsumer->post('/oauth/token', $data);
-
         $request = Request::create('/oauth/token', 'POST', $data, [], [], [
             'HTTP_Accept'             => 'application/json',
         ]);
@@ -134,9 +114,7 @@ class LoginProxy
         if (!$response->isSuccessful()) {
             // event login failed
              event(new LoginFailed($credentials['username']));
-
-           // throw new InvalidCredentialsException('Invalid Credentials..');
-            throw new UnauthorizedHttpException("", Exception::class, null, 0);
+             throw new UnauthorizedHttpException("", Exception::class, null, 0);
         }
 
         $data = json_decode($response->getContent());
@@ -174,19 +152,16 @@ class LoginProxy
     public function logout()
     {
         $accessToken = $this->auth->user()->token();
-
         $refreshToken = $this->db
             ->table('oauth_refresh_tokens')
             ->where('access_token_id', $accessToken->id)
             ->update([
                 'revoked' => true
             ]);
-
         $accessToken->revoke();
 
         // event logout success
         event(new Logout($this->auth->user()));
-
         $this->cookie->queue($this->cookie->forget(self::REFRESH_TOKEN));
     }
 
@@ -197,16 +172,13 @@ class LoginProxy
     private function checkPermissions($roleId)
     {
         $role = $this->roleRepository->getWhere('id', $roleId, ['permissions']);
-
         if(!$role)
             return '';
-
         $role_permissions = $role->permissions()->get()->toArray();
         $data = [];
         foreach ($role_permissions as $key => $value){
             $data[] = trim($value['name']);
         }
-
         return implode(' ', $data);
     }
 
@@ -218,7 +190,6 @@ class LoginProxy
     {
         $role = $this->roleRepository->getWhere('id', $roleId, ['permissions']);
         $data[] = trim(strtolower($role->role_name));
-
         return implode(' ', $data);
     }
 

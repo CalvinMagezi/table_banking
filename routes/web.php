@@ -15,26 +15,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-/*Route::get('/install', 'SetUpController@checkRequirements');
-Route::get('/install/permissions', 'SetUpController@checkPermissions');
-Route::post('/install/database', 'SetUpController@databaseSetup');
-Route::post('/install/user', 'SetUpController@userSetup');*/
-
-#Installation and setup
-Route::group(array('prefix'=>'install'),function()
-{
-    Route::get('/', 'InstallationController@index');
-    Route::get('/database', 'InstallationController@getDatabase');
-    Route::post('/database', 'InstallationController@postDatabase');
-    Route::get('/user', 'InstallationController@getUser');
-    Route::post('/user', 'InstallationController@postUser');
-
-
-
-
-    Route::get('/', 'SetUpController@checkRequirements');
-    Route::get('/permissions', 'SetUpController@checkPermissions');
-    Route::post('/database', 'SetUpController@databaseSetup');
-    Route::post('/user', 'SetUpController@userSetup');
+//route for installation
+Route::get('install', 'Api\Install\InstallController@index');
+Route::group(['prefix' => 'install'], function () {
+    Route::get('start', 'Api\Install\InstallController@index');
+    Route::get('requirements', 'Api\Install\InstallController@requirements');
+    Route::get('permissions', 'Api\Install\InstallController@permissions');
+    Route::any('database', 'Api\Install\InstallController@database');
+    Route::any('installation', 'Api\Install\InstallController@installation');
+    Route::get('complete', 'Api\Install\InstallController@complete');
 });

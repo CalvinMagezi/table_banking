@@ -139,4 +139,8 @@ interface LoanInterface extends BaseInterface {
      */
     public function memberLoans($memberId, $load = array());
 
+    public function loansWithPendingPrincipal();
+
+    public function loansWithPendingInterest();
+
 }

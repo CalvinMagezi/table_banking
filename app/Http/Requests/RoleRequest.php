@@ -49,7 +49,6 @@ class RoleRequest extends BaseRequest
                             ->where(function ($query) {
                                 $query->where('deleted_at', NULL);
                             })],
-                      //  'permissions'         => 'required'
                     ];
                     break;
                 }

@@ -61,15 +61,6 @@ class LoanPrincipalRepaymentController extends ApiController
     public function store(LoanPrincipalRepaymentRequest $request)
     {
         LoanPrincipalRepayment::create($request->all());
-        /*$save = $this->loanPrincipalRepaymentRepository->create($request->all());
-
-        if($save['error']){
-            return $this->respondNotSaved($save['message']);
-        }else{
-            return $this->respondWithSuccess('Success !! LoanPrincipalRepayment has been created.');
-
-        }*/
-
     }
 
     /**

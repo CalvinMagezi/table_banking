@@ -12,14 +12,15 @@ class PasswordResetEmail extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    private $passwordReset;
+
     /**
-     * Create a new notification instance.
-     *
-     * @return void
+     * NewUserWelcomeSms constructor.
+     * @param $passwordReset
      */
-    public function __construct()
+    public function __construct($passwordReset)
     {
-        //
+        $this->passwordReset = $passwordReset;
     }
 
     /**
@@ -41,14 +42,15 @@ class PasswordResetEmail extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $template = EmailTemplate::where('name', 'reset_password')->get()->first();
+        $template = EmailTemplate::where('name', 'password_reset')->get()->first();
         $subject = $template['subject'];
         $body = $template['body'];
 
+        $body = str_replace('{password_reset_code}', $this->passwordReset->token, $body);
+
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->subject($subject)
+            ->line($body);
     }
 
     /**

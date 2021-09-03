@@ -60,8 +60,6 @@ class InterestTypeRequest extends BaseRequest
             default:
                 break;
         }
-
         return $rules;
-
     }
 }
