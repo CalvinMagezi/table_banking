@@ -6,7 +6,7 @@
  * Time: 11:06
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\Employee;
 use Illuminate\Database\Seeder;

@@ -3,7 +3,7 @@
 namespace App\Exceptions;
 
 use App\Http\Controllers\Api\Oauth\InvalidCredentialsException;
-use Exception;
+use Throwable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -38,7 +38,7 @@ class Handler extends ExceptionHandler
      * @return mixed|void
      * @throws Exception
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         parent::report($exception);
     }
@@ -50,7 +50,7 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      * @throws Exception
      */
-    public function render($request, Exception $exception)
+    public function render($request, Throwable $exception)
     {
         if ($this->isHttpException($exception)) {
             if ($exception instanceof NotFoundHttpException) {

@@ -7,7 +7,7 @@
  * Time: 15:42
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\PenaltyFrequency;
 use Illuminate\Database\Seeder;

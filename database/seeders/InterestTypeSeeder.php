@@ -7,7 +7,7 @@
  * Time: 09:22
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\InterestType;
 use Illuminate\Database\Seeder;

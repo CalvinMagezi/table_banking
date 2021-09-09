@@ -7,7 +7,7 @@
  * Time: 12:39
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\GeneralSetting;
 use Illuminate\Database\Seeder;

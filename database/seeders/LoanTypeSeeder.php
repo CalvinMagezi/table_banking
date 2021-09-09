@@ -7,7 +7,7 @@
  * Time: 15:20
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\LoanType;
 use App\Models\WitnessType;

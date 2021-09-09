@@ -7,7 +7,7 @@
  * Time: 23:40
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\ReportType;
 use Illuminate\Database\Seeder;

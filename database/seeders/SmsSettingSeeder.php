@@ -7,7 +7,7 @@
  * Time: 13:44
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\EmailSetting;
 use Illuminate\Database\Seeder;

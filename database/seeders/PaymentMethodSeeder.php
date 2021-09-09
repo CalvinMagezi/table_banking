@@ -7,7 +7,7 @@
  * Time: 17:35
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\PaymentMethod;
 use Illuminate\Database\Seeder;

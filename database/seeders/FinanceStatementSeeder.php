@@ -7,7 +7,7 @@
  * Time: 12:23
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\FinanceStatement;
 use Illuminate\Database\Seeder;

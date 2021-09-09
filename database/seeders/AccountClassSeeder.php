@@ -7,7 +7,7 @@
  * Time: 22:51
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\AccountClass;
 use Illuminate\Database\Seeder;
@@ -19,10 +19,10 @@ class AccountClassSeeder extends Seeder
     public function run()
     {
         $classes = [
-            ASSET,
-            LIABILITY,
-            INCOME,
-            EXPENDITURE,
+            'ASSET',
+            'LIABILITY',
+            'INCOME',
+            'EXPENDITURE',
         ];
 
         $categories = [

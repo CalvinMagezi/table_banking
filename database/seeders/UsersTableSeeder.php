@@ -6,7 +6,7 @@
  * Time: 12:20
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\Branch;
 use App\Models\Employee;

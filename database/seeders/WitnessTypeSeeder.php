@@ -7,7 +7,7 @@
  * Time: 20:53
  */
 
-namespace database\seeds;
+namespace Database\Seeders;
 
 use App\Models\WitnessType;
 use Illuminate\Database\Seeder;
